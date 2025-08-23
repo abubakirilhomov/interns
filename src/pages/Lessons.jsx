@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createLesson } from "../store/slices/lessonSlice";
+import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toast";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const AddLessonPage = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth); // Get logged-in intern
-  const { isLoading, error } = useSelector((state) => state.lessons);
+  const { isLoading, error, success } = useSelector((state) => state.lessons);
 
   const [topic, setTopic] = useState("");
   const [time, setTime] = useState("");
@@ -16,6 +17,14 @@ const AddLessonPage = () => {
   const [feedback, setFeedback] = useState("");
   const [mentors, setMentors] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState("");
+  console.log(success);
+
+  useEffect(() => {
+    if (success) {
+      toast.success("Успешно отправлено");
+      dispatch(resetLessonState()); // сбрасываем success
+    }
+  }, [success, dispatch]);
 
   // Fetch available mentors
   useEffect(() => {
@@ -133,6 +142,7 @@ const AddLessonPage = () => {
           {isLoading ? "Сохранение..." : "Добавить урок"}
         </button>
       </form>
+      <ToastContainer position="top-right" />
     </div>
   );
 };

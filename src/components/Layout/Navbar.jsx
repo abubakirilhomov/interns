@@ -39,7 +39,7 @@ const Navbar = () => {
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
             <div className="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
-              <span className="text-sm font-semibold">
+              <span className="text-sm font-semibold w-full flex justify-center items-center">
                 {user?.name?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}
               </span>
             </div>

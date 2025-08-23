@@ -1,4 +1,3 @@
-// lessonsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -36,25 +35,36 @@ const lessonsSlice = createSlice({
     lessons: [],
     isLoading: false,
     error: null,
+    success: false, // Added success state
   },
-  reducers: {},
+  reducers: {
+    resetLessonState: (state) => {
+      state.success = false;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Create lesson
       .addCase(createLesson.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
+        state.success = false;
       })
       .addCase(createLesson.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.success = true;
         state.lessons.push(action.payload);
       })
       .addCase(createLesson.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+        state.success = false;
       })
       // Fetch lessons
       .addCase(fetchLessons.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(fetchLessons.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -67,4 +77,5 @@ const lessonsSlice = createSlice({
   },
 });
 
+export const { resetLessonState } = lessonsSlice.actions;
 export default lessonsSlice.reducer;

@@ -8,6 +8,7 @@ import Lessons from './pages/Lessons';
 import Feedback from './pages/Feedback';
 import Profile from './pages/Profile';
 import { useSelector } from 'react-redux';
+import { ToastContainer } from 'react-toast';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -69,6 +70,7 @@ function App() {
       <Router>
         <AppRoutes />
       </Router>
+      <ToastContainer/>
     </Provider>
   );
 }
