@@ -39,7 +39,7 @@ const Navbar = () => {
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
             <div className="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
-              <span className="text-sm font-semibold w-full flex justify-center items-center">
+              <span className="text-sm font-semibold w-full flex justify-center items-center h-full">
                 {user?.name?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}
               </span>
             </div>
@@ -47,7 +47,7 @@ const Navbar = () => {
           {dropdownOpen && (
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+              className="menu menu-sm dropdown-content mt-3 z-10 p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li className="menu-title">
                 <span>{user?.name} {user?.lastName}</span>
