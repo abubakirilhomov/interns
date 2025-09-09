@@ -1,14 +1,20 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { store } from './store';
-import Layout from './components/Layout/Layout';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Lessons from './pages/Lessons';
-import Feedback from './pages/Feedback';
-import Profile from './pages/Profile';
-import { useSelector } from 'react-redux';
-import { ToastContainer } from 'react-toast';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import Layout from "./components/Layout/Layout";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Lessons from "./pages/Lessons";
+import Feedback from "./pages/Feedback";
+import Profile from "./pages/Profile";
+import { useSelector } from "react-redux";
+import { ToastContainer } from "react-toast";
+import Rules from "./pages/Rules";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -21,9 +27,9 @@ const AppRoutes = () => {
   return (
     <Layout>
       <Routes>
-        <Route 
-          path="/login" 
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} 
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
         />
         <Route
           path="/dashboard"
@@ -50,6 +56,14 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/rules"
+          element={
+            <ProtectedRoute>
+              <Rules />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/profile"
           element={
             <ProtectedRoute>
@@ -70,7 +84,7 @@ function App() {
       <Router>
         <AppRoutes />
       </Router>
-      <ToastContainer/>
+      <ToastContainer />
     </Provider>
   );
 }

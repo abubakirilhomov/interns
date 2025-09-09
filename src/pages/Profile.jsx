@@ -65,8 +65,8 @@ const Profile = () => {
         <div className="card-body">
           <div className="flex items-center space-x-6 mb-6">
             <div className="avatar">
-              <div className="w-20 h-20 rounded-full bg-primary text-primary-content flex items-center justify-center text-2xl font-bold">
-                {user?.name?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}
+              <div className="w-20 h-20 rounded-full bg-primary text-primary-content text-2xl font-bold">
+                <span className='flex justify-center items-center h-full'>{user?.name?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}</span>
               </div>
             </div>
             <div>
