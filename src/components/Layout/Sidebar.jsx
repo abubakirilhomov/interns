@@ -36,7 +36,7 @@ const Sidebar = () => {
       ),
     },
         {
-      name: 'Устав',
+      name: 'Устав и нарушения',
       href: '/rules',
       icon: (
         <Scale/>
