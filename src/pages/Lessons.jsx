@@ -31,13 +31,20 @@ const AddLessonPage = () => {
     const fetchMentors = async () => {
       try {
         const res = await axios.get(`${API_URL}/mentors`);
-        setMentors(res.data);
+        const filtered = res.data.filter(
+          (mentor) =>
+            mentor.role === "mentor" &&
+            mentor.branch?.name === user?.branch?.name
+        );
+        setMentors(filtered);
       } catch (err) {
         console.error("Ошибка при загрузке менторов:", err);
       }
     };
-    fetchMentors();
-  }, []);
+    if (user?.branch?.name) {
+      fetchMentors();
+    }
+  }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -63,6 +70,7 @@ const AddLessonPage = () => {
     setFeedback("");
     setSelectedMentor("");
   };
+  console.log(mentors);
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-base-300 shadow rounded-lg">
@@ -87,6 +95,10 @@ const AddLessonPage = () => {
             className="input input-bordered w-full"
             value={time}
             onChange={(e) => setTime(e.target.value)}
+            min={new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .slice(0, 16)} 
+            max={new Date().toISOString().slice(0, 16)}
           />
         </div>
 
