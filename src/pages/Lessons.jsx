@@ -70,7 +70,11 @@ const AddLessonPage = () => {
     setFeedback("");
     setSelectedMentor("");
   };
-  console.log(mentors);
+  const formatDateTimeLocal = (date) => {
+    const offset = date.getTimezoneOffset(); // в минутах
+    const local = new Date(date.getTime() - offset * 60 * 1000);
+    return local.toISOString().slice(0, 16);
+  };
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-base-300 shadow rounded-lg">
@@ -95,10 +99,10 @@ const AddLessonPage = () => {
             className="input input-bordered w-full"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            min={new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-              .toISOString()
-              .slice(0, 16)} 
-            max={new Date().toISOString().slice(0, 16)}
+            min={formatDateTimeLocal(
+              new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+            )}
+            max={formatDateTimeLocal(new Date())}
           />
         </div>
 
