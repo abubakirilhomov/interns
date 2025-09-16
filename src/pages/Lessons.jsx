@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toast";
+import { toast, ToastContainer } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -73,7 +73,7 @@ const AddLessonPage = () => {
           <label className="block font-medium">Тема урока *</label>
           <input
             type="text"
-            className="input input-bordered w-full"
+            className="input input-bordered text-base w-full"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Например: React Basics"
@@ -94,7 +94,7 @@ const AddLessonPage = () => {
           <label className="block font-medium">Группа *</label>
           <input
             type="text"
-            className="input input-bordered w-full"
+            className="input input-bordered text-base w-full"
             value={group}
             onChange={(e) => setGroup(e.target.value)}
             placeholder="Например: Group A"

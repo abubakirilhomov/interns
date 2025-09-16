@@ -49,8 +49,13 @@ const Dashboard = () => {
             Вот ваш прогресс на сегодня
           </p>
         </div>
-        <div className="mt-4 sm:mt-0">
-          <GradeBadge grade={user?.grade || "Не указан"} />
+        <div className="flex items-center justify-between md:gap-5">
+          <div className="mt-4 sm:mt-0">
+            <GradeBadge grade={user?.grade || "Не указан"} />
+          </div>
+          <div>
+            <span>Цель на этот месяц - {user?.goal} уроков</span>
+          </div>
         </div>
       </div>
 

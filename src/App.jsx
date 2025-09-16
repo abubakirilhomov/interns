@@ -4,18 +4,20 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { Provider } from "react-redux";
-import { store } from "./store";
+import { Provider, useSelector } from "react-redux";
+import { persistor, store } from "./store";
 import Layout from "./components/Layout/Layout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Lessons from "./pages/Lessons";
 import Feedback from "./pages/Feedback";
 import Profile from "./pages/Profile";
-import { useSelector } from "react-redux";
-import { ToastContainer } from "react-toast";
 import Rules from "./pages/Rules";
+import { PersistGate } from "redux-persist/integration/react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+// 🔒 Защита маршрутов
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   return isAuthenticated ? children : <Navigate to="/login" />;
@@ -81,9 +83,11 @@ const AppRoutes = () => {
 function App() {
   return (
     <Provider store={store}>
-      <Router>
-        <AppRoutes />
-      </Router>
+      <PersistGate loading={null} persistor={persistor}>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </PersistGate>
       <ToastContainer />
     </Provider>
   );

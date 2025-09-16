@@ -70,7 +70,7 @@ const Login = () => {
                   value={formData.username}
                   onChange={handleChange}
                   placeholder="Введите ваше имя пользователя"
-                  className="input input-bordered input-primary w-full"
+                  className="input input-bordered input-primary text-base w-full"
                   required
                   disabled={isLoading}
                 />
@@ -86,7 +86,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Введите ваш пароль"
-                  className="input input-bordered input-primary w-full"
+                  className="input input-bordered input-primary text-base w-full"
                   required
                   disabled={isLoading}
                 />
