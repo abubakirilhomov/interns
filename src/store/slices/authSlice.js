@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // API base URL - adjust according to your backend
-const API_URL = import.meta.env.VITE_API_URL1 || 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;
