@@ -132,7 +132,7 @@ const Dashboard = () => {
       />
 
       {/* Quick Actions */}
-      <QuickActions isMobile={isMobile} />
+      {/* <QuickActions isMobile={isMobile} /> */}
     </div>
   );
 };
