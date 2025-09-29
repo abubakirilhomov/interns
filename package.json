@@ -16,6 +16,7 @@
     "axios": "^1.11.0",
     "daisyui": "^5.0.50",
     "dotenv": "^17.2.1",
+    "framer-motion": "^12.23.22",
     "install": "^0.13.0",
     "lucide-react": "^0.542.0",
     "npm": "^11.5.2",

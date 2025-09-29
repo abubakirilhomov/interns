@@ -17,7 +17,7 @@ const GradeBadge = ({ grade }) => {
   const config = gradeConfig[grade] || gradeConfig.junior;
 
   return (
-    <div className={`badge ${config.class} badge-lg font-semibold`}>
+    <div className={`badge ${config.class} badge-xl font-semibold`}>
       {config.text}
     </div>
   );
