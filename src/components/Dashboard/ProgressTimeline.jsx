@@ -1,43 +1,83 @@
-const ProgressTimeline = ({ overallProgressPercentage, isMobile }) => {
-  const generateProgressSteps = () => {
-    const steps = [];
-    const totalSteps = isMobile ? 5 : 10;
-    const completedSteps = Math.floor((overallProgressPercentage / 100) * totalSteps);
-    
-    for (let i = 0; i < totalSteps; i++) {
-      steps.push({
-        id: i,
-        completed: i < completedSteps,
-        current: i === completedSteps
-      });
-    }
-    return steps;
-  };
+const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
+  const gradeOrder = ["junior", "strongJunior", "middle", "strongMiddle", "senior"];
 
-  const progressSteps = generateProgressSteps();
+  const internGradeIndex = gradeOrder.indexOf(internGrade); // индекс текущего грейда
+  let remaining = lessonsVisited;
+
+  const steps = gradeOrder.map((grade, index) => {
+    const required = grades?.[grade]?.lessonsPerMonth || 0;
+    let progress = 0;
+    let completed = false;
+    let current = false;
+
+    // Если грейд ниже, чем текущий у интерна → показать полностью завершённым
+    if (index < internGradeIndex) {
+      progress = 100;
+      completed = true;
+    }
+    // Если это текущий грейд интерна → считаем прогресс от lessonsVisited
+    else if (index === internGradeIndex) {
+      if (remaining >= required) {
+        progress = 100;
+        completed = true;
+      } else if (remaining > 0) {
+        progress = Math.floor((remaining / required) * 100);
+        current = true;
+      }
+      remaining = 0;
+    }
+    // Если грейд выше текущего интерна → пока пустой
+    else {
+      progress = 0;
+    }
+
+    return {
+      id: index,
+      name: grade,
+      completed,
+      current,
+      progress,
+      required
+    };
+  });
 
   return (
     <div className="card bg-base-100 shadow">
       <div className="card-body">
         <h3 className="card-title mb-4 text-base md:text-lg">Карта прогресса</h3>
         <div className="flex items-center justify-between">
-          {progressSteps.map((step, index) => (
+          {steps.map((step, index) => (
             <div key={step.id} className="flex items-center">
-              <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs font-bold
-                ${step.completed ? 'bg-success text-success-content' : 
-                  step.current ? 'bg-warning text-warning-content' : 
-                  'bg-base-300 text-base-content/50'}`}>
-                {step.completed ? '✓' : step.current ? '●' : '○'}
+              <div
+                className="radial-progress text-xs font-bold capitalize"
+                style={{
+                  "--value": step.progress,
+                  "--size": "3rem",
+                  "--thickness": "4px"
+                }}
+              >
+                {step.completed
+                  ? "✓"
+                  : step.current
+                  ? `${step.progress}%`
+                  : "○"}
               </div>
-              {index < progressSteps.length - 1 && (
-                <div className={`w-4 md:w-8 h-1 mx-1 ${step.completed ? 'bg-success' : 'bg-base-300'}`}></div>
+              {index < steps.length - 1 && (
+                <div
+                  className={`w-6 md:w-12 h-1 mx-1 ${
+                    step.completed ? "bg-success" : "bg-base-300"
+                  }`}
+                ></div>
               )}
             </div>
           ))}
         </div>
         <div className="flex justify-between text-xs text-base-content/60 mt-2">
-          <span>Начало</span>
-          <span>{isMobile ? "Цель" : "Цель достигнута"}</span>
+          {steps.map((step) => (
+            <span key={step.id} className="capitalize">
+              {step.name}
+            </span>
+          ))}
         </div>
       </div>
     </div>

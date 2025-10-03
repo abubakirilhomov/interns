@@ -78,7 +78,7 @@ const Dashboard = () => {
 
       <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between gap-3 md:gap-5">
         <div>
-          <GradeBadge grade={user?.grade || "Не указан"} />
+          <GradeBadge grades={user?.grades || "Оошибка с получением grades"} grade={user?.grade || "Не указан"} />
         </div>
         
         {/* Timer для испытательного срока */}
@@ -111,7 +111,10 @@ const Dashboard = () => {
       )}
 
       {/* Timeline прогресса */}
-      <ProgressTimeline 
+      <ProgressTimeline
+        internGrade={user?.grade}
+        grades={user?.grades}
+        lessonsVisited={user?.lessonsVisited?.length}
         overallProgressPercentage={overallProgressPercentage}
         isMobile={isMobile}
       />
