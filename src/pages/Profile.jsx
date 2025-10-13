@@ -46,7 +46,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-h-[85vh] overflow-y-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>

@@ -147,7 +147,7 @@ const Rules = () => {
   }
 
   return (
-    <div className="space-y-6 h-[95vh] overflow-y-auto md:space-y-8 p-4 md:p-6 lg:p-0">
+    <div className="space-y-6 h-[85vh] overflow-y-auto md:space-y-8 p-4 md:p-6 lg:p-0">
       {/* Page Header */}
       <div className="text-center md:text-left">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
