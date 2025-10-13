@@ -127,7 +127,7 @@ const AddLessonPage = () => {
             <option value="">Выберите ментора</option>
             {mentors.map((mentor) => (
               <option key={mentor._id} value={mentor._id}>
-                {mentor.name}
+                {`${mentor.name || ""} ${mentor.lastName || ""}`.trim() || "-"}
               </option>
             ))}
           </select>
