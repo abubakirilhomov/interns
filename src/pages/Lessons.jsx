@@ -17,7 +17,6 @@ const AddLessonPage = () => {
   const [feedback, setFeedback] = useState("");
   const [mentors, setMentors] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState("");
-  console.log(success);
 
   useEffect(() => {
     if (success) {

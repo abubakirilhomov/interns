@@ -16,6 +16,7 @@ import Rules from "./pages/Rules";
 import { PersistGate } from "redux-persist/integration/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Rating from "./pages/Rating";
 
 // 🔒 Защита маршрутов
 const ProtectedRoute = ({ children }) => {
@@ -70,6 +71,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rating"
+          element={
+            <ProtectedRoute>
+              <Rating />
             </ProtectedRoute>
           }
         />

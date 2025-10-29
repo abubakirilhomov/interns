@@ -4,6 +4,7 @@ import storage from "redux-persist/lib/storage"; // localStorage по умолч
 import authReducer from "./slices/authSlice";
 import lessonsReducer from "./slices/lessonSlice";
 import uiReducer from "./slices/uiSlice";
+import ratingReducer from "./slices/ratingSlice"
 
 // Конфиг для persist
 const persistConfig = {
@@ -19,6 +20,7 @@ export const store = configureStore({
     auth: persistedAuthReducer,
     lessons: lessonsReducer,
     ui: uiReducer,
+    rating: ratingReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

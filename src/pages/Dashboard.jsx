@@ -72,7 +72,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 md:px-0 px- md:h-[85vh] md:overflow-y-auto">
+    <div className="space-y-4 md:space-y-6 md:px-0 ">
       {/* Header */}
       <DashboardHeader user={user} />
 

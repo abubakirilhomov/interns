@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { closeSidebar } from "../../store/slices/uiSlice";
 import { NavLink } from "react-router-dom";
 import { Scale } from "lucide-react";
+import { IoStatsChartOutline } from "react-icons/io5";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -70,6 +71,11 @@ const Sidebar = () => {
       href: "/rules",
       icon: <Scale />,
     },
+    {
+      name: "Рейтинг",
+      href: "/rating",
+      icon: <IoStatsChartOutline size={20} />,
+    },
   ];
 
   return (
@@ -84,7 +90,7 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-16 left-0 z-50 w-64 bg-base-100 h-[calc(100vh-4rem)] 
+        className={`fixed top-0 left-0 z-50 w-64 bg-base-100 h-[calc(140vh-4rem)] md:h-[calc(100vh-4rem)]
   lg:min-h-[calc(100vh-4rem)] shadow-lg transform transition-transform 
   duration-300 ease-in-out lg:translate-x-0 lg:static lg:shadow-none 
   lg:border-r lg:border-base-200 ${

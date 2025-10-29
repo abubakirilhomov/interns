@@ -15,7 +15,7 @@ const Layout = ({ children }) => {
       <div className="flex">
         <Sidebar />
         <main className="flex-1 md:p-0 lg:ml-0">
-          <div className="p-6">
+          <div className="p-6 max-h-[90vh] overflow-y-auto">
             {children}
           </div>
         </main>
