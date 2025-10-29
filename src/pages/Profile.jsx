@@ -46,7 +46,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="space-y-6 max-h-[85vh] overflow-y-auto">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -63,7 +63,7 @@ const Profile = () => {
       {/* Profile Card */}
       <div className="card bg-base-100 shadow">
         <div className="card-body">
-          <div className="flex items-center space-x-6 mb-6">
+          <div className="flex items-center space-x-4 mb-6">
             <div className="avatar">
               <div className="w-20 h-20 rounded-full bg-primary text-primary-content text-2xl font-bold">
                 <span className='flex justify-center items-center h-full'>{user?.name?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}</span>
@@ -74,9 +74,6 @@ const Profile = () => {
                 {user?.name} {user?.lastName}
               </h2>
               <p className="text-base-content/70">@{user?.username}</p>
-              <p className="text-sm text-base-content/60 mt-1">
-                ID: {user?._id}
-              </p>
             </div>
           </div>
 

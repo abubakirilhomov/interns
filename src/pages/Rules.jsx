@@ -8,7 +8,7 @@ const Rules = () => {
   const [grades, setGrades] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
   // Category colors configuration
@@ -27,9 +27,9 @@ const Rules = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await axios.get(`${API_URL}/rules`);
-      
+
       if (response.data) {
         setRules(response.data.data || []);
         setGrades(response.data.grades || {});
@@ -54,7 +54,9 @@ const Rules = () => {
     <div className="card bg-base-200 shadow-sm border border-base-300 mb-4">
       <div className="card-body p-4 space-y-3">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-semibold text-sm md:text-base flex-1">{rule.title}</h3>
+          <h3 className="font-semibold text-sm md:text-base flex-1">
+            {rule.title}
+          </h3>
           <div
             className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
               categoryColors[rule.category] || "bg-gray-300"
@@ -64,60 +66,123 @@ const Rules = () => {
             <span className="sr-only">{rule.category}</span>
           </div>
         </div>
-        
+
         {rule.example && (
           <div>
-            <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide">Пример:</span>
+            <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide">
+              Пример:
+            </span>
             <p className="text-sm mt-1">{rule.example}</p>
           </div>
         )}
-        
+
         {rule.consequence && (
           <div>
-            <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide">Последствие:</span>
+            <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide">
+              Последствие:
+            </span>
             <p className="text-sm mt-1">{rule.consequence}</p>
           </div>
         )}
-        
       </div>
     </div>
   );
 
-  // Mobile Card Component for Grades
-  const GradeCard = ({ grade, level }) => (
-    <div className="card bg-base-200 shadow-sm border border-base-300 mb-4">
-      <div className="card-body p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-lg">{level}</h3>
-          <div className="badge badge-outline text-xs">
-            {grade.lessonsPerMonth || 0} уроков
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-base-content/70">Пробный период:</span>
-          <span className="badge badge-ghost badge-sm">
-            {grade.trialPeriod || 0} мес
-          </span>
-        </div>
-        
-        {grade.plus && grade.plus.length > 0 && (
-          <div>
-            <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide block mb-2">
-              Дополнительные возможности:
-            </span>
-            <div className="flex flex-wrap gap-1">
-              {grade.plus.map((feature, index) => (
-                <div key={index} className="badge badge-secondary badge-sm">
-                  {feature}
-                </div>
-              ))}
+const GradeCard = ({ grade, level }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  return (
+    <>
+      {/* CARD */}
+      <div
+        className="card bg-base-200 shadow-sm border border-base-300 mb-4 cursor-pointer hover:shadow-md transition-all"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <div className="card-body p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-lg">{level}</h3>
+            <div className="badge badge-outline text-xs">
+              {grade.lessonsPerMonth || 0} уроков
             </div>
           </div>
-        )}
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-base-content/70">Пробный период:</span>
+            <span className="badge badge-ghost badge-sm">
+              {grade.trialPeriod || 0} мес
+            </span>
+          </div>
+
+          {grade.plus && grade.plus.length > 0 && (
+            <div className="max-w-full">
+              <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide block mb-2">
+                Дополнительные возможности:
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {grade.plus.map((feature, index) => (
+                  <div
+                    key={index}
+                    className="badge badge-secondary break-words whitespace-normal text-left px-2 py-1"
+                  >
+                    {feature.length > 30 ? feature.slice(0, 30) + "…" : feature}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* MODAL */}
+      {isModalOpen && (
+        <dialog
+          open
+          className="modal modal-bottom sm:modal-middle"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
+          }}
+        >
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-2">{level}</h3>
+
+            <div className="space-y-2">
+              <p>
+                <span className="font-medium">Пробный период:</span>{" "}
+                {grade.trialPeriod || 0} мес
+              </p>
+              <p>
+                <span className="font-medium">Уроков в месяц:</span>{" "}
+                {grade.lessonsPerMonth || 0}
+              </p>
+
+              {grade.plus && grade.plus.length > 0 && (
+                <div>
+                  <p className="font-medium mb-1">
+                    Дополнительные возможности:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    {grade.plus.map((feature, index) => (
+                      <li key={index}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="modal-action">
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
+    </>
   );
+};
 
   // Loading state
   if (loading) {
@@ -134,7 +199,7 @@ const Rules = () => {
             <h3 className="font-bold text-sm md:text-base">Ошибка загрузки</h3>
             <div className="text-xs md:text-sm break-words">{error}</div>
           </div>
-          <button 
+          <button
             className="btn btn-sm btn-outline flex-shrink-0"
             onClick={fetchRulesAndGrades}
           >
@@ -147,7 +212,7 @@ const Rules = () => {
   }
 
   return (
-    <div className="space-y-6 h-[85vh] overflow-y-auto md:space-y-8 p-4 md:p-6 lg:p-0">
+    <div className="space-y-6 h-[85vh] overflow-y-auto md:space-y-8 py-4 md:p-6 lg:p-0">
       {/* Page Header */}
       <div className="text-center md:text-left">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
@@ -159,7 +224,7 @@ const Rules = () => {
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body p-4 md:p-6">
           <h2 className="card-title text-lg md:text-xl mb-4">Правила</h2>
-          
+
           {/* Desktop Table View */}
           <div className="hidden lg:block overflow-x-auto">
             <table className="table table-zebra w-full">
@@ -194,7 +259,10 @@ const Rules = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center py-8 text-base-content/50 text-sm">
+                    <td
+                      colSpan="5"
+                      className="text-center py-8 text-base-content/50 text-sm"
+                    >
                       Нет правил для отображения
                     </td>
                   </tr>
@@ -206,9 +274,7 @@ const Rules = () => {
           {/* Mobile Card View */}
           <div className="lg:hidden">
             {hasRules ? (
-              rules.map((rule) => (
-                <RuleCard key={rule._id} rule={rule} />
-              ))
+              rules.map((rule) => <RuleCard key={rule._id} rule={rule} />)
             ) : (
               <div className="text-center py-8 text-base-content/50 text-sm">
                 Нет правил для отображения
@@ -221,8 +287,10 @@ const Rules = () => {
       {/* Grades Section */}
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body p-4 md:p-6">
-          <h2 className="card-title text-lg md:text-xl mb-4">Уровни и привилегии</h2>
-          
+          <h2 className="card-title text-lg md:text-xl mb-4">
+            Уровни и привилегии
+          </h2>
+
           {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto">
             <table className="table table-zebra w-full">
@@ -231,7 +299,9 @@ const Rules = () => {
                   <th className="text-xs md:text-sm">Класс</th>
                   <th className="text-xs md:text-sm">Уроки за месяц</th>
                   <th className="text-xs md:text-sm">Пробный период</th>
-                  <th className="text-xs md:text-sm">Дополнительные возможности</th>
+                  <th className="text-xs md:text-sm">
+                    Дополнительные возможности
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -253,20 +323,28 @@ const Rules = () => {
                         {value.plus && value.plus.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {value.plus.map((feature, index) => (
-                              <div key={index} className="badge badge-secondary badge-sm text-xs">
+                              <div
+                                key={index}
+                                className="badge badge-secondary badge-sm text-xs"
+                              >
                                 {feature}
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <span className="text-base-content/50 text-sm">—</span>
+                          <span className="text-base-content/50 text-sm">
+                            —
+                          </span>
                         )}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="text-center py-8 text-base-content/50 text-sm">
+                    <td
+                      colSpan="4"
+                      className="text-center py-8 text-base-content/50 text-sm"
+                    >
                       Нет уровней для отображения
                     </td>
                   </tr>

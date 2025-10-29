@@ -92,7 +92,7 @@ const AppRoutes = () => {
 function App() {
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={<div>Загрузка...</div>} persistor={persistor}>
         <Router>
           <AppRoutes />
         </Router>

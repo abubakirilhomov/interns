@@ -4,11 +4,11 @@ const ProbationTimer = ({ user, isMobile }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    if (!user?.createdAt || !user?.probationPeriod) return;
+    if (!user?.probationStartDate || !user?.probationPeriod) return;
 
     const updateTimer = () => {
-      const createdDate = new Date(user.createdAt);
-      const endDate = new Date(createdDate);
+      const startDate = new Date(user.probationStartDate);  // Use probationStartDate instead of createdAt
+      const endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + user.probationPeriod);
       
       const now = new Date();
@@ -27,10 +27,12 @@ const ProbationTimer = ({ user, isMobile }) => {
     };
 
     updateTimer();
-    const interval = setInterval(updateTimer, 1000); // Update every second instead of every minute
+    const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [user?.createdAt, user?.probationPeriod]);
+  }, [user?.probationStartDate, user?.probationPeriod]);  // Depend on probationStartDate
+
+  const padNumber = (num) => num.toString().padStart(2, '0');
 
   return (
     <div className="bg-base-200 p-3 rounded-lg">
@@ -42,11 +44,11 @@ const ProbationTimer = ({ user, isMobile }) => {
         <div className="flex flex-col">
           <span className={`countdown font-mono ${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'}`}>
             <span 
-              style={{"--value": timeLeft.days}} 
+              style={{ "--value": timeLeft.days, "--digits": 2 }} 
               aria-live="polite" 
               aria-label={`${timeLeft.days} days`}
             >
-              {timeLeft.days}
+              {padNumber(timeLeft.days)}
             </span>
           </span>
           <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-base-content/60`}>
@@ -57,11 +59,11 @@ const ProbationTimer = ({ user, isMobile }) => {
         <div className="flex flex-col">
           <span className={`countdown font-mono ${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'}`}>
             <span 
-              style={{"--value": timeLeft.hours}} 
+              style={{ "--value": timeLeft.hours, "--digits": 2 }} 
               aria-live="polite" 
               aria-label={`${timeLeft.hours} hours`}
             >
-              {timeLeft.hours}
+              {padNumber(timeLeft.hours)}
             </span>
           </span>
           <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-base-content/60`}>
@@ -72,11 +74,11 @@ const ProbationTimer = ({ user, isMobile }) => {
         <div className="flex flex-col">
           <span className={`countdown font-mono ${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'}`}>
             <span 
-              style={{"--value": timeLeft.minutes}} 
+              style={{ "--value": timeLeft.minutes, "--digits": 2 }} 
               aria-live="polite" 
               aria-label={`${timeLeft.minutes} minutes`}
             >
-              {timeLeft.minutes}
+              {padNumber(timeLeft.minutes)}
             </span>
           </span>
           <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-base-content/60`}>
@@ -87,11 +89,11 @@ const ProbationTimer = ({ user, isMobile }) => {
         <div className="flex flex-col">
           <span className={`countdown font-mono ${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'}`}>
             <span 
-              style={{"--value": timeLeft.seconds}} 
+              style={{ "--value": timeLeft.seconds, "--digits": 2 }} 
               aria-live="polite" 
               aria-label={`${timeLeft.seconds} seconds`}
             >
-              {timeLeft.seconds}
+              {padNumber(timeLeft.seconds)}
             </span>
           </span>
           <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-base-content/60`}>

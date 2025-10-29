@@ -23,7 +23,7 @@ const Dashboard = () => {
   const { user, isLoading } = useSelector((state) => state.auth);
   const { lessons } = useSelector((state) => state.lessons);
   const isMobile = useMobileDetection();
-
+  console.log(user)
   useEffect(() => {
     dispatch(fetchProfile());
     dispatch(fetchLessons());

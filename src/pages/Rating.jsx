@@ -215,7 +215,7 @@ const Rating = () => {
                             </div>
                             <div>Филиал: {intern.branch}</div>
                             <div>Курс: <span className="badge badge-primary">{intern.grade}</span></div>
-                            <div>
+                            <div className="flex flex-col">
                               <FaStar className="inline text-yellow-500 mr-1" />
                               {intern.averageStars}
                             </div>
@@ -276,7 +276,7 @@ const Rating = () => {
                               </td>
                               <td className="font-semibold">{intern.name}</td>
                               <td className="hidden sm:table-cell">{intern.branch}</td>
-                              <td className="hidden md:table-cell text-center">
+                              <td className="hidden md:table-cell text-start">
                                 <div className="badge badge-primary">
                                   {intern.grade}
                                 </div>
