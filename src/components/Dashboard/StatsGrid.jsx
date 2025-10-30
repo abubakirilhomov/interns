@@ -22,7 +22,7 @@ const StatsGrid = ({ user, totalLessonsVisited, monthlyLessons, isMobile }) => (
 
     <StatsCard
       title={isMobile ? "Отзывов" : "Отзывов получено"}
-      value={user?.feedbacks || 0}
+      value={user?.feedbacks.length || 0}
       icon="💬"
       colorClass="text-success"
     />

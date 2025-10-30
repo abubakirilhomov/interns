@@ -5,26 +5,25 @@ const RecentActivity = ({ user, lessons, isMobile }) => (
         <h3 className="card-title text-base md:text-lg mb-4">
           {isMobile ? "Отзывы" : "Последние отзывы"}
         </h3>
-        {user?.feedbacks && user.feedbacks > 0 ? (
+        {user?.feedbacks ? (
           <div className="space-y-3 max-h-[20vh] overflow-y-auto">
-            {Array.from({ length: Math.min(user.feedbacks, isMobile ? 3 : 5) }).map((_, index) => (
+            {user.feedbacks.map((feedback, index) => (
               <div
                 key={index}
-                className="relative flex items-start space-x-3 p-3 bg-base-200 rounded-lg backdrop-blur-sm cursor-not-allowed"
+                className="relative flex items-start space-x-3 p-3 bg-base-200 rounded-lg"
                 title="Фидбеки конфиденциальные и недоступны для просмотра"
               >
                 <div className="flex-shrink-0">
-                  <div className="badge badge-warning">⭐</div>
+                  <div className="badge badge-warning">{feedback?.stars || 0}⭐</div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-base-content/50 select-none blur-sm">
-                    Содержимое отзыва скрыто
+                  <p className="text-sm text-base-content/50 select-none">
+                    {isMobile ? feedback?.feedback || "-" : feedback?.feedback || "Комментарий не был добавлен"}
                   </p>
                   <p className="text-xs text-base-content/40 mt-1 select-none">
                     Дата скрыта
                   </p>
                 </div>
-                <div className="absolute inset-0 bg-base-200/40 backdrop-blur-sm rounded-lg pointer-events-none" />
               </div>
             ))}
           </div>
