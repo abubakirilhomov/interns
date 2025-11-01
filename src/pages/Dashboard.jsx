@@ -15,78 +15,101 @@ import StatsGrid from "../components/Dashboard/StatsGrid";
 import RecentActivity from "../components/Dashboard/RecentActivity";
 import QuickActions from "../components/Dashboard/QuickActions";
 
-// Импорт хука
 import useMobileDetection from "../hooks/useMobileDetection";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const { user, isLoading } = useSelector((state) => state.auth);
-  const { lessons } = useSelector((state) => state.lessons);
+  const { user, isLoading: isUserLoading } = useSelector((state) => state.auth);
+  const {
+    lessons,
+    isLoading: isLessonsLoading,
+    error,
+  } = useSelector((state) => state.lessons);
+  const state = useSelector((state) => state);
+  console.log(lessons);
+
   const isMobile = useMobileDetection();
+
   useEffect(() => {
     dispatch(fetchProfile());
     dispatch(fetchLessons());
   }, [dispatch]);
 
-  const totalLessonsVisited = user?.lessonsVisited
-    ? user.lessonsVisited.reduce(
-        (total, entry) => total + (entry.count || 0),
-        0
-      )
-    : 0;
+  // Если идёт загрузка
+  if (isUserLoading || isLessonsLoading) {
+    return <LoadingSpinner size="lg" className="min-h-96" />;
+  }
+
+  // Если ошибка
+  if (error) {
+    return <p className="text-error text-center mt-6">Ошибка: {error}</p>;
+  }
+
+  // Общие вычисления
+  const totalLessonsVisited =
+    user?.lessonsVisited?.reduce(
+      (total, entry) => total + (entry.count || 0),
+      0
+    ) || 0;
 
   const currentMonth = new Date().toISOString().slice(0, 7);
-  const monthlyLessons = user?.lessonsVisited
-    ? user.lessonsVisited.reduce((total, entry) => {
-        const lesson = lessons.find((l) => l._id === entry.lessonId);
-        if (lesson && lesson.createdAt?.slice(0, 7) === currentMonth) {
-          return total + (entry.count || 0);
-        }
-        return total;
-      }, 0)
-    : 0;
 
-  // Расчет прогресса
+  const monthlyLessons =
+    user?.lessonsVisited?.reduce((total, entry) => {
+      const lesson = lessons.find(
+        (l) =>
+          l.mentor?._id === entry.mentorId &&
+          l.date?.slice(0, 7) === currentMonth
+      );
+      if (lesson) {
+        return total + (entry.count || 0);
+      }
+      return total;
+    }, 0) || 0;
+
+  console.log(monthlyLessons);
   const monthlyGoal = user?.goal || 0;
   const actualLessons = monthlyLessons;
-  const lessonsProgressPercentage = monthlyGoal > 0 ? Math.min((actualLessons / monthlyGoal) * 100, 100) : 0;
-  
+
+  const lessonsProgressPercentage =
+    monthlyGoal > 0 ? Math.min((actualLessons / monthlyGoal) * 100, 100) : 0;
+
   const averageScore = user?.score || 0;
-  const scoreProgressPercentage = averageScore > 0 ? Math.min((averageScore / 5) * 100, 100) : 0;
-  
-  const overallProgressPercentage = (lessonsProgressPercentage + scoreProgressPercentage) / 2;
-  
+  const scoreProgressPercentage =
+    averageScore > 0 ? Math.min((averageScore / 5) * 100, 100) : 0;
+
+  const overallProgressPercentage =
+    (lessonsProgressPercentage + scoreProgressPercentage) / 2;
+
   const getStatusColor = (percentage) => {
-    if (percentage >= 80) return 'success';
-    if (percentage >= 50) return 'warning';
-    return 'error';
+    if (percentage >= 80) return "success";
+    if (percentage >= 50) return "warning";
+    return "error";
   };
 
   const lessonsStatusColor = getStatusColor(lessonsProgressPercentage);
   const scoreStatusColor = getStatusColor(scoreProgressPercentage);
   const overallStatusColor = getStatusColor(overallProgressPercentage);
 
-  if (isLoading) {
-    return <LoadingSpinner size="lg" className="min-h-96" />;
-  }
-
   return (
-    <div className="space-y-4 md:space-y-6 md:px-0 ">
+    <div className="space-y-4 md:space-y-6 md:px-0">
       {/* Header */}
       <DashboardHeader user={user} />
 
       <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between gap-3 md:gap-5">
         <div>
-          <GradeBadge grades={user?.grades || "Оошибка с получением grades"} grade={user?.grade || "Не указан"} />
+          <GradeBadge
+            grades={user?.grades || "Ошибка с получением grades"}
+            grade={user?.grade || "Не указан"}
+          />
         </div>
-        
-        {/* Timer для испытательного срока */}
+
         <ProbationTimer user={user} isMobile={isMobile} />
       </div>
 
-      {/* Progress Section - Mobile vs Desktop */}
+      {/* Progress Section */}
       {isMobile ? (
-        <MobileProgressSection 
+        <MobileProgressSection
           lessonsProgressPercentage={lessonsProgressPercentage}
           actualLessons={actualLessons}
           monthlyGoal={monthlyGoal}
@@ -96,7 +119,7 @@ const Dashboard = () => {
           overallStatusColor={overallStatusColor}
         />
       ) : (
-        <DesktopProgressSection 
+        <DesktopProgressSection
           monthlyGoal={monthlyGoal}
           actualLessons={actualLessons}
           averageScore={averageScore}
@@ -119,7 +142,7 @@ const Dashboard = () => {
       />
 
       {/* Основная статистика */}
-      <StatsGrid 
+      <StatsGrid
         user={user}
         totalLessonsVisited={totalLessonsVisited}
         monthlyLessons={monthlyLessons}
@@ -127,11 +150,7 @@ const Dashboard = () => {
       />
 
       {/* Recent Activity */}
-      <RecentActivity 
-        user={user}
-        lessons={lessons}
-        isMobile={isMobile}
-      />
+      <RecentActivity user={user} lessons={lessons} isMobile={isMobile} />
     </div>
   );
 };
