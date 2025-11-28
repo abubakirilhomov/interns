@@ -26,7 +26,6 @@ const Dashboard = () => {
     error,
   } = useSelector((state) => state.lessons);
   const state = useSelector((state) => state);
-  console.log(lessons);
 
   const isMobile = useMobileDetection();
 
@@ -61,8 +60,6 @@ const monthlyLessons = lessons.filter(
   const monthlyLessonsObj = lessons.filter(
   (l) => l.intern?._id === user._id && l.date?.slice(0, 7) === currentMonth
 )
-  console.log(currentMonth)
-  console.log(monthlyLessonsObj);
   const monthlyGoal = user?.goal || 0;
   const actualLessons = monthlyLessons;
 
