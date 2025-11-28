@@ -52,22 +52,17 @@ const Dashboard = () => {
       0
     ) || 0;
 
-  const currentMonth = new Date().toISOString().slice(0, 7);
+const currentMonth = new Date().toISOString().slice(0, 7);
 
-  const monthlyLessons =
-    user?.lessonsVisited?.reduce((total, entry) => {
-      const lesson = lessons.find(
-        (l) =>
-          l.mentor?._id === entry.mentorId &&
-          l.date?.slice(0, 7) === currentMonth
-      );
-      if (lesson) {
-        return total + (entry.count || 0);
-      }
-      return total;
-    }, 0) || 0;
+const monthlyLessons = lessons.filter(
+  (l) => l.intern?._id === user._id && l.date?.slice(0, 7) === currentMonth
+).length;
 
-  console.log(monthlyLessons);
+  const monthlyLessonsObj = lessons.filter(
+  (l) => l.intern?._id === user._id && l.date?.slice(0, 7) === currentMonth
+)
+  console.log(currentMonth)
+  console.log(monthlyLessonsObj);
   const monthlyGoal = user?.goal || 0;
   const actualLessons = monthlyLessons;
 
