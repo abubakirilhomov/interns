@@ -1,148 +1,137 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProfile } from "../store/slices/authSlice";
-import { fetchLessons } from "../store/slices/lessonSlice";
+import { fetchDashboardStats } from "../store/slices/dashboardSlice";
+
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 import GradeBadge from "../components/UI/GradesBadge";
 
-// Импорт новых компонентов
 import DashboardHeader from "../components/Dashboard/DashboardHeader";
 import ProbationTimer from "../components/Dashboard/ProbationTimer";
 import MobileProgressSection from "../components/Dashboard/MobileProgressSection";
 import DesktopProgressSection from "../components/Dashboard/DesktopProgressSection";
 import ProgressTimeline from "../components/Dashboard/ProgressTimeline";
 import StatsGrid from "../components/Dashboard/StatsGrid";
-import RecentActivity from "../components/Dashboard/RecentActivity";
-import QuickActions from "../components/Dashboard/QuickActions";
 
 import useMobileDetection from "../hooks/useMobileDetection";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+
   const { user, isLoading: isUserLoading } = useSelector((state) => state.auth);
-  const {
-    lessons,
-    isLoading: isLessonsLoading,
-    error,
-  } = useSelector((state) => state.lessons);
-  const state = useSelector((state) => state);
+  const { stats, isLoading, error } = useSelector(
+    (state) => state.dashboard
+  );
 
   const isMobile = useMobileDetection();
 
   useEffect(() => {
     dispatch(fetchProfile());
-    dispatch(fetchLessons());
+    dispatch(fetchDashboardStats());
   }, [dispatch]);
 
-  // Если идёт загрузка
-  if (isUserLoading || isLessonsLoading) {
+  if (isUserLoading || isLoading) {
     return <LoadingSpinner size="lg" className="min-h-96" />;
   }
 
-  // Если ошибка
   if (error) {
     return <p className="text-error text-center mt-6">Ошибка: {error}</p>;
   }
 
-  // Общие вычисления
-  const totalLessonsVisited =
-    user?.lessonsVisited?.reduce(
-      (total, entry) => total + (entry.count || 0),
-      0
-    ) || 0;
+  if (!stats) return null;
 
-const currentMonth = new Date().toISOString().slice(0, 7);
-
-const monthlyLessons = lessons.filter(
-  (l) => l.intern?._id === user._id && l.date?.slice(0, 7) === currentMonth
-).length;
-
-  const monthlyLessonsObj = lessons.filter(
-  (l) => l.intern?._id === user._id && l.date?.slice(0, 7) === currentMonth
-)
-  const monthlyGoal = user?.goal || 0;
-  const actualLessons = monthlyLessons;
-
-  const lessonsProgressPercentage =
-    monthlyGoal > 0 ? Math.min((actualLessons / monthlyGoal) * 100, 100) : 0;
-
-  const averageScore = user?.score || 0;
-  const scoreProgressPercentage =
-    averageScore > 0 ? Math.min((averageScore / 5) * 100, 100) : 0;
-
-  const overallProgressPercentage =
-    (lessonsProgressPercentage + scoreProgressPercentage) / 2;
-
-  const getStatusColor = (percentage) => {
-    if (percentage >= 80) return "success";
-    if (percentage >= 50) return "warning";
-    return "error";
-  };
-
-  const lessonsStatusColor = getStatusColor(lessonsProgressPercentage);
-  const scoreStatusColor = getStatusColor(scoreProgressPercentage);
-  const overallStatusColor = getStatusColor(overallProgressPercentage);
-
+  const {
+    lessonsThisMonth,
+    totalLessons,
+    monthlyGoal,
+    averageScore,
+    overallProgress,
+    probation,
+    grade,
+    perks,
+  } = stats;
+  console.log(stats)
   return (
     <div className="space-y-4 md:space-y-6 md:px-0">
       {/* Header */}
       <DashboardHeader user={user} />
 
       <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between gap-3 md:gap-5">
-        <div>
-          <GradeBadge
-            grades={user?.grades || "Ошибка с получением grades"}
-            grade={user?.grade || "Не указан"}
-          />
-        </div>
+        <GradeBadge
+          grades={user?.grades || "Ошибка"}
+          grade={grade || "Не указан"}
+        />
 
-        <ProbationTimer user={user} isMobile={isMobile} />
+        <ProbationTimer probation={probation} isMobile={isMobile} />
       </div>
 
-      {/* Progress Section */}
+      {/* Progress */}
       {isMobile ? (
         <MobileProgressSection
-          lessonsProgressPercentage={lessonsProgressPercentage}
-          actualLessons={actualLessons}
+          actualLessons={lessonsThisMonth}
           monthlyGoal={monthlyGoal}
-          scoreProgressPercentage={scoreProgressPercentage}
-          averageScore={averageScore}
-          overallProgressPercentage={overallProgressPercentage}
-          overallStatusColor={overallStatusColor}
+          averageScore={Number(averageScore)}
+          lessonsProgressPercentage={(lessonsThisMonth / monthlyGoal) * 100 || 0}
+          scoreProgressPercentage={(Number(averageScore) / 5) * 100 || 0}
+          overallProgressPercentage={overallProgress}
+          overallStatusColor={
+            overallProgress >= 80
+              ? "success"
+              : overallProgress >= 50
+                ? "warning"
+                : "error"
+          }
         />
       ) : (
         <DesktopProgressSection
+          actualLessons={lessonsThisMonth}
           monthlyGoal={monthlyGoal}
-          actualLessons={actualLessons}
-          averageScore={averageScore}
-          overallProgressPercentage={overallProgressPercentage}
-          overallStatusColor={overallStatusColor}
-          lessonsProgressPercentage={lessonsProgressPercentage}
-          lessonsStatusColor={lessonsStatusColor}
-          scoreProgressPercentage={scoreProgressPercentage}
-          scoreStatusColor={scoreStatusColor}
+          averageScore={Number(averageScore)}
+          lessonsProgressPercentage={(lessonsThisMonth / monthlyGoal) * 100 || 0}
+          lessonsStatusColor={
+            (lessonsThisMonth / monthlyGoal) * 100 >= 80
+              ? "success"
+              : (lessonsThisMonth / monthlyGoal) * 100 >= 50
+                ? "warning"
+                : "error"
+          }
+          scoreProgressPercentage={(Number(averageScore) / 5) * 100 || 0}
+          scoreStatusColor={
+            (Number(averageScore) / 5) * 100 >= 80
+              ? "success"
+              : (Number(averageScore) / 5) * 100 >= 50
+                ? "warning"
+                : "error"
+          }
+          overallProgressPercentage={overallProgress}
+          overallStatusColor={
+            overallProgress >= 80
+              ? "success"
+              : overallProgress >= 50
+                ? "warning"
+                : "error"
+          }
         />
       )}
 
-      {/* Timeline прогресса */}
+      {/* Timeline */}
       <ProgressTimeline
-        internGrade={user?.grade}
+        internGrade={grade}
         grades={user?.grades}
-        lessonsVisited={user?.lessonsVisited?.length}
-        overallProgressPercentage={overallProgressPercentage}
+        overallProgressPercentage={overallProgress}
+        lessonsVisited={lessonsThisMonth}
         isMobile={isMobile}
       />
 
-      {/* Основная статистика */}
+      {/* Stats */}
       <StatsGrid
-        user={user}
-        totalLessonsVisited={totalLessonsVisited}
-        monthlyLessons={monthlyLessons}
+        totalLessonsVisited={totalLessons}
+        monthlyLessons={lessonsThisMonth}
+        averageScore={Number(averageScore)}
+        grade={grade}
+        perks={perks}
         isMobile={isMobile}
       />
-
-      {/* Recent Activity */}
-      <RecentActivity user={user} lessons={lessons} isMobile={isMobile} />
     </div>
   );
 };

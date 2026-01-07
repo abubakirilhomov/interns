@@ -1,10 +1,10 @@
 import StatsCard from "../UI/StatsCard";
 
-const StatsGrid = ({ user, totalLessonsVisited, monthlyLessons, isMobile }) => (
+const StatsGrid = ({ averageScore, grade, totalLessonsVisited, monthlyLessons, isMobile }) => (
   <div className={`grid ${isMobile ? 'grid-cols-2 gap-3' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'}`}>
     <StatsCard
       title="Средний балл"
-      value={user?.score ? user.score.toFixed(1) : "0.0"}
+      value={typeof averageScore === 'number' ? averageScore.toFixed(1) : "0.0"}
       icon="⭐"
       trend="up"
       trendValue="+0.2"
@@ -22,14 +22,14 @@ const StatsGrid = ({ user, totalLessonsVisited, monthlyLessons, isMobile }) => (
 
     <StatsCard
       title={isMobile ? "Отзывов" : "Отзывов получено"}
-      value={user?.feedbacks?.length || 0}
+      value={0}
       icon="💬"
       colorClass="text-success"
     />
 
     <StatsCard
       title="Уровень"
-      value={user?.grade || "Junior"}
+      value={grade || "Junior"}
       icon="🎯"
       colorClass="text-secondary"
     />

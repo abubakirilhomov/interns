@@ -5,7 +5,7 @@ import authReducer from "./slices/authSlice";
 import lessonsReducer from "./slices/lessonSlice";
 import uiReducer from "./slices/uiSlice";
 import ratingReducer from "./slices/ratingSlice"
-
+import dashboardReducer from "./slices/dashboardSlice";
 // Конфиг для persist auth
 const authPersistConfig = {
   key: "auth",
@@ -29,6 +29,7 @@ export const store = configureStore({
     auth: persistedAuthReducer,
     lessons: lessonsReducer,
     ui: persistedUiReducer,
+    dashboard: dashboardReducer,
     rating: ratingReducer
   },
   middleware: (getDefaultMiddleware) =>

@@ -1,108 +1,77 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-const ProbationTimer = ({ user, isMobile }) => {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+const MS = 1000;
+const MIN = 60 * MS;
+const HOUR = 60 * MIN;
+const DAY = 24 * HOUR;
+
+const ProbationTimer = ({ probation, isMobile }) => {
+  const [timeLeftMs, setTimeLeftMs] = useState(0);
 
   useEffect(() => {
-    if (!user?.probationStartDate || !user?.probationPeriod) return;
+    if (!probation?.probationEndAt || probation.isExpired) return;
 
-    const updateTimer = () => {
-      const startDate = new Date(user.probationStartDate);  // Use probationStartDate instead of createdAt
-      const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + user.probationPeriod);
-      
-      const now = new Date();
-      const difference = endDate - now;
-      
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        
-        setTimeLeft({ days, hours, minutes, seconds });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      }
+    const endMs = new Date(probation.probationEndAt).getTime();
+
+    const tick = () => {
+      const now = Date.now();
+      const diff = Math.max(endMs - now, 0);
+      setTimeLeftMs(diff);
     };
 
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [user?.probationStartDate, user?.probationPeriod]);  // Depend on probationStartDate
+  }, [probation]);
 
-  const padNumber = (num) => num.toString().padStart(2, '0');
+  if (!probation) {
+    return (
+      <div className="bg-base-200 p-3 rounded-lg text-center text-sm opacity-60">
+        Испытательный срок не задан
+      </div>
+    );
+  }
+
+  if (probation.isExpired || timeLeftMs <= 0) {
+    return (
+      <div className="bg-success/10 p-3 rounded-lg text-center">
+        <div className="text-sm font-semibold text-success">
+          Испытательный срок завершён ✅
+        </div>
+      </div>
+    );
+  }
+
+  const days = Math.floor(timeLeftMs / DAY);
+  const hours = Math.floor((timeLeftMs % DAY) / HOUR);
+  const minutes = Math.floor((timeLeftMs % HOUR) / MIN);
+  const seconds = Math.floor((timeLeftMs % MIN) / MS);
+
+  const pad = (n) => String(n).padStart(2, "0");
 
   return (
     <div className="bg-base-200 p-3 rounded-lg">
       <div className="text-xs text-base-content/60 mb-3 text-center">
         {isMobile ? "Испыт. срок" : "Испытательный срок"}
       </div>
-      
-      <div className={`grid grid-flow-col justify-center gap-2 md:gap-5 items-center text-center auto-cols-max`}>
-        <div className="flex flex-col">
-          <span className={`countdown font-mono ${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'}`}>
-            <span 
-              style={{ "--value": timeLeft.days, "--digits": 2 }} 
-              aria-live="polite" 
-              aria-label={`${timeLeft.days} days`}
-            >
-              {padNumber(timeLeft.days)}
-            </span>
-          </span>
-          <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-base-content/60`}>
-            {isMobile ? 'дн' : 'дни'}
-          </span>
-        </div>
-        
-        <div className="flex flex-col">
-          <span className={`countdown font-mono ${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'}`}>
-            <span 
-              style={{ "--value": timeLeft.hours, "--digits": 2 }} 
-              aria-live="polite" 
-              aria-label={`${timeLeft.hours} hours`}
-            >
-              {padNumber(timeLeft.hours)}
-            </span>
-          </span>
-          <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-base-content/60`}>
-            {isMobile ? 'ч' : 'часов'}
-          </span>
-        </div>
-        
-        <div className="flex flex-col">
-          <span className={`countdown font-mono ${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'}`}>
-            <span 
-              style={{ "--value": timeLeft.minutes, "--digits": 2 }} 
-              aria-live="polite" 
-              aria-label={`${timeLeft.minutes} minutes`}
-            >
-              {padNumber(timeLeft.minutes)}
-            </span>
-          </span>
-          <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-base-content/60`}>
-            {isMobile ? 'м' : 'мин'}
-          </span>
-        </div>
-        
-        <div className="flex flex-col">
-          <span className={`countdown font-mono ${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'}`}>
-            <span 
-              style={{ "--value": timeLeft.seconds, "--digits": 2 }} 
-              aria-live="polite" 
-              aria-label={`${timeLeft.seconds} seconds`}
-            >
-              {padNumber(timeLeft.seconds)}
-            </span>
-          </span>
-          <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-base-content/60`}>
-            {isMobile ? 'с' : 'сек'}
-          </span>
-        </div>
+
+      <div className="grid grid-flow-col justify-center gap-3 text-center auto-cols-max">
+        <TimeBlock value={days} label={isMobile ? "дн" : "дни"} />
+        <TimeBlock value={hours} label={isMobile ? "ч" : "часы"} />
+        <TimeBlock value={minutes} label={isMobile ? "м" : "мин"} />
+        <TimeBlock value={seconds} label={isMobile ? "с" : "сек"} />
       </div>
     </div>
   );
 };
+
+const TimeBlock = ({ value, label }) => (
+  <div className="flex flex-col">
+    <span className="font-mono font-bold text-2xl md:text-3xl">
+      {String(value).padStart(2, "0")}
+    </span>
+    <span className="text-xs opacity-60">{label}</span>
+  </div>
+);
 
 export default ProbationTimer;

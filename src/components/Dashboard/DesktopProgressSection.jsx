@@ -1,8 +1,8 @@
-const DesktopProgressSection = ({ 
-  monthlyGoal, 
-  actualLessons, 
-  averageScore, 
-  overallProgressPercentage, 
+const DesktopProgressSection = ({
+  monthlyGoal,
+  actualLessons,
+  averageScore,
+  overallProgressPercentage,
   overallStatusColor,
   lessonsProgressPercentage,
   lessonsStatusColor,
@@ -37,7 +37,7 @@ const DesktopProgressSection = ({
               <div className="text-sm text-base-content/60">Уроков</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-secondary">{averageScore.toFixed(1)}</div>
+              <div className="text-2xl font-bold text-secondary">{typeof averageScore === 'number' ? averageScore.toFixed(1) : averageScore}</div>
               <div className="text-sm text-base-content/60">Средний балл</div>
             </div>
           </div>
@@ -51,19 +51,19 @@ const DesktopProgressSection = ({
         <div className="flex justify-between items-center mb-4">
           <h3 className="card-title">Прогресс выполнения</h3>
           <div className={`badge badge-${overallStatusColor} badge-lg`}>
-            {overallProgressPercentage.toFixed(1)}%
+            {overallProgressPercentage}%
           </div>
         </div>
-        
+
         <div className="space-y-4">
           {/* Прогресс по урокам */}
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span>Уроки ({actualLessons} из {monthlyGoal})</span>
-              <span className={`text-${lessonsStatusColor}`}>{lessonsProgressPercentage.toFixed(1)}%</span>
+              <span className={`text-${lessonsStatusColor}`}>{lessonsProgressPercentage}%</span>
             </div>
             <div className="w-full bg-base-200 rounded-full h-3">
-              <div 
+              <div
                 className={`bg-${lessonsStatusColor} h-3 rounded-full transition-all duration-500`}
                 style={{ width: `${lessonsProgressPercentage}%` }}
               ></div>
@@ -73,11 +73,11 @@ const DesktopProgressSection = ({
           {/* Прогресс по баллам */}
           <div>
             <div className="flex justify-between text-sm mb-2">
-              <span>Качество ({averageScore.toFixed(1)} из 5.0)</span>
-              <span className={`text-${scoreStatusColor}`}>{scoreProgressPercentage.toFixed(1)}%</span>
+              <span>Качество ({typeof averageScore === 'number' ? averageScore.toFixed(1) : averageScore} из 5.0)</span>
+              <span className={`text-${scoreStatusColor}`}>{scoreProgressPercentage}%</span>
             </div>
             <div className="w-full bg-base-200 rounded-full h-3">
-              <div 
+              <div
                 className={`bg-${scoreStatusColor} h-3 rounded-full transition-all duration-500`}
                 style={{ width: `${scoreProgressPercentage}%` }}
               ></div>
@@ -88,10 +88,10 @@ const DesktopProgressSection = ({
           <div className="pt-2 border-t border-base-300">
             <div className="flex justify-between text-sm mb-2">
               <span className="font-semibold">Общий прогресс</span>
-              <span className={`text-${overallStatusColor} font-semibold`}>{overallProgressPercentage.toFixed(1)}%</span>
+              <span className={`text-${overallStatusColor} font-semibold`}>{overallProgressPercentage}%</span>
             </div>
             <div className="w-full bg-base-200 rounded-full h-4">
-              <div 
+              <div
                 className={`bg-${overallStatusColor} h-4 rounded-full transition-all duration-500`}
                 style={{ width: `${overallProgressPercentage}%` }}
               ></div>
