@@ -1,4 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
+
 @plugin "daisyui" {
   themes: all;
+}
+
+:root {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+body {
+  /* Использование фона темы DaisyUI */
+  @apply bg-base-200 text-base-content;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-base-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-base-content/40;
+}
+
+/* Glassmorphism Utilities (Theme Aware) */
+.glass-panel {
+  @apply bg-base-100/70 backdrop-blur-xl border border-base-content/5 shadow-xl rounded-2xl text-base-content;
+}
+
+.glass-card {
+  @apply bg-base-100/50 backdrop-blur-md border border-base-content/5 shadow-lg rounded-xl hover:bg-base-100/80 transition-all duration-300 text-base-content;
+}
+
+/* Gradient Text (Theme Aware) */
+.text-gradient-primary {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
+}
+
+.text-gradient-warning {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-warning to-error;
+}
+
+.text-gradient-success {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-success to-primary;
 }

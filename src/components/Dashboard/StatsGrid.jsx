@@ -1,7 +1,7 @@
 import StatsCard from "../UI/StatsCard";
 
 const StatsGrid = ({ averageScore, grade, totalLessonsVisited, monthlyLessons, isMobile }) => (
-  <div className={`grid ${isMobile ? 'grid-cols-2 gap-3' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'}`}>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
     <StatsCard
       title="Средний балл"
       value={typeof averageScore === 'number' ? averageScore.toFixed(1) : "0.0"}

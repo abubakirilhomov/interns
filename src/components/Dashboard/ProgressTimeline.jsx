@@ -1,6 +1,8 @@
+import { Check } from "lucide-react";
+
 const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
   const gradeOrder = ["junior", "strongJunior", "middle", "strongMiddle", "senior"];
-  
+
   const gradeLabels = {
     junior: "Junior",
     strongJunior: "Strong Jr",
@@ -46,122 +48,58 @@ const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
   });
 
   return (
-    <div className="card bg-base-100 shadow">
-      <div className="card-body p-4 sm:p-6">
-        <h3 className="card-title mb-4 text-base sm:text-lg md:text-xl">Карта прогресса</h3>
-        
-        {/* Desktop/Tablet View (horizontal) */}
-        <div className="hidden sm:block">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`radial-progress text-xs sm:text-sm font-bold ${
-                      step.completed 
-                        ? "text-success" 
-                        : step.current 
-                        ? "text-primary" 
-                        : "text-base-content/30"
-                    }`}
-                    style={{
-                      "--value": step.progress,
-                      "--size": "2.5rem",
-                      "--thickness": "4px"
-                    }}
-                    role="progressbar"
-                    aria-valuenow={step.progress}
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    {step.completed
-                      ? "✓"
-                      : step.current
-                      ? `${step.progress}%`
-                      : "○"}
-                  </div>
-                  <span className="text-xs text-center text-base-content/60 mt-2 whitespace-nowrap">
-                    {step.label}
-                  </span>
-                  {step.current && (
-                    <span className="text-xs text-primary font-medium mt-1">
-                      {lessonsVisited}/{step.required}
-                    </span>
-                  )}
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`w-8 md:w-12 lg:w-16 h-1 mx-2 rounded transition-colors ${
-                      step.completed ? "bg-success" : "bg-base-300"
-                    }`}
-                  ></div>
+    <div className="glass-panel p-6 overflow-x-auto">
+      {/* Desktop/Tablet View (horizontal) */}
+      <div className="min-w-[600px]">
+        <div className="flex items-center justify-between relative">
+          {/* Connecting Line Background */}
+          <div className="absolute top-1/2 left-0 w-full h-1 bg-base-300 -z-10 rounded-full transform -translate-y-1/2"></div>
+
+          {steps.map((step, index) => (
+            <div key={step.id} className="flex flex-col items-center relative z-10 group">
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all duration-500 ${step.completed
+                  ? "bg-success border-success/30 scale-110 shadow-lg shadow-success/20"
+                  : step.current
+                    ? "bg-base-100 border-primary scale-125 shadow-lg shadow-primary/20"
+                    : "bg-base-200 border-base-300"
+                  }`}
+              >
+                {step.completed ? (
+                  <Check className="w-6 h-6 text-success-content" />
+                ) : step.current ? (
+                  <span className="text-xs font-bold text-primary">{step.progress}%</span>
+                ) : (
+                  <span className="w-3 h-3 bg-base-content/20 rounded-full"></span>
                 )}
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Mobile View (vertical) */}
-        <div className="block sm:hidden space-y-3">
-          {steps.map((step, index) => (
-            <div key={step.id}>
-              <div className="flex items-center gap-3">
-                <div
-                  className={`radial-progress text-sm font-bold flex-shrink-0 ${
-                    step.completed 
-                      ? "text-success" 
-                      : step.current 
-                      ? "text-primary" 
-                      : "text-base-content/30"
-                  }`}
-                  style={{
-                    "--value": step.progress,
-                    "--size": "3rem",
-                    "--thickness": "4px"
-                  }}
-                  role="progressbar"
-                  aria-valuenow={step.progress}
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                >
-                  {step.completed
-                    ? "✓"
-                    : step.current
-                    ? `${step.progress}%`
-                    : "○"}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-semibold text-base-content">
-                      {step.label}
+              <div className={`mt-4 flex flex-col items-center transition-all duration-300 ${step.current ? 'transform translate-y-1' : ''}`}>
+                <span className={`text-sm font-bold ${step.completed ? "text-success" : step.current ? "text-primary" : "text-base-content/40"
+                  }`}>
+                  {step.label}
+                </span>
+
+                {step.current && (
+                  <div className="mt-1 px-2 py-0.5 bg-primary/10 rounded-full border border-primary/20">
+                    <span className="text-xs font-semibold text-primary">
+                      {lessonsVisited} / {step.required}
                     </span>
-                    {step.current && (
-                      <span className="text-xs text-primary font-medium">
-                        {lessonsVisited}/{step.required}
-                      </span>
-                    )}
                   </div>
-                  <div className="w-full bg-base-300 rounded-full h-2 overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        step.completed 
-                          ? "bg-success" 
-                          : step.current 
-                          ? "bg-primary" 
-                          : "bg-base-300"
-                      }`}
-                      style={{ width: `${step.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           ))}
+
+          {/* Active Filling Line (simplified logic for demo) */}
+          <div
+            className="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-success to-primary -z-10 rounded-full transform -translate-y-1/2 transition-all duration-1000 ease-out"
+            style={{ width: `${(internGradeIndex / (gradeOrder.length - 1)) * 100}%` }}
+          ></div>
         </div>
       </div>
     </div>
   );
 };
 
-export default ProgressTimeline
+export default ProgressTimeline;
