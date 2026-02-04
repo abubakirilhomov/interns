@@ -129,7 +129,7 @@ const Dashboard = () => {
           internGrade={grade}
           grades={user?.grades}
           overallProgressPercentage={overallProgress}
-          lessonsVisited={lessonsThisMonth}
+          lessonsVisited={trialStats?.totalLessons || lessonsThisMonth}
           isMobile={isMobile}
         />
       </div>
