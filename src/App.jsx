@@ -18,6 +18,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Rating from "./pages/Rating";
 import RecentActivity from "./pages/RecentActivity";
+import HeadInternWarnings from "./pages/HeadInternWarnings";
 
 // 🔒 Защита маршрутов
 const ProtectedRoute = ({ children }) => {
@@ -88,6 +89,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <RecentActivity />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/head-intern"
+          element={
+            <ProtectedRoute>
+              <HeadInternWarnings />
             </ProtectedRoute>
           }
         />

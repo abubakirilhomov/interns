@@ -7,6 +7,7 @@ import { IoStatsChartOutline } from "react-icons/io5";
 const Sidebar = () => {
   const dispatch = useDispatch();
   const { sidebarOpen } = useSelector((state) => state.ui);
+  const { user } = useSelector((state) => state.auth);
 
   const navigation = [
     {
@@ -76,6 +77,29 @@ const Sidebar = () => {
       href: "/rating",
       icon: <IoStatsChartOutline size={20} />,
     },
+    ...(user?.isHeadIntern
+      ? [
+          {
+            name: "Head Intern",
+            href: "/head-intern",
+            icon: (
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 3l7 4 7-4M5 3v14l7 4 7-4V3"
+                />
+              </svg>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -127,15 +151,22 @@ const Sidebar = () => {
                 to={item.href}
                 className={({ isActive }) =>
                   `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? "bg-primary text-primary-content"
-                      : "text-base-content hover:bg-base-200"
+                    item.href === "/head-intern"
+                      ? isActive
+                        ? "bg-warning text-warning-content"
+                        : "text-warning hover:bg-warning/10 border border-warning/30"
+                      : isActive
+                        ? "bg-primary text-primary-content"
+                        : "text-base-content hover:bg-base-200"
                   }`
                 }
                 onClick={() => dispatch(closeSidebar())}
               >
                 {item.icon}
                 <span className="ml-3">{item.name}</span>
+                {item.href === "/head-intern" && (
+                  <span className="ml-auto text-xs">👑</span>
+                )}
               </NavLink>
             ))}
           </nav>
