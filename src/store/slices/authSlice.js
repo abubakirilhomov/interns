@@ -58,14 +58,16 @@ export const updateProfile = createAsyncThunk(
       if (!auth.user?._id) {
         return rejectWithValue("User not authenticated");
       }
-      const response = await axios.put(
+      const response = await axios.patch(
         `/interns/me/profile`,
         profileData
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Ошибка при обновлении профиля"
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Ошибка при обновлении профиля"
       );
     }
   }

@@ -74,7 +74,7 @@ const Dashboard = () => {
         {planStatus?.isPlanBlocked && (
           <div className="alert alert-error shadow">
             <span>
-              Аккаунт ограничен: недельный план не выполнен. Выполнено {planStatus.confirmedLessonsThisMonth} из {planStatus.requiredLessonsByNow} к текущей неделе.
+              Аккаунт ограничен: план не выполнен. Выполнено {planStatus.confirmedLessonsThisMonth} из {planStatus.requiredLessonsByNow} к текущей дате.
             </span>
           </div>
         )}
