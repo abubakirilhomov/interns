@@ -172,8 +172,12 @@ const Navbar = () => {
               setThemeDropdownOpen(false);
             }}
           >
-            <div className="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
-              <span className="text-sm w-full flex justify-center items-center h-full font-semibold">{getInitials()}</span>
+            <div className="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center overflow-hidden">
+              {user?.profilePhoto ? (
+                <img src={user.profilePhoto} alt={getInitials()} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-sm w-full flex justify-center items-center h-full font-semibold">{getInitials()}</span>
+              )}
             </div>
           </button>
 
