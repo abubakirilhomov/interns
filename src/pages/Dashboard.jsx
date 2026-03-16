@@ -60,7 +60,8 @@ const Dashboard = () => {
     percentage,
     nearDeadline,
     canGetConcession,
-    trialStats // 🆕 Получаем новые статы
+    trialStats,
+    planStatus
   } = stats;
 
   return (
@@ -70,6 +71,13 @@ const Dashboard = () => {
 
       {/* Hero Section: Alerts + Grade + Timer */}
       <div className="space-y-6">
+        {planStatus?.isPlanBlocked && (
+          <div className="alert alert-error shadow">
+            <span>
+              Аккаунт ограничен: недельный план не выполнен. Выполнено {planStatus.confirmedLessonsThisMonth} из {planStatus.requiredLessonsByNow} к текущей неделе.
+            </span>
+          </div>
+        )}
         <DashboardAlerts
           daysRemaining={daysRemaining}
           percentage={percentage} // Можно переключить на trialStats.progressPercentage если нужно

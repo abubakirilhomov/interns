@@ -10,6 +10,7 @@ const AddLessonPage = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth); // Get logged-in intern
   const { isLoading, error, success } = useSelector((state) => state.lessons);
+  const isPlanBlocked = Boolean(user?.planStatus?.isPlanBlocked || user?.isPlanBlocked);
 
   const [topic, setTopic] = useState("");
   const [time, setTime] = useState("");
@@ -147,12 +148,17 @@ const AddLessonPage = () => {
           </select>
         </div>
 
+        {isPlanBlocked && (
+          <p className="text-red-500">
+            Аккаунт ограничен: пока недоступно добавление уроков из-за невыполненного недельного плана.
+          </p>
+        )}
         {error && <p className="text-red-500">{error}</p>}
 
         <button
           type="submit"
           className="btn btn-primary w-full"
-          disabled={isLoading}
+          disabled={isLoading || isPlanBlocked}
         >
           {isLoading ? "Сохранение..." : "Добавить урок"}
         </button>

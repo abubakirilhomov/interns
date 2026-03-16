@@ -19,8 +19,8 @@ const DashboardHeader = ({ user }) => {
         <div className="relative">
           <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-r from-primary to-secondary p-[2px]">
             <div className="w-full h-full rounded-full bg-base-100 flex items-center justify-center overflow-hidden">
-              {user?.avatar ? (
-                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+              {user?.avatar || user?.profilePhoto ? (
+                <img src={user.avatar || user.profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
                 <UserCircle className="w-8 h-8 md:w-12 md:h-12 text-base-content/20" />
               )}

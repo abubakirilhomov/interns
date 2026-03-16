@@ -7,12 +7,18 @@ import LoadingSpinner from '../components/UI/LoadingSpinner';
 const Profile = () => {
   const dispatch = useDispatch();
   const { user, isLoading } = useSelector((state) => state.auth);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   
   const [isEditing, setIsEditing] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     lastName: user?.lastName || '',
     username: user?.username || '',
+    phoneNumber: user?.phoneNumber || '',
+    telegram: user?.telegram || '',
+    sphere: user?.sphere || 'backend-nodejs',
+    profilePhoto: user?.profilePhoto || '',
   });
 
   const handleChange = (e) => {
@@ -32,11 +38,46 @@ const Profile = () => {
     }
   };
 
+  const handlePhotoUpload = async (file) => {
+    if (!file) return;
+    const token = localStorage.getItem("token");
+
+    try {
+      setUploadingPhoto(true);
+      const data = new FormData();
+      data.append("file", file);
+      data.append("folder", "interns");
+
+      const response = await fetch(`${API_URL}/uploads/image`, {
+        method: "POST",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: data,
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || "Ошибка загрузки фото");
+      }
+
+      setFormData((prev) => ({ ...prev, profilePhoto: result.data.url }));
+    } catch (error) {
+      console.error("Photo upload error:", error);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   const handleCancel = () => {
     setFormData({
       name: user?.name || '',
       lastName: user?.lastName || '',
       username: user?.username || '',
+      phoneNumber: user?.phoneNumber || '',
+      telegram: user?.telegram || '',
+      sphere: user?.sphere || 'backend-nodejs',
+      profilePhoto: user?.profilePhoto || '',
     });
     setIsEditing(false);
   };
@@ -66,7 +107,18 @@ const Profile = () => {
           <div className="flex items-center space-x-4 mb-6">
             <div className="avatar">
               <div className="w-20 h-20 rounded-full bg-primary text-primary-content text-2xl font-bold">
-                <span className='flex justify-center items-center h-full'>{user?.name?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}</span>
+                {(isEditing ? formData.profilePhoto : user?.profilePhoto) ? (
+                  <img
+                    src={isEditing ? formData.profilePhoto : user?.profilePhoto}
+                    alt={`${user?.name || ""} ${user?.lastName || ""}`}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span className='flex justify-center items-center h-full'>
+                    {user?.name?.[0]?.toUpperCase()}
+                    {user?.lastName?.[0]?.toUpperCase()}
+                  </span>
+                )}
               </div>
             </div>
             <div>
@@ -123,6 +175,65 @@ const Profile = () => {
                 />
               </div>
 
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Телефон</span>
+                </label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="input input-bordered input-primary"
+                />
+              </div>
+
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Telegram</span>
+                </label>
+                <input
+                  type="text"
+                  name="telegram"
+                  value={formData.telegram}
+                  onChange={handleChange}
+                  className="input input-bordered input-primary"
+                />
+              </div>
+
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Сфера</span>
+                </label>
+                <select
+                  name="sphere"
+                  value={formData.sphere}
+                  onChange={handleChange}
+                  className="select select-bordered"
+                >
+                  <option value="backend-nodejs">Backend (Node.js)</option>
+                  <option value="backend-python">Backend (Python)</option>
+                  <option value="frontend-react">Frontend (React)</option>
+                  <option value="frontend-vue">Frontend (Vue)</option>
+                  <option value="mern-stack">MERN Stack</option>
+                  <option value="full-stack">Full Stack</option>
+                </select>
+              </div>
+
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Фото профиля</span>
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="file-input file-input-bordered"
+                  onChange={(e) => handlePhotoUpload(e.target.files?.[0])}
+                  disabled={uploadingPhoto}
+                />
+                {uploadingPhoto && <span className="text-xs mt-1">Загрузка...</span>}
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <button type="submit" className="btn btn-primary" disabled={isLoading}>
                   {isLoading ? (
@@ -161,6 +272,27 @@ const Profile = () => {
                     Имя пользователя
                   </h3>
                   <p className="text-lg text-base-content mt-1">@{user?.username}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
+                    Телефон
+                  </h3>
+                  <p className="text-lg text-base-content mt-1">{user?.phoneNumber || '—'}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
+                    Telegram
+                  </h3>
+                  <p className="text-lg text-base-content mt-1">{user?.telegram || '—'}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
+                    Сфера
+                  </h3>
+                  <p className="text-lg text-base-content mt-1">{user?.sphere || '—'}</p>
                 </div>
 
                 <div>

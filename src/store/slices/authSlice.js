@@ -59,7 +59,7 @@ export const updateProfile = createAsyncThunk(
         return rejectWithValue("User not authenticated");
       }
       const response = await axios.put(
-        `/interns/${auth.user._id}`,
+        `/interns/me/profile`,
         profileData
       );
       return response.data;
