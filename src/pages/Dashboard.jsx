@@ -14,6 +14,7 @@ import ProgressTimeline from "../components/Dashboard/ProgressTimeline";
 import StatsGrid from "../components/Dashboard/StatsGrid";
 import StatusPanel from "../components/Dashboard/StatusPanel";
 import DashboardAlerts from "../components/Dashboard/DashboardAlerts";
+import PlanProgressWidget from "../components/Dashboard/PlanProgressWidget";
 
 import useMobileDetection from "../hooks/useMobileDetection";
 
@@ -121,6 +122,13 @@ const Dashboard = () => {
         daysWorking={daysWorking || 0}
         trialPeriodDays={trialPeriodDays || 30}
         averageScore={averageScore}
+      />
+
+      {/* Monthly Plan Progress */}
+      <PlanProgressWidget
+        lessonsConfirmed={lessonsConfirmed}
+        monthlyGoal={monthlyGoal}
+        planStatus={planStatus}
       />
 
       <div className="divider opacity-50"></div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
 import { updateProfile } from '../store/slices/authSlice';
 import GradeBadge from '../components/UI/GradesBadge';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -10,6 +11,15 @@ const Profile = () => {
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -80,6 +90,51 @@ const Profile = () => {
       profilePhoto: user?.profilePhoto || '',
     });
     setIsEditing(false);
+  };
+
+  const handlePasswordChange = (e) => {
+    setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError('Новый пароль должен содержать минимум 6 символов');
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('Пароли не совпадают');
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      await axios.patch('/interns/me/password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      setPasswordSuccess('Пароль успешно изменён');
+      setIsChangingPassword(false);
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      setPasswordError(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          'Ошибка при смене пароля'
+      );
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handlePasswordCancel = () => {
+    setIsChangingPassword(false);
+    setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setPasswordError('');
+    setPasswordSuccess('');
   };
 
   if (isLoading) {
@@ -332,9 +387,17 @@ const Profile = () => {
                 <span className="text-base-content/70">Отзывов получено</span>
                 <span className="font-semibold">{user?.feedbacks?.length || 0}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-base-content/70">ID филиала</span>
-                <span className="font-semibold text-sm">{user?.branchId || 'Не указан'}</span>
+              <div className="flex flex-col gap-1">
+                <span className="text-base-content/70">Филиалы</span>
+                {user?.branches?.length
+                  ? user.branches.map((b, i) => (
+                      <span key={i} className="badge badge-outline badge-sm">
+                        {b.branch?.name || String(b.branch)}
+                        {b.mentor ? ` · ${b.mentor?.name || ''}` : ''}
+                      </span>
+                    ))
+                  : <span className="font-semibold text-sm">{user?.branchId || 'Не указан'}</span>
+                }
               </div>
             </div>
           </div>
@@ -344,9 +407,89 @@ const Profile = () => {
           <div className="card-body">
             <h3 className="card-title text-lg mb-4">Безопасность</h3>
             <div className="space-y-3">
-              <button className="btn btn-outline btn-warning w-full">
-                Изменить пароль
-              </button>
+              {passwordSuccess && !isChangingPassword && (
+                <div className="alert alert-success text-sm py-2">
+                  <span>{passwordSuccess}</span>
+                </div>
+              )}
+              {!isChangingPassword ? (
+                <button
+                  onClick={() => { setIsChangingPassword(true); setPasswordSuccess(''); }}
+                  className="btn btn-outline btn-warning w-full"
+                >
+                  Изменить пароль
+                </button>
+              ) : (
+                <form onSubmit={handlePasswordSubmit} className="space-y-3">
+                  {passwordError && (
+                    <div className="alert alert-error text-sm py-2">
+                      <span>{passwordError}</span>
+                    </div>
+                  )}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium">Текущий пароль</span>
+                    </label>
+                    <input
+                      type="password"
+                      name="currentPassword"
+                      value={passwordForm.currentPassword}
+                      onChange={handlePasswordChange}
+                      className="input input-bordered input-primary"
+                      required
+                    />
+                  </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium">Новый пароль</span>
+                    </label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      value={passwordForm.newPassword}
+                      onChange={handlePasswordChange}
+                      className="input input-bordered input-primary"
+                      required
+                    />
+                  </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium">Подтвердите пароль</span>
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={passwordForm.confirmPassword}
+                      onChange={handlePasswordChange}
+                      className="input input-bordered input-primary"
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-sm flex-1"
+                      disabled={passwordLoading}
+                    >
+                      {passwordLoading ? (
+                        <>
+                          <LoadingSpinner size="sm" />
+                          Сохранение...
+                        </>
+                      ) : (
+                        'Сохранить'
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handlePasswordCancel}
+                      className="btn btn-ghost btn-sm flex-1"
+                    >
+                      Отмена
+                    </button>
+                  </div>
+                </form>
+              )}
               <button className="btn btn-outline btn-info w-full">
                 История входов
               </button>

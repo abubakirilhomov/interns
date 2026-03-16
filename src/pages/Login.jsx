@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginIntern, clearError } from '../store/slices/authSlice';
+import { loginIntern, clearError, selectBranch } from '../store/slices/authSlice';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 
 const Login = () => {
@@ -12,7 +12,7 @@ const Login = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const { isLoading, error, isAuthenticated, needsBranchSelect, pendingLoginData } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -37,6 +37,37 @@ const Login = () => {
     e.preventDefault();
     dispatch(loginIntern(formData));
   };
+
+  // Branch selector screen
+  if (needsBranchSelect && pendingLoginData) {
+    const branchIds = pendingLoginData.user?.branchIds || [];
+    const branches = pendingLoginData.user?.branches || [];
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10">
+        <div className="max-w-md w-full mx-4">
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-xl justify-center mb-2">Выберите филиал</h2>
+              <p className="text-center text-base-content/60 text-sm mb-4">
+                Вы работаете в нескольких филиалах. Выберите активный.
+              </p>
+              <div className="flex flex-col gap-3">
+                {branchIds.map((id, i) => (
+                  <button
+                    key={id}
+                    className="btn btn-outline btn-primary"
+                    onClick={() => dispatch(selectBranch(String(id)))}
+                  >
+                    {branches[i]?.branch?.name || String(id)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10">
