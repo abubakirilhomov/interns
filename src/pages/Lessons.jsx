@@ -26,22 +26,26 @@ const AddLessonPage = () => {
     }
   }, [success, dispatch]);
 
-  // Fetch available mentors
+  // Fetch available mentors for the intern's active branch
   useEffect(() => {
     const fetchMentors = async () => {
       try {
         const res = await axios.get(`${API_URL}/mentors`);
+        const activeBranchId =
+          localStorage.getItem("activeBranchId") || user?.branchId;
         const filtered = res.data.filter(
           (mentor) =>
             mentor.role === "mentor" &&
-            mentor.branch?.name === user?.branch?.name
+            mentor.branches?.some(
+              (b) => String(b._id || b) === String(activeBranchId)
+            )
         );
         setMentors(filtered);
       } catch (err) {
         console.error("Ошибка при загрузке менторов:", err);
       }
     };
-    if (user?.branch?.name) {
+    if (user?.branchId || user?.branchIds?.length) {
       fetchMentors();
     }
   }, [user]);
