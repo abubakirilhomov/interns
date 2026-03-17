@@ -54,7 +54,7 @@ const AddLessonPage = () => {
     e.preventDefault();
 
     if (!topic || !time || !group || !selectedMentor) {
-      return alert("Пожалуйста, заполните все обязательные поля");
+      return toast.error("Пожалуйста, заполните все обязательные поля");
     }
 
     const lessonData = {
