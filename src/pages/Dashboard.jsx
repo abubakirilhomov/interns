@@ -15,6 +15,7 @@ import StatsGrid from "../components/Dashboard/StatsGrid";
 import StatusPanel from "../components/Dashboard/StatusPanel";
 import DashboardAlerts from "../components/Dashboard/DashboardAlerts";
 import PlanProgressWidget from "../components/Dashboard/PlanProgressWidget";
+import LocationShare from "../components/LocationShare";
 
 import useMobileDetection from "../hooks/useMobileDetection";
 
@@ -149,6 +150,9 @@ const Dashboard = () => {
           isMobile={isMobile}
         />
       </div>
+
+      {/* Location sharing */}
+      <LocationShare />
 
       {/* Additional Stats */}
       <StatsGrid
