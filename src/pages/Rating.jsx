@@ -159,8 +159,23 @@ const Rating = () => {
                     } text-white shadow-xl`}
                   >
                     <div className="card-body items-center text-center p-4 md:p-6">
-                      <div className="mb-1 md:mb-2">{getMedalIcon(index)}</div>
-                      <h2 className="card-title text-lg md:text-2xl">{intern.name}</h2>
+                      <div className="mb-2 relative">
+                        {intern.profilePhoto ? (
+                          <img
+                            src={intern.profilePhoto}
+                            alt={intern.name}
+                            className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-white/40 shadow-lg"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center border-4 border-white/40 shadow-lg text-xl md:text-2xl font-bold">
+                            {intern.name.charAt(0)}
+                          </div>
+                        )}
+                        <div className="absolute -bottom-2 -right-2">
+                          {getMedalIcon(index)}
+                        </div>
+                      </div>
+                      <h2 className="card-title text-lg md:text-2xl mt-2">{intern.name}</h2>
                       <p className="opacity-90 text-sm">{intern.branch}</p>
                       <div className="badge badge-lg bg-white/20 border-0 mt-2 text-xs md:text-sm">
                         Рейтинг: {intern.ratingScore}
@@ -206,8 +221,26 @@ const Rating = () => {
                         >
                           <div className="card-body p-4 text-xs">
                             <div className="flex justify-between items-center mb-2">
-                              <div className="font-bold">
-                                {globalIndex < 3 ? getMedalIcon(globalIndex) : `#${globalIndex + 1}`} {intern.name}
+                              <div className="font-bold flex items-center gap-2">
+                                <div className="relative flex-shrink-0">
+                                  {intern.profilePhoto ? (
+                                    <img
+                                      src={intern.profilePhoto}
+                                      alt={intern.name}
+                                      className="w-9 h-9 rounded-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold">
+                                      {intern.name.charAt(0)}
+                                    </div>
+                                  )}
+                                  {globalIndex < 3 && (
+                                    <div className="absolute -bottom-1 -right-1 text-xs">
+                                      {getMedalIcon(globalIndex)}
+                                    </div>
+                                  )}
+                                </div>
+                                <span>{globalIndex >= 3 && `#${globalIndex + 1} `}{intern.name}</span>
                               </div>
                               <div className={`font-bold ${getRatingColor(intern.ratingScore)}`}>
                                 {intern.ratingScore}
@@ -274,7 +307,22 @@ const Rating = () => {
                                   globalIndex + 1
                                 )}
                               </td>
-                              <td className="font-semibold">{intern.name}</td>
+                              <td className="font-semibold">
+                                <div className="flex items-center gap-2">
+                                  {intern.profilePhoto ? (
+                                    <img
+                                      src={intern.profilePhoto}
+                                      alt={intern.name}
+                                      className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                      {intern.name.charAt(0)}
+                                    </div>
+                                  )}
+                                  {intern.name}
+                                </div>
+                              </td>
                               <td className="hidden sm:table-cell">{intern.branch}</td>
                               <td className="hidden md:table-cell text-start">
                                 <div className="badge badge-primary">
