@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import LessonFeedbackModal from "../components/LessonFeedbackModal";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -18,13 +19,7 @@ const AddLessonPage = () => {
   const [feedback, setFeedback] = useState("");
   const [mentors, setMentors] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState("");
-
-  useEffect(() => {
-    if (success) {
-      toast.success("Успешно отправлено");
-      dispatch(resetLessonState()); // сбрасываем success
-    }
-  }, [success, dispatch]);
+  const [feedbackLessonId, setFeedbackLessonId] = useState(null);
 
   // Fetch available mentors for the intern's active branch
   useEffect(() => {
@@ -50,7 +45,7 @@ const AddLessonPage = () => {
     }
   }, [user]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!topic || !time || !group || !selectedMentor) {
@@ -66,13 +61,22 @@ const AddLessonPage = () => {
       feedback: feedback || undefined, // Optional field
     };
 
-    dispatch(createLesson(lessonData));
-
-    setTopic("");
-    setTime("");
-    setGroup("");
-    setFeedback("");
-    setSelectedMentor("");
+    try {
+      const lesson = await dispatch(createLesson(lessonData)).unwrap();
+      setTopic("");
+      setTime("");
+      setGroup("");
+      setFeedback("");
+      setSelectedMentor("");
+      if (lesson?._id) {
+        setFeedbackLessonId(lesson._id);
+      } else {
+        toast.success("Успешно отправлено");
+        dispatch(resetLessonState());
+      }
+    } catch {
+      // error is already in Redux state, displayed below the form
+    }
   };
   const formatDateTimeLocal = (date) => {
     const offset = date.getTimezoneOffset(); // в минутах
@@ -168,6 +172,17 @@ const AddLessonPage = () => {
         </button>
       </form>
       <ToastContainer position="top-right" />
+
+      {feedbackLessonId && (
+        <LessonFeedbackModal
+          lessonId={feedbackLessonId}
+          onSuccess={() => {
+            setFeedbackLessonId(null);
+            toast.success("Успешно отправлено");
+            dispatch(resetLessonState());
+          }}
+        />
+      )}
     </div>
   );
 };
