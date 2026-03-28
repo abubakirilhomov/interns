@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import LessonFeedbackModal from "../components/LessonFeedbackModal";
+import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from "../components/LessonFeedbackModal";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const AddLessonPage = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth); // Get logged-in intern
+  const { user } = useSelector((state) => state.auth);
   const { isLoading, error, success } = useSelector((state) => state.lessons);
   const isPlanBlocked = Boolean(user?.planStatus?.isPlanBlocked || user?.isPlanBlocked);
 
@@ -19,7 +19,10 @@ const AddLessonPage = () => {
   const [feedback, setFeedback] = useState("");
   const [mentors, setMentors] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState("");
-  const [feedbackLessonId, setFeedbackLessonId] = useState(null);
+  // Restore pending feedback on page reload
+  const [feedbackLessonId, setFeedbackLessonId] = useState(
+    () => localStorage.getItem(PENDING_FEEDBACK_KEY) || null
+  );
 
   // Fetch available mentors for the intern's active branch
   useEffect(() => {
@@ -69,6 +72,7 @@ const AddLessonPage = () => {
       setFeedback("");
       setSelectedMentor("");
       if (lesson?._id) {
+        localStorage.setItem(PENDING_FEEDBACK_KEY, lesson._id);
         setFeedbackLessonId(lesson._id);
       } else {
         toast.success("Успешно отправлено");
