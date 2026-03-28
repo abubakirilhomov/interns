@@ -83,7 +83,13 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
       });
       localStorage.removeItem(PENDING_FEEDBACK_KEY);
       onSuccess();
-    } catch {
+    } catch (err) {
+      if (err?.response?.status === 409) {
+        // Already submitted — just close the modal
+        localStorage.removeItem(PENDING_FEEDBACK_KEY);
+        onSuccess();
+        return;
+      }
       setSubmitError("Юборишда хатолик юз берди. Қайта уриниб кўринг.");
     } finally {
       setSubmitting(false);
