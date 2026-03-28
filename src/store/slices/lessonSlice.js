@@ -11,7 +11,7 @@ export const createLesson = createAsyncThunk(
       const res = await axios.post(`${API_URL}/lessons`, lessonData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Ошибка при создании урока");
+      return rejectWithValue(err.response?.data || { message: "Ошибка при создании урока" });
     }
   }
 );
@@ -58,7 +58,7 @@ const lessonsSlice = createSlice({
       })
       .addCase(createLesson.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || action.payload || "Ошибка";
         state.success = false;
       })
       // Fetch lessons

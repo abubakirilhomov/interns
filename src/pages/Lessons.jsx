@@ -78,8 +78,13 @@ const AddLessonPage = () => {
         toast.success("Успешно отправлено");
         dispatch(resetLessonState());
       }
-    } catch {
-      // error is already in Redux state, displayed below the form
+    } catch (err) {
+      // If backend says there's a pending feedback lesson — show modal for it
+      const pendingId = err?.pendingFeedbackLessonId;
+      if (pendingId) {
+        localStorage.setItem(PENDING_FEEDBACK_KEY, pendingId);
+        setFeedbackLessonId(pendingId);
+      }
     }
   };
   const formatDateTimeLocal = (date) => {
