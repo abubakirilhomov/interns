@@ -70,6 +70,10 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
   };
 
   const handleSubmit = async () => {
+    if (selectedIds.length === 0) {
+      setSubmitError("Камида биtta критерий танланг");
+      return;
+    }
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -239,11 +243,6 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
             "Юбориш"
           )}
         </button>
-        {!loadingCriteria && !criteriaError && (
-          <p className="text-center text-xs text-base-content/30 mt-2">
-            Чекбоксларсиз ҳам юборишингиз мумкин
-          </p>
-        )}
       </div>
     </>
   );
