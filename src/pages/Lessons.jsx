@@ -23,6 +23,14 @@ const AddLessonPage = () => {
   const [feedbackLessonId, setFeedbackLessonId] = useState(
     () => localStorage.getItem(PENDING_FEEDBACK_KEY) || null
   );
+  const [lookbackDays, setLookbackDays] = useState(2);
+
+  // Fetch lesson lookback days setting
+  useEffect(() => {
+    axios.get(`${API_URL}/settings`).then((res) => {
+      if (res.data?.lessonLookbackDays) setLookbackDays(res.data.lessonLookbackDays);
+    }).catch(() => {});
+  }, []);
 
   // Fetch available mentors for the intern's active branch
   useEffect(() => {
@@ -117,7 +125,7 @@ const AddLessonPage = () => {
             value={time}
             onChange={(e) => setTime(e.target.value)}
             min={formatDateTimeLocal(
-              new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+              new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000)
             )}
             max={formatDateTimeLocal(new Date())}
           />
