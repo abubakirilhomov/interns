@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from "../components/LessonFeedbackModal";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -19,10 +18,6 @@ const AddLessonPage = () => {
   const [feedback, setFeedback] = useState("");
   const [mentors, setMentors] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState("");
-  // Restore pending feedback on page reload
-  const [feedbackLessonId, setFeedbackLessonId] = useState(
-    () => localStorage.getItem(PENDING_FEEDBACK_KEY) || null
-  );
   const [lookbackDays, setLookbackDays] = useState(2);
 
   // Fetch lesson lookback days setting
@@ -73,26 +68,16 @@ const AddLessonPage = () => {
     };
 
     try {
-      const lesson = await dispatch(createLesson(lessonData)).unwrap();
+      await dispatch(createLesson(lessonData)).unwrap();
       setTopic("");
       setTime("");
       setGroup("");
       setFeedback("");
       setSelectedMentor("");
-      if (lesson?._id) {
-        localStorage.setItem(PENDING_FEEDBACK_KEY, lesson._id);
-        setFeedbackLessonId(lesson._id);
-      } else {
-        toast.success("Успешно отправлено");
-        dispatch(resetLessonState());
-      }
+      toast.success("Успешно отправлено");
+      dispatch(resetLessonState());
     } catch (err) {
-      // If backend says there's a pending feedback lesson — show modal for it
-      const pendingId = err?.pendingFeedbackLessonId;
-      if (pendingId) {
-        localStorage.setItem(PENDING_FEEDBACK_KEY, pendingId);
-        setFeedbackLessonId(pendingId);
-      }
+      // error handled by redux state
     }
   };
   const formatDateTimeLocal = (date) => {
@@ -189,17 +174,6 @@ const AddLessonPage = () => {
         </button>
       </form>
       <ToastContainer position="top-right" />
-
-      {feedbackLessonId && (
-        <LessonFeedbackModal
-          lessonId={feedbackLessonId}
-          onSuccess={() => {
-            setFeedbackLessonId(null);
-            toast.success("Успешно отправлено");
-            dispatch(resetLessonState());
-          }}
-        />
-      )}
     </div>
   );
 };
