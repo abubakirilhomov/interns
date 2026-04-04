@@ -20,6 +20,11 @@ const AddLessonPage = () => {
   const [selectedMentor, setSelectedMentor] = useState("");
   const [lookbackDays, setLookbackDays] = useState(2);
 
+  // Clean up stale feedback modal key from localStorage
+  useEffect(() => {
+    localStorage.removeItem("pendingFeedbackLessonId");
+  }, []);
+
   // Fetch lesson lookback days setting
   useEffect(() => {
     axios.get(`${API_URL}/settings`).then((res) => {
