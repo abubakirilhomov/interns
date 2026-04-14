@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from "../components/LessonFeedbackModal";
+import { PENDING_FEEDBACK_KEY } from "../components/LessonFeedbackModal";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -19,16 +19,7 @@ const AddLessonPage = () => {
   const [feedback, setFeedback] = useState("");
   const [mentors, setMentors] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState("");
-  // Restore pending feedback on page reload
-  const [feedbackLessonId, setFeedbackLessonId] = useState(
-    () => localStorage.getItem(PENDING_FEEDBACK_KEY) || null
-  );
   const [lookbackDays, setLookbackDays] = useState(2);
-
-  // Clean up stale feedback modal key from localStorage
-  useEffect(() => {
-    localStorage.removeItem("pendingFeedbackLessonId");
-  }, []);
 
   // Fetch lesson lookback days setting
   useEffect(() => {
@@ -86,7 +77,7 @@ const AddLessonPage = () => {
       setSelectedMentor("");
       if (lesson?._id) {
         localStorage.setItem(PENDING_FEEDBACK_KEY, lesson._id);
-        setFeedbackLessonId(lesson._id);
+        window.dispatchEvent(new Event("feedback-pending-changed"));
       } else {
         toast.success("Успешно отправлено");
         dispatch(resetLessonState());
@@ -96,7 +87,7 @@ const AddLessonPage = () => {
       const pendingId = err?.pendingFeedbackLessonId;
       if (pendingId) {
         localStorage.setItem(PENDING_FEEDBACK_KEY, pendingId);
-        setFeedbackLessonId(pendingId);
+        window.dispatchEvent(new Event("feedback-pending-changed"));
       }
     }
   };
@@ -194,17 +185,6 @@ const AddLessonPage = () => {
         </button>
       </form>
       <ToastContainer position="top-right" />
-
-      {feedbackLessonId && (
-        <LessonFeedbackModal
-          lessonId={feedbackLessonId}
-          onSuccess={() => {
-            setFeedbackLessonId(null);
-            toast.success("Успешно отправлено");
-            dispatch(resetLessonState());
-          }}
-        />
-      )}
     </div>
   );
 };
