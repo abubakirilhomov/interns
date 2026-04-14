@@ -70,8 +70,8 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
   };
 
   const handleSubmit = async () => {
-    if (selectedIds.length === 0) {
-      setSubmitError("Камида биtta критерий танланг");
+    if (selectedIds.length === 0 && comment.trim().length === 0) {
+      setSubmitError("Камида биtta критерий танланг ёки фикрингизни ёзинг");
       return;
     }
     setSubmitting(true);
