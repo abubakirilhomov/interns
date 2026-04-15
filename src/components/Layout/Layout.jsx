@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from '../LessonFeedbackModal';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const readPendingId = () => {
   try {
@@ -13,8 +16,30 @@ const readPendingId = () => {
 };
 
 const Layout = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [pendingFeedbackId, setPendingFeedbackId] = useState(() => readPendingId());
+
+  // Self-heal: if the server tracks an unrated lesson for this intern but
+  // our localStorage is empty (stale client / PWA cache / fresh device),
+  // fetch it and open the modal anyway.
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'intern') return;
+    let cancelled = false;
+    axios
+      .get(`${API_URL}/lessons/pending-feedback`)
+      .then((res) => {
+        if (cancelled) return;
+        const serverId = res.data?.pending?._id;
+        if (serverId) {
+          localStorage.setItem(PENDING_FEEDBACK_KEY, serverId);
+          setPendingFeedbackId(serverId);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, user?._id, user?.role]);
 
   // Re-check pending feedback on auth change, storage events (cross-tab),
   // and a custom in-tab event dispatched when a lesson is created.

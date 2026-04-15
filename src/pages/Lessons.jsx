@@ -88,6 +88,18 @@ const AddLessonPage = () => {
       if (pendingId) {
         localStorage.setItem(PENDING_FEEDBACK_KEY, pendingId);
         window.dispatchEvent(new Event("feedback-pending-changed"));
+        return;
+      }
+      // Fallback: if we got blocked but don't know which lesson, ask the server.
+      try {
+        const res = await axios.get(`${API_URL}/lessons/pending-feedback`);
+        const serverId = res.data?.pending?._id;
+        if (serverId) {
+          localStorage.setItem(PENDING_FEEDBACK_KEY, serverId);
+          window.dispatchEvent(new Event("feedback-pending-changed"));
+        }
+      } catch {
+        // ignore — Redux state already holds the error message
       }
     }
   };
