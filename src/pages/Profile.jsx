@@ -490,12 +490,6 @@ const Profile = () => {
                   </div>
                 </form>
               )}
-              <button className="btn btn-outline btn-info w-full">
-                История входов
-              </button>
-              <button className="btn btn-outline btn-error w-full">
-                Выйти из всех устройств
-              </button>
             </div>
           </div>
         </div>

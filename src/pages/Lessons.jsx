@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
@@ -20,6 +20,11 @@ const AddLessonPage = () => {
   const [mentors, setMentors] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState("");
   const [lookbackDays, setLookbackDays] = useState(2);
+  // Synchronous guard against double-submit: useState updates don't take
+  // effect until after the next render, so a fast second tap can race past
+  // the disabled={isLoading} check. A ref flips synchronously in the
+  // handler, before any await, and rejects the second click outright.
+  const submittingRef = useRef(false);
 
   // Fetch lesson lookback days setting
   useEffect(() => {
@@ -55,7 +60,11 @@ const AddLessonPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+
     if (!topic || !time || !group || !selectedMentor) {
+      submittingRef.current = false;
       return toast.error("Пожалуйста, заполните все обязательные поля");
     }
 
@@ -101,6 +110,8 @@ const AddLessonPage = () => {
       } catch {
         // ignore — Redux state already holds the error message
       }
+    } finally {
+      submittingRef.current = false;
     }
   };
   const formatDateTimeLocal = (date) => {
