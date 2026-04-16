@@ -1,15 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { updateProfile } from '../store/slices/authSlice';
-import GradeBadge from '../components/UI/GradesBadge';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+
+const GRADES = ['junior', 'strongJunior', 'middle', 'strongMiddle', 'senior'];
+const GRADE_LABELS = {
+  junior: 'Junior',
+  strongJunior: 'Strong Junior',
+  middle: 'Middle',
+  strongMiddle: 'Strong Middle',
+  senior: 'Senior',
+};
+const GRADE_COLORS = {
+  junior: 'bg-green-500',
+  strongJunior: 'bg-blue-500',
+  middle: 'bg-yellow-500',
+  strongMiddle: 'bg-orange-500',
+  senior: 'bg-red-500',
+};
+const GRADE_BG = {
+  junior: 'bg-green-100 text-green-700',
+  strongJunior: 'bg-blue-100 text-blue-700',
+  middle: 'bg-yellow-100 text-yellow-700',
+  strongMiddle: 'bg-orange-100 text-orange-700',
+  senior: 'bg-red-100 text-red-700',
+};
 
 const Profile = () => {
   const dispatch = useDispatch();
   const { user, isLoading } = useSelector((state) => state.auth);
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
-  
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
@@ -31,11 +55,16 @@ const Profile = () => {
     profilePhoto: user?.profilePhoto || '',
   });
 
+  useEffect(() => {
+    axios
+      .get('/dashboard/stats')
+      .then((res) => setStats(res.data))
+      .catch(() => {})
+      .finally(() => setStatsLoading(false));
+  }, []);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -43,37 +72,26 @@ const Profile = () => {
     try {
       await dispatch(updateProfile(formData)).unwrap();
       setIsEditing(false);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-    }
+    } catch {}
   };
 
   const handlePhotoUpload = async (file) => {
     if (!file) return;
-    const token = localStorage.getItem("token");
-
+    const token = localStorage.getItem('token');
     try {
       setUploadingPhoto(true);
       const data = new FormData();
-      data.append("file", file);
-      data.append("folder", "interns");
-
+      data.append('file', file);
+      data.append('folder', 'interns');
       const response = await fetch(`${API_URL}/uploads/image`, {
-        method: "POST",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        method: 'POST',
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: data,
       });
-
       const result = await response.json();
-      if (!response.ok || !result?.success) {
-        throw new Error(result?.message || "Ошибка загрузки фото");
-      }
-
+      if (!response.ok || !result?.success) throw new Error();
       setFormData((prev) => ({ ...prev, profilePhoto: result.data.url }));
-    } catch (error) {
-      console.error("Photo upload error:", error);
+    } catch {
     } finally {
       setUploadingPhoto(false);
     }
@@ -100,172 +118,216 @@ const Profile = () => {
     e.preventDefault();
     setPasswordError('');
     setPasswordSuccess('');
-
     if (passwordForm.newPassword.length < 6) {
-      setPasswordError('Новый пароль должен содержать минимум 6 символов');
+      setPasswordError("Kamida 6 ta belgi bo'lishi kerak");
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordError('Пароли не совпадают');
+      setPasswordError("Parollar mos kelmaydi");
       return;
     }
-
     setPasswordLoading(true);
     try {
       await axios.patch('/interns/me/password', {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword,
       });
-      setPasswordSuccess('Пароль успешно изменён');
+      setPasswordSuccess("Parol muvaffaqiyatli o'zgartirildi");
       setIsChangingPassword(false);
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
       setPasswordError(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          'Ошибка при смене пароля'
+        error.response?.data?.message || error.response?.data?.error || "Parolni o'zgartirishda xatolik"
       );
     } finally {
       setPasswordLoading(false);
     }
   };
 
-  const handlePasswordCancel = () => {
-    setIsChangingPassword(false);
-    setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    setPasswordError('');
-    setPasswordSuccess('');
-  };
+  if (isLoading) return <LoadingSpinner size="lg" className="min-h-96" />;
 
-  if (isLoading) {
-    return <LoadingSpinner size="lg" className="min-h-96" />;
-  }
+  const grade = stats?.grade || user?.grade || 'junior';
+  const gradeIdx = GRADES.indexOf(grade);
+  const nextGrade = gradeIdx < GRADES.length - 1 ? GRADES[gradeIdx + 1] : null;
+  const lessonsConfirmed = stats?.lessonsConfirmed || 0;
+  const monthlyGoal = stats?.monthlyGoal || 24;
+  const lessonsPct = monthlyGoal > 0 ? Math.min(Math.round((lessonsConfirmed / monthlyGoal) * 100), 100) : 0;
+  const avgScore = stats?.averageScore?.toFixed(1) || user?.score?.toFixed(1) || '0.0';
+  const feedbackCount = user?.feedbacks?.length || 0;
+  const branchCount = user?.branches?.length || 0;
+  const isPlanBlocked = stats?.planStatus?.isPlanBlocked || user?.isPlanBlocked;
+  const photo = user?.profilePhoto;
+  const initials = `${user?.name?.[0] || ''}${user?.lastName?.[0] || ''}`.toUpperCase();
+
+  const tgLink = (link) =>
+    link?.startsWith('@') ? `https://t.me/${link.slice(1)}` : link;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-base-content">Профиль</h1>
-          <p className="text-base-content/70 mt-1">
-            Управляйте информацией своего профиля
-          </p>
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <GradeBadge grade={user?.grade} />
-        </div>
-      </div>
-
-      {/* Profile Card */}
+    <div className="space-y-4 max-w-3xl mx-auto">
+      {/* ═══ HERO CARD ═══ */}
       <div className="card bg-base-100 shadow">
         <div className="card-body">
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="avatar">
-              <div className="w-20 h-20 rounded-full bg-primary text-primary-content text-2xl font-bold">
-                {(isEditing ? formData.profilePhoto : user?.profilePhoto) ? (
-                  <img
-                    src={isEditing ? formData.profilePhoto : user?.profilePhoto}
-                    alt={`${user?.name || ""} ${user?.lastName || ""}`}
-                    className="w-full h-full rounded-full object-cover"
-                  />
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            {/* Avatar */}
+            <div className="flex-shrink-0">
+              <div className="w-24 h-24 rounded-2xl bg-primary text-primary-content text-3xl font-bold overflow-hidden shadow-lg">
+                {photo ? (
+                  <img src={photo} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className='flex justify-center items-center h-full'>
-                    {user?.name?.[0]?.toUpperCase()}
-                    {user?.lastName?.[0]?.toUpperCase()}
-                  </span>
+                  <span className="flex justify-center items-center h-full">{initials}</span>
                 )}
               </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-base-content">
+
+            {/* Info */}
+            <div className="flex-1 text-center sm:text-left min-w-0">
+              <h1 className="text-2xl font-bold text-base-content leading-tight">
                 {user?.name} {user?.lastName}
-              </h2>
-              <p className="text-base-content/70">@{user?.username}</p>
+              </h1>
+              <p className="text-base-content/50 text-sm mt-0.5">
+                @{user?.username}
+                {user?.sphere && <span> · {user.sphere}</span>}
+              </p>
+
+              {/* Grade badge + plan status */}
+              <div className="flex flex-wrap items-center gap-2 mt-3 justify-center sm:justify-start">
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${GRADE_BG[grade]}`}>
+                  {GRADE_LABELS[grade]}
+                </span>
+                {isPlanBlocked && (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
+                    Reja bajarilmagan
+                  </span>
+                )}
+                {user?.isHeadIntern && (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
+                    Head Intern
+                  </span>
+                )}
+              </div>
+
+              {/* Lesson progress bar */}
+              <div className="mt-4 w-full max-w-sm mx-auto sm:mx-0">
+                <div className="flex justify-between items-center text-xs mb-1">
+                  <span className="font-semibold text-base-content">
+                    {lessonsConfirmed} / {monthlyGoal} dars
+                  </span>
+                  <span className="text-base-content/50">{lessonsPct}%</span>
+                </div>
+                <div className="w-full h-3 bg-base-200 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${GRADE_COLORS[grade]}`}
+                    style={{ width: `${lessonsPct}%` }}
+                  />
+                </div>
+                {nextGrade && (
+                  <p className="text-xs text-base-content/40 mt-1">
+                    Keyingi daraja: <span className="font-medium">{GRADE_LABELS[nextGrade]}</span>
+                  </p>
+                )}
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ STATS ROW ═══ */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { value: avgScore, label: "O'rtacha ball", icon: '⭐' },
+          { value: feedbackCount, label: 'Fikrlar soni', icon: '💬' },
+          { value: branchCount, label: 'Filiallar', icon: '🏢' },
+        ].map((s) => (
+          <div key={s.label} className="card bg-base-100 shadow">
+            <div className="card-body p-4 items-center text-center">
+              <span className="text-lg">{s.icon}</span>
+              <span className="text-2xl font-bold text-base-content">{s.value}</span>
+              <span className="text-xs text-base-content/50">{s.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ═══ TELEGRAM ═══ */}
+      <div className="card bg-base-100 shadow">
+        <div className="card-body p-4">
+          <h3 className="font-bold text-sm text-base-content/60 uppercase tracking-wide mb-3">
+            Telegram guruhlar
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="https://t.me/+fiZVGvlBSIxkZGQy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm btn-primary gap-1"
+            >
+              Umumiy guruh
+            </a>
+            {user?.branches?.map((b, i) =>
+              b.branch?.telegramLink ? (
+                <a
+                  key={i}
+                  href={tgLink(b.branch.telegramLink)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm btn-outline btn-primary gap-1"
+                >
+                  {b.branch?.name || 'Filial'}
+                </a>
+              ) : null
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ PERSONAL INFO ═══ */}
+      <div className="card bg-base-100 shadow">
+        <div className="card-body">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-sm text-base-content/60 uppercase tracking-wide">
+              Shaxsiy ma'lumotlar
+            </h3>
+            {!isEditing && (
+              <button onClick={() => setIsEditing(true)} className="btn btn-sm btn-ghost btn-primary">
+                Tahrirlash
+              </button>
+            )}
           </div>
 
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Имя</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="input input-bordered input-primary"
-                    required
-                  />
+                  <label className="label"><span className="label-text font-medium">Ism</span></label>
+                  <input type="text" name="name" value={formData.name} onChange={handleChange}
+                    className="input input-bordered input-primary" required />
                 </div>
-
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Фамилия</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="input input-bordered input-primary"
-                    required
-                  />
+                  <label className="label"><span className="label-text font-medium">Familiya</span></label>
+                  <input type="text" name="lastName" value={formData.lastName} onChange={handleChange}
+                    className="input input-bordered input-primary" required />
                 </div>
               </div>
-
               <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Имя пользователя</span>
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="input input-bordered input-primary"
-                  required
-                />
+                <label className="label"><span className="label-text font-medium">Username</span></label>
+                <input type="text" name="username" value={formData.username} onChange={handleChange}
+                  className="input input-bordered input-primary" required />
               </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Телефон</span>
-                </label>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="input input-bordered input-primary"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-medium">Telefon</span></label>
+                  <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange}
+                    className="input input-bordered input-primary" />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-medium">Telegram</span></label>
+                  <input type="text" name="telegram" value={formData.telegram} onChange={handleChange}
+                    className="input input-bordered input-primary" />
+                </div>
               </div>
-
               <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Telegram</span>
-                </label>
-                <input
-                  type="text"
-                  name="telegram"
-                  value={formData.telegram}
-                  onChange={handleChange}
-                  className="input input-bordered input-primary"
-                />
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Сфера</span>
-                </label>
-                <select
-                  name="sphere"
-                  value={formData.sphere}
-                  onChange={handleChange}
-                  className="select select-bordered"
-                >
+                <label className="label"><span className="label-text font-medium">Soha</span></label>
+                <select name="sphere" value={formData.sphere} onChange={handleChange} className="select select-bordered">
                   <option value="backend-nodejs">Backend (Node.js)</option>
                   <option value="backend-python">Backend (Python)</option>
                   <option value="frontend-react">Frontend (React)</option>
@@ -274,247 +336,110 @@ const Profile = () => {
                   <option value="full-stack">Full Stack</option>
                 </select>
               </div>
-
               <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Фото профиля</span>
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="file-input file-input-bordered"
-                  onChange={(e) => handlePhotoUpload(e.target.files?.[0])}
-                  disabled={uploadingPhoto}
-                />
-                {uploadingPhoto && <span className="text-xs mt-1">Загрузка...</span>}
+                <label className="label"><span className="label-text font-medium">Profil rasmi</span></label>
+                <input type="file" accept="image/*" className="file-input file-input-bordered"
+                  onChange={(e) => handlePhotoUpload(e.target.files?.[0])} disabled={uploadingPhoto} />
+                {uploadingPhoto && <span className="text-xs mt-1">Yuklanmoqda...</span>}
               </div>
-
-              <div className="flex gap-4 pt-4">
-                <button type="submit" className="btn btn-primary" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <LoadingSpinner size="sm" />
-                      Сохранение...
-                    </>
-                  ) : (
-                    'Сохранить'
-                  )}
+              <div className="flex gap-3 pt-2">
+                <button type="submit" className="btn btn-primary btn-sm" disabled={isLoading}>
+                  {isLoading ? <><LoadingSpinner size="sm" /> Saqlanmoqda...</> : 'Saqlash'}
                 </button>
-                <button type="button" onClick={handleCancel} className="btn btn-ghost">
-                  Отмена
-                </button>
+                <button type="button" onClick={handleCancel} className="btn btn-ghost btn-sm">Bekor qilish</button>
               </div>
             </form>
           ) : (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
-                    Имя
-                  </h3>
-                  <p className="text-lg text-base-content mt-1">{user?.name}</p>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+              {[
+                ['Ism', user?.name],
+                ['Familiya', user?.lastName],
+                ['Username', `@${user?.username}`],
+                ['Telefon', user?.phoneNumber],
+                ['Telegram', user?.telegram],
+                ['Soha', user?.sphere],
+              ].map(([label, val]) => (
+                <div key={label}>
+                  <span className="text-base-content/40 text-xs uppercase tracking-wide">{label}</span>
+                  <p className="font-medium text-base-content mt-0.5">{val || '—'}</p>
                 </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
-                    Фамилия
-                  </h3>
-                  <p className="text-lg text-base-content mt-1">{user?.lastName}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
-                    Имя пользователя
-                  </h3>
-                  <p className="text-lg text-base-content mt-1">@{user?.username}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
-                    Телефон
-                  </h3>
-                  <p className="text-lg text-base-content mt-1">{user?.phoneNumber || '—'}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
-                    Telegram
-                  </h3>
-                  <p className="text-lg text-base-content mt-1">{user?.telegram || '—'}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
-                    Сфера
-                  </h3>
-                  <p className="text-lg text-base-content mt-1">{user?.sphere || '—'}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-base-content/70 uppercase tracking-wide">
-                    Уровень
-                  </h3>
-                  <div className="mt-2">
-                    <GradeBadge grade={user?.grade} />
-                  </div>
+              ))}
+              <div>
+                <span className="text-base-content/40 text-xs uppercase tracking-wide">Daraja</span>
+                <div className="mt-1">
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${GRADE_BG[grade]}`}>
+                    {GRADE_LABELS[grade]}
+                  </span>
                 </div>
               </div>
-
-              <div className="pt-4">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="btn btn-primary"
-                >
-                  Редактировать профиль
-                </button>
+              <div>
+                <span className="text-base-content/40 text-xs uppercase tracking-wide">Filiallar</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {user?.branches?.length
+                    ? user.branches.map((b, i) => (
+                        <span key={i} className="badge badge-outline badge-sm">
+                          {b.branch?.name || String(b.branch)}
+                        </span>
+                      ))
+                    : <p className="font-medium text-base-content">—</p>}
+                </div>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Additional Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card bg-base-100 shadow">
-          <div className="card-body">
-            <h3 className="card-title text-lg mb-4">Статистика</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-base-content/70">Средний балл</span>
-                <span className="font-semibold">{user?.score?.toFixed(1) || '0.0'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-base-content/70">Отзывов получено</span>
-                <span className="font-semibold">{user?.feedbacks?.length || 0}</span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-base-content/70">Филиалы</span>
-                {user?.branches?.length
-                  ? user.branches.map((b, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <span className="badge badge-outline badge-sm">
-                          {b.branch?.name || String(b.branch)}
-                          {b.mentor ? ` · ${b.mentor?.name || ''}` : ''}
-                        </span>
-                        {b.branch?.telegramLink && (
-                          <a
-                            href={b.branch.telegramLink.startsWith("@")
-                              ? `https://t.me/${b.branch.telegramLink.slice(1)}`
-                              : b.branch.telegramLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="badge badge-sm badge-primary gap-1"
-                          >
-                            TG guruh
-                          </a>
-                        )}
-                      </div>
-                    ))
-                  : <span className="font-semibold text-sm">{user?.branchId || 'Не указан'}</span>
-                }
-              </div>
+      {/* ═══ SECURITY ═══ */}
+      <div className="card bg-base-100 shadow">
+        <div className="card-body">
+          <h3 className="font-bold text-sm text-base-content/60 uppercase tracking-wide mb-3">
+            Xavfsizlik
+          </h3>
 
-              <a
-                href="https://t.me/+fiZVGvlBSIxkZGQy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-sm btn-outline btn-primary w-full mt-2 gap-2"
-              >
-                Umumiy Telegram guruh
-              </a>
+          {passwordSuccess && !isChangingPassword && (
+            <div className="alert alert-success text-sm py-2 mb-3"><span>{passwordSuccess}</span></div>
+          )}
+
+          {!isChangingPassword ? (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button onClick={() => { setIsChangingPassword(true); setPasswordSuccess(''); }}
+                className="btn btn-sm btn-outline btn-warning flex-1">
+                Parolni o'zgartirish
+              </button>
             </div>
-          </div>
-        </div>
-
-        <div className="card bg-base-100 shadow">
-          <div className="card-body">
-            <h3 className="card-title text-lg mb-4">Безопасность</h3>
-            <div className="space-y-3">
-              {passwordSuccess && !isChangingPassword && (
-                <div className="alert alert-success text-sm py-2">
-                  <span>{passwordSuccess}</span>
-                </div>
+          ) : (
+            <form onSubmit={handlePasswordSubmit} className="space-y-3">
+              {passwordError && (
+                <div className="alert alert-error text-sm py-2"><span>{passwordError}</span></div>
               )}
-              {!isChangingPassword ? (
-                <button
-                  onClick={() => { setIsChangingPassword(true); setPasswordSuccess(''); }}
-                  className="btn btn-outline btn-warning w-full"
-                >
-                  Изменить пароль
+              <div className="form-control">
+                <label className="label"><span className="label-text font-medium">Joriy parol</span></label>
+                <input type="password" name="currentPassword" value={passwordForm.currentPassword}
+                  onChange={handlePasswordChange} className="input input-bordered input-primary" required />
+              </div>
+              <div className="form-control">
+                <label className="label"><span className="label-text font-medium">Yangi parol</span></label>
+                <input type="password" name="newPassword" value={passwordForm.newPassword}
+                  onChange={handlePasswordChange} className="input input-bordered input-primary" required />
+                <label className="label"><span className="label-text-alt">Kamida 6 ta belgi</span></label>
+              </div>
+              <div className="form-control">
+                <label className="label"><span className="label-text font-medium">Parolni tasdiqlang</span></label>
+                <input type="password" name="confirmPassword" value={passwordForm.confirmPassword}
+                  onChange={handlePasswordChange} className="input input-bordered input-primary" required />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button type="submit" className="btn btn-primary btn-sm flex-1" disabled={passwordLoading}>
+                  {passwordLoading ? <><LoadingSpinner size="sm" /> Saqlanmoqda...</> : 'Saqlash'}
                 </button>
-              ) : (
-                <form onSubmit={handlePasswordSubmit} className="space-y-3">
-                  {passwordError && (
-                    <div className="alert alert-error text-sm py-2">
-                      <span>{passwordError}</span>
-                    </div>
-                  )}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">Текущий пароль</span>
-                    </label>
-                    <input
-                      type="password"
-                      name="currentPassword"
-                      value={passwordForm.currentPassword}
-                      onChange={handlePasswordChange}
-                      className="input input-bordered input-primary"
-                      required
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">Новый пароль</span>
-                    </label>
-                    <input
-                      type="password"
-                      name="newPassword"
-                      value={passwordForm.newPassword}
-                      onChange={handlePasswordChange}
-                      className="input input-bordered input-primary"
-                      required
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">Подтвердите пароль</span>
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={passwordForm.confirmPassword}
-                      onChange={handlePasswordChange}
-                      className="input input-bordered input-primary"
-                      required
-                    />
-                  </div>
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      type="submit"
-                      className="btn btn-primary btn-sm flex-1"
-                      disabled={passwordLoading}
-                    >
-                      {passwordLoading ? (
-                        <>
-                          <LoadingSpinner size="sm" />
-                          Сохранение...
-                        </>
-                      ) : (
-                        'Сохранить'
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handlePasswordCancel}
-                      className="btn btn-ghost btn-sm flex-1"
-                    >
-                      Отмена
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          </div>
+                <button type="button" onClick={() => {
+                  setIsChangingPassword(false);
+                  setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                  setPasswordError('');
+                }} className="btn btn-ghost btn-sm flex-1">Bekor qilish</button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>
