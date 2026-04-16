@@ -62,7 +62,7 @@ const StatusPanel = ({
                 </div>
                 <div className="text-sm font-medium text-base-content/60 mb-1">{t('dashboard.avgScore')}</div>
                 <div className="text-3xl font-bold text-warning mb-1">
-                    {parseFloat(averageScore).toFixed(1)}
+                    {(typeof averageScore === 'number' ? averageScore : parseFloat(averageScore) || 0).toFixed(1)}
                 </div>
                 <div className="text-xs font-semibold px-2 py-1 bg-warning/10 text-warning rounded-full inline-block">
                     {t('dashboard.outOf5')}

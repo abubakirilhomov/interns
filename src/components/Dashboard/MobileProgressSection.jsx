@@ -27,7 +27,7 @@ const MobileProgressSection = ({
               }}
               role="progressbar"
             >
-              <span className="text-base sm:text-xl">{lessonsProgressPercentage.toFixed(0)}%</span>
+              <span className="text-base sm:text-xl">{(typeof lessonsProgressPercentage === 'number' ? lessonsProgressPercentage : 0).toFixed(0)}%</span>
             </div>
             <div className="mt-2 w-full">
               <div className="text-xs text-base-content/60">{t('dashboard.lessonsMobile')}</div>
@@ -50,12 +50,12 @@ const MobileProgressSection = ({
               }}
               role="progressbar"
             >
-              <span className="text-base sm:text-xl">{scoreProgressPercentage.toFixed(0)}%</span>
+              <span className="text-base sm:text-xl">{(typeof scoreProgressPercentage === 'number' ? scoreProgressPercentage : 0).toFixed(0)}%</span>
             </div>
             <div className="mt-2 w-full">
               <div className="text-xs text-base-content/60">{t('dashboard.quality')}</div>
               <div className="text-xs sm:text-sm font-semibold break-words">
-                {averageScore.toFixed(1)} {t('common.from')} 5.0
+                {(typeof averageScore === 'number' ? averageScore : 0).toFixed(1)} {t('common.from')} 5.0
               </div>
             </div>
           </div>
@@ -67,7 +67,7 @@ const MobileProgressSection = ({
         <div className="card-body items-center text-center p-4 sm:p-6">
           <h3 className="card-title text-base sm:text-lg mb-3 sm:mb-4">{t('dashboard.overallProgress')}</h3>
           <div
-            className={`radial-progress text-${overallStatusColor} text-xl sm:text-2xl font-bold mb-3 sm:mb-4`}
+            className={`radial-progress ${overallStatusColor === 'error' ? 'text-error' : overallStatusColor === 'warning' ? 'text-warning' : 'text-success'} text-xl sm:text-2xl font-bold mb-3 sm:mb-4`}
             style={{
               "--value": overallProgressPercentage,
               "--size": "7rem",
@@ -75,7 +75,7 @@ const MobileProgressSection = ({
             }}
             role="progressbar"
           >
-            <span className="text-xl sm:text-2xl">{overallProgressPercentage.toFixed(1)}%</span>
+            <span className="text-xl sm:text-2xl">{(typeof overallProgressPercentage === 'number' ? overallProgressPercentage : 0).toFixed(1)}%</span>
           </div>
 
           {/* Status Indicators */}

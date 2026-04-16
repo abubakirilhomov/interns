@@ -11,7 +11,7 @@ const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
     senior: "Senior"
   };
 
-  const internGradeIndex = gradeOrder.indexOf(internGrade);
+  const internGradeIndex = Math.max(0, gradeOrder.indexOf(internGrade));
   let remaining = lessonsVisited;
 
   const steps = gradeOrder.map((grade, index) => {

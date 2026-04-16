@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import StatsCard from "../UI/StatsCard";
 
-const StatsGrid = ({ averageScore, grade, totalLessonsVisited, monthlyLessons, isMobile }) => {
+const StatsGrid = ({ averageScore, grade, totalLessonsVisited, monthlyLessons, feedbackCount = 0, isMobile }) => {
   const { t } = useTranslation();
 
   return (
@@ -26,7 +26,7 @@ const StatsGrid = ({ averageScore, grade, totalLessonsVisited, monthlyLessons, i
 
       <StatsCard
         title={isMobile ? t('dashboard.feedbackReceivedMobile') : t('dashboard.feedbackReceived')}
-        value={0}
+        value={feedbackCount}
         icon="💬"
         colorClass="text-success"
       />

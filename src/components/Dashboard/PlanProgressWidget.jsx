@@ -25,9 +25,9 @@ const PlanProgressWidget = ({
     0
   );
 
-  const goal = monthlyGoal || 1;
+  const goal = monthlyGoal || 0;
   const confirmed = lessonsConfirmed ?? confirmedLessonsThisMonth;
-  const progressPercent = Math.min(Math.round((confirmed / goal) * 100), 100);
+  const progressPercent = goal > 0 ? Math.min(Math.round((confirmed / goal) * 100), 100) : 0;
 
   const progressColor =
     isPlanBlocked

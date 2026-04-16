@@ -65,7 +65,8 @@ const Dashboard = () => {
     nearDeadline,
     canGetConcession,
     trialStats,
-    planStatus
+    planStatus,
+    recentReviews,
   } = stats;
 
   return (
@@ -160,6 +161,7 @@ const Dashboard = () => {
         monthlyLessons={lessonsThisMonth}
         averageScore={Number(averageScore)}
         grade={grade}
+        feedbackCount={Array.isArray(recentReviews) ? recentReviews.length : (user?.feedbacks?.length || 0)}
         perks={perks}
         isMobile={isMobile}
       />

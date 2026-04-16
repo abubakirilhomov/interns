@@ -55,7 +55,7 @@ const DesktopProgressSection = ({
         <div className="card-body">
           <div className="flex justify-between items-center mb-4">
             <h3 className="card-title">{t('dashboard.progressCompletion')}</h3>
-            <div className={`badge badge-${overallStatusColor} badge-lg`}>
+            <div className={`badge badge-lg ${overallStatusColor === 'error' ? 'badge-error' : overallStatusColor === 'warning' ? 'badge-warning' : 'badge-success'}`}>
               {overallProgressPercentage}%
             </div>
           </div>
@@ -65,11 +65,11 @@ const DesktopProgressSection = ({
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>{t('dashboard.lessonsOf', { actual: actualLessons, goal: monthlyGoal })}</span>
-                <span className={`text-${lessonsStatusColor}`}>{lessonsProgressPercentage}%</span>
+                <span className={`${lessonsStatusColor === 'error' ? 'text-error' : lessonsStatusColor === 'warning' ? 'text-warning' : 'text-success'}`}>{lessonsProgressPercentage}%</span>
               </div>
               <div className="w-full bg-base-200 rounded-full h-3">
                 <div
-                  className={`bg-${lessonsStatusColor} h-3 rounded-full transition-all duration-500`}
+                  className={`${lessonsStatusColor === 'error' ? 'bg-error' : lessonsStatusColor === 'warning' ? 'bg-warning' : 'bg-success'} h-3 rounded-full transition-all duration-500`}
                   style={{ width: `${lessonsProgressPercentage}%` }}
                 ></div>
               </div>
@@ -79,11 +79,11 @@ const DesktopProgressSection = ({
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>{t('dashboard.qualityOf', { score: typeof averageScore === 'number' ? averageScore.toFixed(1) : averageScore })}</span>
-                <span className={`text-${scoreStatusColor}`}>{scoreProgressPercentage}%</span>
+                <span className={`${scoreStatusColor === 'error' ? 'text-error' : scoreStatusColor === 'warning' ? 'text-warning' : 'text-success'}`}>{scoreProgressPercentage}%</span>
               </div>
               <div className="w-full bg-base-200 rounded-full h-3">
                 <div
-                  className={`bg-${scoreStatusColor} h-3 rounded-full transition-all duration-500`}
+                  className={`${scoreStatusColor === 'error' ? 'bg-error' : scoreStatusColor === 'warning' ? 'bg-warning' : 'bg-success'} h-3 rounded-full transition-all duration-500`}
                   style={{ width: `${scoreProgressPercentage}%` }}
                 ></div>
               </div>
@@ -93,11 +93,11 @@ const DesktopProgressSection = ({
             <div className="pt-2 border-t border-base-300">
               <div className="flex justify-between text-sm mb-2">
                 <span className="font-semibold">{t('dashboard.overallProgress')}</span>
-                <span className={`text-${overallStatusColor} font-semibold`}>{overallProgressPercentage}%</span>
+                <span className={`${overallStatusColor === 'error' ? 'text-error' : overallStatusColor === 'warning' ? 'text-warning' : 'text-success'} font-semibold`}>{overallProgressPercentage}%</span>
               </div>
               <div className="w-full bg-base-200 rounded-full h-4">
                 <div
-                  className={`bg-${overallStatusColor} h-4 rounded-full transition-all duration-500`}
+                  className={`${overallStatusColor === 'error' ? 'bg-error' : overallStatusColor === 'warning' ? 'bg-warning' : 'bg-success'} h-4 rounded-full transition-all duration-500`}
                   style={{ width: `${overallProgressPercentage}%` }}
                 ></div>
               </div>
