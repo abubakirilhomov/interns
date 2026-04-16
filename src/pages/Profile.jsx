@@ -391,14 +391,37 @@ const Profile = () => {
                 <span className="text-base-content/70">Филиалы</span>
                 {user?.branches?.length
                   ? user.branches.map((b, i) => (
-                      <span key={i} className="badge badge-outline badge-sm">
-                        {b.branch?.name || String(b.branch)}
-                        {b.mentor ? ` · ${b.mentor?.name || ''}` : ''}
-                      </span>
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="badge badge-outline badge-sm">
+                          {b.branch?.name || String(b.branch)}
+                          {b.mentor ? ` · ${b.mentor?.name || ''}` : ''}
+                        </span>
+                        {b.branch?.telegramLink && (
+                          <a
+                            href={b.branch.telegramLink.startsWith("@")
+                              ? `https://t.me/${b.branch.telegramLink.slice(1)}`
+                              : b.branch.telegramLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="badge badge-sm badge-primary gap-1"
+                          >
+                            TG guruh
+                          </a>
+                        )}
+                      </div>
                     ))
                   : <span className="font-semibold text-sm">{user?.branchId || 'Не указан'}</span>
                 }
               </div>
+
+              <a
+                href="https://t.me/+fiZVGvlBSIxkZGQy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm btn-outline btn-primary w-full mt-2 gap-2"
+              >
+                Umumiy Telegram guruh
+              </a>
             </div>
           </div>
         </div>
