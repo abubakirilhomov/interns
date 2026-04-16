@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Clock } from "lucide-react";
 
 const MS = 1000;
@@ -7,6 +8,7 @@ const HOUR = 60 * MIN;
 const DAY = 24 * HOUR;
 
 const ProbationTimer = ({ probation, isMobile, daysWorking, trialPeriodDays, daysRemaining }) => {
+  const { t } = useTranslation();
   const [timeLeftMs, setTimeLeftMs] = useState(0);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ const ProbationTimer = ({ probation, isMobile, daysWorking, trialPeriodDays, day
           <span className="text-lg">🎉</span>
         </div>
         <div className="text-sm font-bold text-success">
-          Испытательный срок завершён
+          {t('dashboard.probationEnded')}
         </div>
       </div>
     );
@@ -45,29 +47,28 @@ const ProbationTimer = ({ probation, isMobile, daysWorking, trialPeriodDays, day
   const minutes = Math.floor((timeLeftMs % HOUR) / MIN);
   const seconds = Math.floor((timeLeftMs % MIN) / MS);
 
-  // Вычисляем процент для прогресс бара
   const progressPercent = Math.min((daysWorking / trialPeriodDays) * 100, 100);
   const isNearDeadline = daysRemaining <= 7;
 
   return (
     <div className="card bg-base-100/60 shadow-xl backdrop-blur border border-base-200 p-5 w-full">
-      {/* Заголовок */}
+      {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <div className="p-2 bg-primary/10 rounded-lg">
           <Clock className="w-5 h-5 text-primary" />
         </div>
         <div>
           <div className="text-xs font-semibold text-base-content/60 uppercase tracking-wider">
-            {isMobile ? "Испыт. срок" : "Испытательный срок"}
+            {isMobile ? t('dashboard.probation') : t('dashboard.probationFull')}
           </div>
           <div className="flex items-baseline gap-1">
             <span className="text-sm font-bold text-base-content">{daysWorking}</span>
-            <span className="text-xs text-base-content/40">/ {trialPeriodDays} дней</span>
+            <span className="text-xs text-base-content/40">/ {trialPeriodDays} {t('common.days')}</span>
           </div>
         </div>
       </div>
 
-      {/* Кастомный прогресс бар */}
+      {/* Progress bar */}
       {daysWorking !== undefined && (
         <div className="mb-6 relative">
           <div className="h-3 w-full bg-base-200 rounded-full overflow-hidden">
@@ -81,21 +82,21 @@ const ProbationTimer = ({ probation, isMobile, daysWorking, trialPeriodDays, day
           </div>
           <div className="mt-2 text-xs text-center font-medium text-base-content/60">
             {daysRemaining > 0 ? (
-              <span>Осталось <span className={isNearDeadline ? "text-error font-bold" : "text-base-content"}>{daysRemaining} дней</span></span>
+              <span>{t('dashboard.probationRemaining', { count: daysRemaining })}</span>
             ) : (
-              <span className="text-success">Срок подошел к концу</span>
+              <span className="text-success">{t('dashboard.deadlineReached')}</span>
             )}
           </div>
         </div>
       )}
 
-      {/* Таймер */}
+      {/* Timer */}
       {!probation.isExpired && (
         <div className="grid grid-cols-4 gap-2 text-center">
-          <TimeBlock value={days} label="дн" />
-          <TimeBlock value={hours} label="ч" />
-          <TimeBlock value={minutes} label="м" />
-          <TimeBlock value={seconds} label="с" />
+          <TimeBlock value={days} label={t('dashboard.d')} />
+          <TimeBlock value={hours} label={t('dashboard.h')} />
+          <TimeBlock value={minutes} label={t('dashboard.m')} />
+          <TimeBlock value={seconds} label={t('dashboard.s')} />
         </div>
       )}
     </div>

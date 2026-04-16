@@ -3,15 +3,17 @@ import { closeSidebar } from "../../store/slices/uiSlice";
 import { NavLink } from "react-router-dom";
 import { Scale } from "lucide-react";
 import { IoStatsChartOutline } from "react-icons/io5";
+import { useTranslation } from "react-i18next";
 
 const Sidebar = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { sidebarOpen } = useSelector((state) => state.ui);
   const { user } = useSelector((state) => state.auth);
 
   const navigation = [
     {
-      name: "Панель управления",
+      name: t("nav.dashboard"),
       href: "/dashboard",
       icon: (
         <svg
@@ -30,7 +32,7 @@ const Sidebar = () => {
       ),
     },
     {
-      name: "Уроки",
+      name: t("nav.lessons"),
       href: "/lessons",
       icon: (
         <svg
@@ -49,7 +51,7 @@ const Sidebar = () => {
       ),
     },
     {
-      name: "Профиль",
+      name: t("nav.profile"),
       href: "/profile",
       icon: (
         <svg
@@ -68,19 +70,19 @@ const Sidebar = () => {
       ),
     },
     {
-      name: "Устав и нарушения",
+      name: t("nav.rules"),
       href: "/rules",
       icon: <Scale />,
     },
     {
-      name: "Рейтинг",
+      name: t("nav.rating"),
       href: "/rating",
       icon: <IoStatsChartOutline size={20} />,
     },
     ...(user?.isHeadIntern
       ? [
           {
-            name: "Head Intern",
+            name: t("nav.headIntern"),
             href: "/head-intern",
             icon: (
               <svg
@@ -123,7 +125,7 @@ const Sidebar = () => {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b border-base-200 lg:hidden">
-            <span className="text-xl font-bold text-primary">InternHub</span>
+            <span className="text-xl font-bold text-primary">{t("nav.appName")}</span>
             <button
               className="btn btn-sm btn-ghost"
               onClick={() => dispatch(closeSidebar())}

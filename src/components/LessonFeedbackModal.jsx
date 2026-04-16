@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
@@ -12,14 +13,6 @@ const CATEGORY_ICONS = {
   other:         "📝",
 };
 
-const CATEGORY_LABELS = {
-  communication: "Коммуникация",
-  tempo:         "Темп",
-  discipline:    "Дисциплина",
-  content:       "Мавзу",
-  other:         "Бошқа",
-};
-
 const groupBy = (arr, key) =>
   arr.reduce((acc, item) => {
     const k = item[key] || "other";
@@ -31,6 +24,7 @@ const groupBy = (arr, key) =>
 export const PENDING_FEEDBACK_KEY = "pendingFeedbackLessonId";
 
 const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
+  const { t } = useTranslation();
   const [criteria, setCriteria]               = useState([]);
   const [selectedIds, setSelectedIds]         = useState([]);
   const [comment, setComment]                 = useState("");
@@ -71,7 +65,7 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (selectedIds.length === 0 && comment.trim().length === 0) {
-      setSubmitError("Камида биtta критерий танланг ёки фикрингизни ёзинг");
+      setSubmitError(t('feedbackModal.validationError'));
       return;
     }
     setSubmitting(true);
@@ -90,7 +84,7 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
         onSuccess();
         return;
       }
-      setSubmitError("Юборишда хатолик юз берди. Қайта уриниб кўринг.");
+      setSubmitError(t('feedbackModal.submitError'));
     } finally {
       setSubmitting(false);
     }
@@ -124,7 +118,7 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
       <div key={category} className="mb-3">
         <p className="text-xs font-semibold text-base-content/40 uppercase tracking-wide mb-1.5 flex items-center gap-1">
           <span>{CATEGORY_ICONS[category] || "📝"}</span>
-          {CATEGORY_LABELS[category] || category}
+          {t(`feedbackModal.${category}`, { defaultValue: category })}
         </p>
         <div className="space-y-1">
           {items.map((c) => {
@@ -150,7 +144,7 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
                 />
                 <span className="text-sm leading-snug flex-1">{c.label}</span>
                 {type === "negative" && c.weight >= 3 && (
-                  <span className="text-xs text-red-400 font-medium flex-shrink-0">жиддий</span>
+                  <span className="text-xs text-red-400 font-medium flex-shrink-0">{t('feedbackModal.serious')}</span>
                 )}
               </label>
             );
@@ -164,14 +158,14 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-bold text-lg leading-tight">Дарсни баҳоланг</h3>
+          <h3 className="font-bold text-lg leading-tight">{t('feedbackModal.title')}</h3>
           <p className="text-xs text-base-content/40 mt-0.5">
-            Бу маълумот менторларга кўрсатилмайди
+            {t('feedbackModal.subtitle')}
           </p>
         </div>
         {selectedCount > 0 && (
           <span className="badge badge-primary badge-sm mt-1 flex-shrink-0">
-            {selectedCount} танланди
+            {selectedCount} {t('feedbackModal.selected')}
           </span>
         )}
       </div>
@@ -183,9 +177,9 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
         </div>
       ) : criteriaError ? (
         <div className="text-center py-8">
-          <p className="text-error text-sm mb-3">Критерийларни юклаб бўлмади</p>
+          <p className="text-error text-sm mb-3">{t('feedbackModal.loadError')}</p>
           <button className="btn btn-outline btn-sm" onClick={fetchCriteria}>
-            Қайта уриниб кўринг
+            {t('feedbackModal.retryBtn')}
           </button>
         </div>
       ) : (
@@ -194,7 +188,7 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
           {Object.keys(negativeGroups).length > 0 && (
             <div className="mb-4">
               <p className="font-semibold text-sm text-error mb-2">
-                ❌ Камчиликлар
+                {t('feedbackModal.negativeHeader')}
               </p>
               {renderGroup(negativeGroups, "negative")}
             </div>
@@ -204,7 +198,7 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
           {Object.keys(positiveGroups).length > 0 && (
             <div className="mb-4">
               <p className="font-semibold text-sm text-success mb-2">
-                ✅ Яхши томонлар
+                {t('feedbackModal.positiveHeader')}
               </p>
               {renderGroup(positiveGroups, "positive")}
             </div>
@@ -213,13 +207,13 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
           {/* Custom comment */}
           <div className="mt-3">
             <p className="text-xs font-semibold text-base-content/40 uppercase tracking-wide mb-1.5">
-              ✍️ Ўз фикрингиз (ихтиёрий)
+              {t('feedbackModal.commentHeader')}
             </p>
             <textarea
               className="textarea textarea-bordered w-full text-sm resize-none"
               rows={3}
               maxLength={500}
-              placeholder="Дарс ҳақида қўшимча фикрингиз бор бўлса ёзинг..."
+              placeholder={t('feedbackModal.commentPlaceholder')}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
@@ -243,10 +237,10 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
           {submitting ? (
             <>
               <span className="loading loading-spinner loading-xs" />
-              Юборилмоқда...
+              {t('feedbackModal.submitting')}
             </>
           ) : (
-            "Юбориш"
+            t('feedbackModal.submit')
           )}
         </button>
       </div>

@@ -3,8 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginIntern, clearError, selectBranch } from '../store/slices/authSlice';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 const Login = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -47,9 +49,9 @@ const Login = () => {
         <div className="max-w-md w-full mx-4">
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title text-xl justify-center mb-2">Выберите филиал</h2>
+              <h2 className="card-title text-xl justify-center mb-2">{t('login.selectBranch')}</h2>
               <p className="text-center text-base-content/60 text-sm mb-4">
-                Вы работаете в нескольких филиалах. Выберите активный.
+                {t('login.selectBranchDesc')}
               </p>
               <div className="flex flex-col gap-3">
                 {branchIds.map((id, i) => (
@@ -74,12 +76,12 @@ const Login = () => {
       <div className="max-w-md w-full mx-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary mb-2">InternHub</h1>
-          <p className="text-base-content/70 text-lg">Добро пожаловать в систему управления стажировками</p>
+          <p className="text-base-content/70 text-lg">{t('login.subtitle')}</p>
         </div>
 
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            <h2 className="card-title text-2xl text-center justify-center mb-6">Вход в систему</h2>
+            <h2 className="card-title text-2xl text-center justify-center mb-6">{t('login.title')}</h2>
             
             {error && (
               <div className="alert alert-error mb-4">
@@ -93,14 +95,14 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">Имя пользователя</span>
+                  <span className="label-text font-medium">{t('login.username')}</span>
                 </label>
                 <input
                   type="text"
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder="Введите ваше имя пользователя"
+                  placeholder={t('login.usernamePlaceholder')}
                   className="input input-bordered input-primary text-base w-full"
                   required
                   disabled={isLoading}
@@ -109,14 +111,14 @@ const Login = () => {
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">Пароль</span>
+                  <span className="label-text font-medium">{t('login.password')}</span>
                 </label>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Введите ваш пароль"
+                  placeholder={t('login.passwordPlaceholder')}
                   className="input input-bordered input-primary text-base w-full"
                   required
                   disabled={isLoading}
@@ -132,27 +134,27 @@ const Login = () => {
                   {isLoading ? (
                     <>
                       <LoadingSpinner size="sm" />
-                      <span className="ml-2">Вход...</span>
+                      <span className="ml-2">{t('login.submitting')}</span>
                     </>
                   ) : (
-                    'Войти'
+                    t('login.submit')
                   )}
                 </button>
               </div>
             </form>
 
-            <div className="divider text-base-content/50">или</div>
+            <div className="divider text-base-content/50">{t('login.or')}</div>
 
             <div className="text-center">
               <p className="text-sm text-base-content/70">
-                Нет аккаунта? Обратитесь к администратору для регистрации
+                {t('login.noAccount')}
               </p>
             </div>
           </div>
         </div>
 
         <div className="text-center mt-6 text-xs text-base-content/50">
-          © 2024 InternHub. Все права защищены.
+          {t('login.copyright')}
         </div>
       </div>
     </div>

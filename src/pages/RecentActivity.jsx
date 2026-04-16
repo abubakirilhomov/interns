@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { fetchDashboardStats } from "../store/slices/dashboardSlice";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 import { Calendar, BookOpen, MessageSquare, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const RecentActivity = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const { stats, isLoading, error } = useSelector((state) => state.dashboard);
 
@@ -120,7 +122,7 @@ const RecentActivity = () => {
                                     ))}
                                 </div>
                                 <p className="text-sm text-base-content italic mb-2">
-                                    "{review.feedback || "Без комментария"}"
+                                    "{review.feedback || t('activity.noComment')}"
                                 </p>
                                 <div className="text-xs text-base-content/50 mt-auto pt-2 border-t border-base-200">
                                     {new Date(review.date).toLocaleDateString()}

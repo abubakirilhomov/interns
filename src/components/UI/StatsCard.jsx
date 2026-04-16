@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next';
+
 const StatsCard = ({ title, value, icon, trend, trendValue, colorClass = 'text-primary' }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="glass-card p-5 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
       <div className="flex justify-between items-start">
@@ -9,7 +13,7 @@ const StatsCard = ({ title, value, icon, trend, trendValue, colorClass = 'text-p
           </div>
           {trend && (
             <div className={`text-xs mt-2 px-2 py-0.5 rounded-full inline-block ${trend === 'up' ? 'bg-success/10 text-success' : 'bg-error/10 text-error'}`}>
-              <span className="font-bold">{trendValue}</span> за месяц
+              <span className="font-bold">{trendValue}</span> {t('dashboard.perMonth')}
             </div>
           )}
         </div>

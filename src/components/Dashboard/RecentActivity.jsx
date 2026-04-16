@@ -1,12 +1,14 @@
 import React from "react";
+import { useTranslation } from 'react-i18next';
 
 const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
+  const { t } = useTranslation();
   const feedbacks = Array.isArray(user.feedbacks) ? user.feedbacks : [];
   const lessonsVisited = Array.isArray(user.lessonsVisited)
     ? user.lessonsVisited
     : [];
 
-  // Группировка посещённых уроков по месяцам
+  // Group visited lessons by month
   const monthlyProgress = lessonsVisited.reduce((acc, entry) => {
     const lesson = lessons.find((l) => l._id === entry?.lessonId);
     if (!lesson || !lesson.createdAt) return acc;
@@ -17,8 +19,8 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
   }, {});
 
   const sortedMonths = Object.entries(monthlyProgress)
-    .sort(([a], [b]) => b.localeCompare(a)) // от последнего к первому
-    .slice(0, isMobile ? 4 : 6); // ограничение на количество
+    .sort(([a], [b]) => b.localeCompare(a))
+    .slice(0, isMobile ? 4 : 6);
 
   return (
     <div
@@ -26,11 +28,11 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
         isMobile ? "grid-cols-1 gap-4" : "grid-cols-1 lg:grid-cols-2 gap-6"
       }`}
     >
-      {/* Отзывы */}
+      {/* Reviews */}
       <div className="card bg-base-100 shadow">
         <div className="card-body">
           <h3 className="card-title text-base md:text-lg mb-4">
-            {isMobile ? "Отзывы" : "Последние отзывы"}
+            {isMobile ? t('dashboard.reviews') : t('dashboard.recentReviews')}
           </h3>
 
           {feedbacks.length > 0 ? (
@@ -39,7 +41,6 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
                 <div
                   key={index}
                   className="relative flex items-start space-x-3 p-3 bg-base-200 rounded-lg"
-                  title="Фидбеки конфиденциальные и недоступны для просмотра"
                 >
                   <div className="flex-shrink-0">
                     <div className="badge badge-warning">
@@ -52,10 +53,10 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
                         ? feedback.feedback
                         : isMobile
                         ? "-"
-                        : "Комментарий не был добавлен"}
+                        : t('dashboard.noCommentAdded')}
                     </p>
                     <p className="text-xs text-base-content/40 mt-1 select-none">
-                      Дата скрыта
+                      {t('dashboard.dateHidden')}
                     </p>
                   </div>
                 </div>
@@ -63,23 +64,23 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
             </div>
           ) : (
             <div className="text-center py-8 text-base-content/60">
-              <p>Пока нет отзывов</p>
+              <p>{t('dashboard.noReviewsYet')}</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Прогресс по месяцам */}
+      {/* Progress by months */}
       <div className="card bg-base-100 shadow">
         <div className="card-body">
           <h3 className="card-title text-base md:text-lg mb-4">
-            {isMobile ? "По месяцам" : "Прогресс по месяцам"}
+            {isMobile ? t('dashboard.byMonths') : t('dashboard.progressByMonths')}
           </h3>
 
           {sortedMonths.length > 0 ? (
             <div className="space-y-3">
               {sortedMonths.map(([month, count]) => {
-                let monthLabel = "Неизвестный месяц";
+                let monthLabel = t('dashboard.unknownMonth');
 
                 try {
                   monthLabel = new Date(`${month}-01`).toLocaleDateString(
@@ -90,7 +91,7 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
                     }
                   );
                 } catch {
-                  monthLabel = "Неизвестный месяц";
+                  monthLabel = t('dashboard.unknownMonth');
                 }
 
                 return (
@@ -110,7 +111,7 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
                         isMobile ? "badge-sm" : ""
                       }`}
                     >
-                      {count} {isMobile ? "" : "уроков"}
+                      {count} {isMobile ? "" : t('common.lessons')}
                     </div>
                   </div>
                 );
@@ -119,7 +120,7 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
           ) : (
             <div className="text-center py-8 text-base-content/60">
               <p className={isMobile ? "text-sm" : ""}>
-                Пока нет данных о посещённых уроках
+                {t('dashboard.noLessonsData')}
               </p>
             </div>
           )}

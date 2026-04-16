@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -8,6 +9,7 @@ import { PENDING_FEEDBACK_KEY } from "../components/LessonFeedbackModal";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const AddLessonPage = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { isLoading, error, success } = useSelector((state) => state.lessons);
@@ -65,7 +67,7 @@ const AddLessonPage = () => {
 
     if (!topic || !time || !group || !selectedMentor) {
       submittingRef.current = false;
-      return toast.error("Пожалуйста, заполните все обязательные поля");
+      return toast.error(t('common.fillRequired'));
     }
 
     const lessonData = {
@@ -88,7 +90,7 @@ const AddLessonPage = () => {
         localStorage.setItem(PENDING_FEEDBACK_KEY, lesson._id);
         window.dispatchEvent(new Event("feedback-pending-changed"));
       } else {
-        toast.success("Успешно отправлено");
+        toast.success(t('common.sentSuccess'));
         dispatch(resetLessonState());
       }
     } catch (err) {
@@ -122,22 +124,22 @@ const AddLessonPage = () => {
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-base-300 shadow rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Добавить урок</h2>
+      <h2 className="text-xl font-bold mb-4">{t('lessons.title')}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-medium">Тема урока *</label>
+          <label className="block font-medium">{t('lessons.topic')}</label>
           <input
             type="text"
             className="input input-bordered text-base w-full"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Например: React Basics"
+            placeholder={t('lessons.topicPlaceholder')}
           />
         </div>
 
         <div>
-          <label className="block font-medium">Время *</label>
+          <label className="block font-medium">{t('lessons.time')}</label>
           <input
             type="datetime-local"
             className="input input-bordered w-full"
@@ -151,24 +153,24 @@ const AddLessonPage = () => {
         </div>
 
         <div>
-          <label className="block font-medium">Группа *</label>
+          <label className="block font-medium">{t('lessons.group')}</label>
           <input
             type="text"
             className="input input-bordered text-base w-full"
             value={group}
             onChange={(e) => setGroup(e.target.value)}
-            placeholder="Например: Group A"
+            placeholder={t('lessons.groupPlaceholder')}
           />
         </div>
 
         <div>
-          <label className="block font-medium">Ментор *</label>
+          <label className="block font-medium">{t('lessons.mentor')}</label>
           <select
             className="select select-bordered w-full"
             value={selectedMentor}
             onChange={(e) => setSelectedMentor(e.target.value)}
           >
-            <option value="">Выберите ментора</option>
+            <option value="">{t('lessons.selectMentor')}</option>
             {mentors.map((mentor) => (
               <option key={mentor._id} value={mentor._id}>
                 {`${mentor.name || ""} ${mentor.lastName || ""}`.trim() || "-"}
@@ -178,23 +180,23 @@ const AddLessonPage = () => {
         </div>
 
         <div>
-          <label className="block font-medium">Обратная связь</label>
+          <label className="block font-medium">{t('lessons.feedback')}</label>
           <select
             className="select select-bordered w-full"
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
           >
-            <option value="">Выберите обратную связь</option>
-            <option value="🔥">🔥 Отлично</option>
-            <option value="👍">👍 Хорошо</option>
-            <option value="😐">😐 Нормально</option>
-            <option value="👎">👎 Плохо</option>
+            <option value="">{t('lessons.selectFeedback')}</option>
+            <option value="🔥">{t('lessons.excellent')}</option>
+            <option value="👍">{t('lessons.good')}</option>
+            <option value="😐">{t('lessons.normal')}</option>
+            <option value="👎">{t('lessons.bad')}</option>
           </select>
         </div>
 
         {isPlanBlocked && (
           <p className="text-red-500">
-            Аккаунт ограничен: пока недоступно добавление уроков из-за невыполненного плана к текущей дате.
+            {t('lessons.planBlockedMsg')}
           </p>
         )}
         {error && <p className="text-red-500">{error}</p>}
@@ -204,7 +206,7 @@ const AddLessonPage = () => {
           className="btn btn-primary w-full"
           disabled={isLoading || isPlanBlocked}
         >
-          {isLoading ? "Сохранение..." : "Добавить урок"}
+          {isLoading ? t('common.saving') : t('lessons.submit')}
         </button>
       </form>
       <ToastContainer position="top-right" />

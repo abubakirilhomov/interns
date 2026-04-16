@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 import { fetchRatings } from "../store/slices/ratingSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,6 +15,7 @@ import {
 } from "react-icons/fa";
 
 const Rating = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { interns, branches, loading, error } = useSelector(
     (state) => state.rating
@@ -68,7 +70,7 @@ const Rating = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="alert alert-error">
-          <span>Ошибка загрузки: {error}</span>
+          <span>{t('rating.loadError', { error })}</span>
         </div>
       </div>
     );
@@ -84,10 +86,10 @@ const Rating = () => {
         <div className="text-center mb-6 md:mb-8">
           <h1 className="text-3xl md:text-5xl font-bold text-primary flex items-center justify-center gap-2 md:gap-3 flex-wrap">
             <FaTrophy className="text-yellow-500" />
-            Рейтинг
+            {t('rating.title')}
           </h1>
           <p className="text-base-content/70 text-sm md:text-base mt-2">
-            Оценка успеваемости интернов и филиалов
+            {t('rating.subtitle')}
           </p>
         </div>
 
@@ -102,7 +104,7 @@ const Rating = () => {
             onClick={() => setActiveTab("interns")}
           >
             <FaUserGraduate />
-            Интерны
+            {t('rating.interns')}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -113,7 +115,7 @@ const Rating = () => {
             onClick={() => setActiveTab("branches")}
           >
             <FaBuilding />
-            Филиалы
+            {t('rating.branches')}
           </motion.button>
         </div>
 
@@ -133,7 +135,7 @@ const Rating = () => {
                   value={selectedBranch}
                   onChange={(e) => setSelectedBranch(e.target.value)}
                 >
-                  <option value="all">Все филиалы</option>
+                  <option value="all">{t('rating.allBranches')}</option>
                   {branches?.map((branch) => (
                     <option key={branch.branch} value={branch.branch}>
                       {branch.branch}
@@ -178,7 +180,7 @@ const Rating = () => {
                       <h2 className="card-title text-lg md:text-2xl mt-2">{intern.name}</h2>
                       <p className="opacity-90 text-sm">{intern.branch}</p>
                       <div className="badge badge-lg bg-white/20 border-0 mt-2 text-xs md:text-sm">
-                        Рейтинг: {intern.ratingScore}
+                        {t('rating.ratingLabel', { score: intern.ratingScore })}
                       </div>
                       <div className="flex gap-3 md:gap-4 mt-3 text-xs md:text-sm flex-wrap justify-center">
                         <div>
@@ -204,7 +206,7 @@ const Rating = () => {
                 <div className="card-body p-3 md:p-6">
                   <h2 className="card-title text-lg md:text-2xl mb-3 md:mb-4">
                     <FaChartLine className="text-primary" />
-                    Полный список
+                    {t('rating.fullList')}
                   </h2>
 
                   {/* Mobile version: Cards */}
@@ -246,17 +248,17 @@ const Rating = () => {
                                 {intern.ratingScore}
                               </div>
                             </div>
-                            <div>Филиал: {intern.branch}</div>
-                            <div>Курс: <span className="badge badge-primary">{intern.grade}</span></div>
+                            <div>{t('rating.branch')} {intern.branch}</div>
+                            <div>{t('rating.course')} <span className="badge badge-primary">{intern.grade}</span></div>
                             <div className="flex flex-col">
                               <FaStar className="inline text-yellow-500 mr-1" />
                               {intern.averageStars}
                             </div>
-                            <div>Уроки: {intern.lessons}</div>
-                            <div>Отзывы: {intern.feedbacks}</div>
-                            <div>Активность: {(intern.activityRate * 100).toFixed(0)}%</div>
+                            <div>{t('rating.lessonsLabel')} {intern.lessons}</div>
+                            <div>{t('rating.reviewsLabel')} {intern.feedbacks}</div>
+                            <div>{t('rating.activity')} {(intern.activityRate * 100).toFixed(0)}%</div>
                             <div className="flex items-center">
-                              План: 
+                              {t('rating.plan')}
                               <progress
                                 className="progress progress-success ml-2 w-32"
                                 value={intern.planCompletion}
@@ -275,16 +277,16 @@ const Rating = () => {
                     <table className="table table-zebra text-xs md:text-sm w-full">
                       <thead>
                         <tr>
-                          <th className="text-center">#</th>
-                          <th>Имя</th>
-                          <th className="hidden sm:table-cell">Филиал</th>
-                          <th className="hidden md:table-cell">Курс</th>
-                          <th className="text-center">Рейтинг</th>
+                          <th className="text-center">{t('rating.rank')}</th>
+                          <th>{t('rating.name')}</th>
+                          <th className="hidden sm:table-cell">{t('rating.branch')}</th>
+                          <th className="hidden md:table-cell">{t('rating.course')}</th>
+                          <th className="text-center">{t('rating.ratingCol')}</th>
                           <th className="hidden md:table-cell text-center">⭐</th>
-                          <th className="hidden md:table-cell text-center">Уроки</th>
-                          <th className="hidden md:table-cell text-center">Отзывы</th>
-                          <th className="hidden lg:table-cell text-center">Активность</th>
-                          <th className="text-center">План %</th>
+                          <th className="hidden md:table-cell text-center">{t('rating.lessonsLabel')}</th>
+                          <th className="hidden md:table-cell text-center">{t('rating.reviewsLabel')}</th>
+                          <th className="hidden lg:table-cell text-center">{t('rating.activity')}</th>
+                          <th className="text-center">{t('rating.plan')}</th>
                         </tr>
                       </thead>
                       <tbody>

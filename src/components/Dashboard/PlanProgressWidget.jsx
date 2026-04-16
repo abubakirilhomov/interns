@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from 'react-i18next';
 import { BookOpen } from "lucide-react";
 
 const PlanProgressWidget = ({
@@ -6,6 +7,8 @@ const PlanProgressWidget = ({
   monthlyGoal,
   planStatus,
 }) => {
+  const { t } = useTranslation();
+
   const {
     isPlanBlocked = false,
     isManuallyActivated = false,
@@ -42,19 +45,19 @@ const PlanProgressWidget = ({
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-primary" />
           <h3 className="text-base font-semibold text-base-content">
-            Месячный план
+            {t('dashboard.monthlyPlan')}
           </h3>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
           {isPlanBlocked && (
             <span className="badge badge-error badge-sm gap-1 font-semibold">
-              ⚠️ План заблокирован
+              {t('dashboard.planBlocked')}
             </span>
           )}
           {isManuallyActivated && (
             <span className="badge badge-success badge-sm gap-1 font-semibold">
-              ✅ Активация включена
+              {t('dashboard.activationEnabled')}
             </span>
           )}
         </div>
@@ -73,9 +76,9 @@ const PlanProgressWidget = ({
           <span className="font-bold text-base-content text-lg">
             {confirmed}
           </span>{" "}
-          из{" "}
+          {t('common.from')}{" "}
           <span className="font-semibold text-base-content">{goal}</span>{" "}
-          уроков подтверждено
+          {t('dashboard.lessonsConfirmed')}
           <span className="ml-2 text-xs text-base-content/40">
             ({progressPercent}%)
           </span>
@@ -84,19 +87,11 @@ const PlanProgressWidget = ({
         <div className="flex items-center gap-3 text-xs text-base-content/50">
           {deficit > 0 && (
             <span className="text-error font-semibold">
-              отставание: {deficit} ур.
+              {t('dashboard.deficit', { count: deficit })}
             </span>
           )}
           <span>
-            до конца месяца:{" "}
-            <span className="font-semibold text-base-content/70">
-              {daysUntilMonthEnd}{" "}
-              {daysUntilMonthEnd === 1
-                ? "день"
-                : daysUntilMonthEnd >= 2 && daysUntilMonthEnd <= 4
-                ? "дня"
-                : "дней"}
-            </span>
+            {t('dashboard.untilMonthEnd', { count: daysUntilMonthEnd })}
           </span>
         </div>
       </div>
@@ -104,12 +99,7 @@ const PlanProgressWidget = ({
       {/* Required-by-now sub-line (only when behind) */}
       {requiredLessonsByNow > 0 && confirmed < requiredLessonsByNow && (
         <p className="mt-3 text-xs text-base-content/50 border-t border-base-200 pt-3">
-          По графику сейчас нужно{" "}
-          <span className="font-semibold text-base-content/70">
-            {requiredLessonsByNow}
-          </span>{" "}
-          уроков — вы отстаёте на{" "}
-          <span className="font-semibold text-error">{deficit}</span>.
+          {t('dashboard.behindSchedule', { required: requiredLessonsByNow, deficit })}
         </p>
       )}
     </div>

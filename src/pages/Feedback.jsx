@@ -1,7 +1,9 @@
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 
 const Feedback = () => {
+  const { t } = useTranslation();
   const { user, isLoading } = useSelector((state) => state.auth);
 
   if (isLoading) {
@@ -23,9 +25,9 @@ const Feedback = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-base-content">Обратная связь</h1>
+        <h1 className="text-3xl font-bold text-base-content">{t('feedbackPage.title')}</h1>
         <p className="text-base-content/70 mt-1">
-          Отзывы и оценки от ваших менторов
+          {t('feedbackPage.subtitle')}
         </p>
       </div>
 
@@ -36,9 +38,9 @@ const Feedback = () => {
             <div className="stat-figure text-warning">
               <span className="text-3xl">⭐</span>
             </div>
-            <div className="stat-title">Средняя оценка</div>
+            <div className="stat-title">{t('feedbackPage.avgRating')}</div>
             <div className="stat-value text-warning">{averageRating}</div>
-            <div className="stat-desc">из 5 звёзд</div>
+            <div className="stat-desc">{t('feedbackPage.outOf5Stars')}</div>
           </div>
         </div>
 
@@ -47,9 +49,9 @@ const Feedback = () => {
             <div className="stat-figure text-info">
               <span className="text-3xl">💬</span>
             </div>
-            <div className="stat-title">Всего отзывов</div>
+            <div className="stat-title">{t('feedbackPage.totalReviews')}</div>
             <div className="stat-value text-info">{feedbacks.length}</div>
-            <div className="stat-desc">за всё время</div>
+            <div className="stat-desc">{t('feedbackPage.allTime')}</div>
           </div>
         </div>
 
@@ -58,11 +60,11 @@ const Feedback = () => {
             <div className="stat-figure text-success">
               <span className="text-3xl">📈</span>
             </div>
-            <div className="stat-title">Положительные</div>
+            <div className="stat-title">{t('feedbackPage.positive')}</div>
             <div className="stat-value text-success">
               {feedbacks.filter(f => f.stars >= 4).length}
             </div>
-            <div className="stat-desc">4+ звёзд</div>
+            <div className="stat-desc">{t('feedbackPage.positive4Stars')}</div>
           </div>
         </div>
       </div>
@@ -70,7 +72,7 @@ const Feedback = () => {
       {/* Rating Distribution */}
       <div className="card bg-base-100 shadow">
         <div className="card-body">
-          <h3 className="card-title mb-4">Распределение оценок</h3>
+          <h3 className="card-title mb-4">{t('feedbackPage.distribution')}</h3>
           <div className="space-y-3">
             {ratingDistribution.map(({ rating, count, percentage }) => (
               <div key={rating} className="flex items-center space-x-4">
@@ -100,7 +102,7 @@ const Feedback = () => {
       {/* Recent Feedback */}
       <div className="card bg-base-100 shadow">
         <div className="card-body">
-          <h3 className="card-title mb-4">Последние отзывы</h3>
+          <h3 className="card-title mb-4">{t('feedbackPage.recentReviews')}</h3>
           
           {feedbacks.length > 0 ? (
             <div className="space-y-4">
@@ -140,10 +142,10 @@ const Feedback = () => {
             <div className="text-center py-12">
               <div className="text-base-content/40 text-6xl mb-4">💬</div>
               <h3 className="text-xl font-semibold text-base-content/70 mb-2">
-                Пока нет отзывов
+                {t('feedbackPage.noReviews')}
               </h3>
               <p className="text-base-content/60">
-                Отзывы от ваших менторов появятся здесь
+                {t('feedbackPage.noReviewsDesc')}
               </p>
             </div>
           )}

@@ -1,9 +1,11 @@
 import axios from "axios";
 import { Trash2, AlertCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const Rules = () => {
+  const { t } = useTranslation();
   const [rules, setRules] = useState([]);
   const [grades, setGrades] = useState({});
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ const Rules = () => {
       }
     } catch (error) {
       console.error("Error fetching rules and grades:", error);
-      setError("Не удалось загрузить данные. Пожалуйста, попробуйте позже.");
+      setError(t('rules.loadError'));
     } finally {
       setLoading(false);
     }
@@ -70,7 +72,7 @@ const Rules = () => {
         {rule.example && (
           <div>
             <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide">
-              Пример:
+              {t('rules.exampleLabel')}
             </span>
             <p className="text-sm mt-1">{rule.example}</p>
           </div>
@@ -79,7 +81,7 @@ const Rules = () => {
         {rule.consequence && (
           <div>
             <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide">
-              Последствие:
+              {t('rules.consequenceLabel')}
             </span>
             <p className="text-sm mt-1">{rule.consequence}</p>
           </div>
@@ -102,21 +104,21 @@ const GradeCard = ({ grade, level }) => {
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">{level}</h3>
             <div className="badge badge-outline text-xs">
-              {grade.lessonsPerMonth || 0} уроков
+              {grade.lessonsPerMonth || 0} {t('common.lessons')}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-base-content/70">Пробный период:</span>
+            <span className="text-sm text-base-content/70">{t('rules.trialPeriod')}:</span>
             <span className="badge badge-ghost badge-sm">
-              {grade.trialPeriod || 0} мес
+              {grade.trialPeriod || 0} {t('common.months')}
             </span>
           </div>
 
           {grade.plus && grade.plus.length > 0 && (
             <div className="max-w-full">
               <span className="text-xs font-medium text-base-content/70 uppercase tracking-wide block mb-2">
-                Дополнительные возможности:
+                {t('rules.perks')}:
               </span>
               <div className="flex flex-wrap gap-1">
                 {grade.plus.map((feature, index) => (
@@ -147,18 +149,18 @@ const GradeCard = ({ grade, level }) => {
 
             <div className="space-y-2">
               <p>
-                <span className="font-medium">Пробный период:</span>{" "}
-                {grade.trialPeriod || 0} мес
+                <span className="font-medium">{t('rules.trialPeriod')}:</span>{" "}
+                {grade.trialPeriod || 0} {t('common.months')}
               </p>
               <p>
-                <span className="font-medium">Уроков в месяц:</span>{" "}
+                <span className="font-medium">Уроков в {t('common.months')}яц:</span>{" "}
                 {grade.lessonsPerMonth || 0}
               </p>
 
               {grade.plus && grade.plus.length > 0 && (
                 <div>
                   <p className="font-medium mb-1">
-                    Дополнительные возможности:
+                    {t('rules.perks')}:
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     {grade.plus.map((feature, index) => (
@@ -174,7 +176,7 @@ const GradeCard = ({ grade, level }) => {
                 className="btn btn-sm btn-primary"
                 onClick={() => setIsModalOpen(false)}
               >
-                Закрыть
+                {t('common.close')}
               </button>
             </div>
           </div>
@@ -196,14 +198,14 @@ const GradeCard = ({ grade, level }) => {
         <div className="alert alert-error w-full max-w-md">
           <AlertCircle className="h-6 w-6 flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-sm md:text-base">Ошибка загрузки</h3>
+            <h3 className="font-bold text-sm md:text-base">{t('common.error')}</h3>
             <div className="text-xs md:text-sm break-words">{error}</div>
           </div>
           <button
             className="btn btn-sm btn-outline flex-shrink-0"
             onClick={fetchRulesAndGrades}
           >
-            <span className="hidden sm:inline">Повторить</span>
+            <span className="hidden sm:inline">{t('common.retry')}</span>
             <span className="sm:hidden">↻</span>
           </button>
         </div>
@@ -216,25 +218,25 @@ const GradeCard = ({ grade, level }) => {
       {/* Page Header */}
       <div className="text-center md:text-left">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
-          Правила и нарушения
+          {t('rules.title')}
         </h1>
       </div>
 
       {/* Rules Section */}
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body p-4 md:p-6">
-          <h2 className="card-title text-lg md:text-xl mb-4">Правила</h2>
+          <h2 className="card-title text-lg md:text-xl mb-4">{t('rules.rulesTab')}</h2>
 
           {/* Desktop Table View */}
           <div className="hidden lg:block overflow-x-auto">
             <table className="table table-zebra w-full">
               <thead>
                 <tr>
-                  <th className="text-xs md:text-sm">Название</th>
-                  <th className="text-xs md:text-sm">Категория</th>
-                  <th className="text-xs md:text-sm">Пример</th>
-                  <th className="text-xs md:text-sm">Последствие</th>
-                  <th className="text-xs md:text-sm">Дата создания</th>
+                  <th className="text-xs md:text-sm">{t('rules.name')}</th>
+                  <th className="text-xs md:text-sm">{t('rules.category')}</th>
+                  <th className="text-xs md:text-sm">{t('rules.example')}</th>
+                  <th className="text-xs md:text-sm">{t('rules.consequence')}</th>
+                  <th className="text-xs md:text-sm">{t('rules.createdAt')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -263,7 +265,7 @@ const GradeCard = ({ grade, level }) => {
                       colSpan="5"
                       className="text-center py-8 text-base-content/50 text-sm"
                     >
-                      Нет правил для отображения
+                      {t('rules.noRules')}
                     </td>
                   </tr>
                 )}
@@ -277,7 +279,7 @@ const GradeCard = ({ grade, level }) => {
               rules.map((rule) => <RuleCard key={rule._id} rule={rule} />)
             ) : (
               <div className="text-center py-8 text-base-content/50 text-sm">
-                Нет правил для отображения
+                {t('rules.noRules')}
               </div>
             )}
           </div>
@@ -288,7 +290,7 @@ const GradeCard = ({ grade, level }) => {
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body p-4 md:p-6">
           <h2 className="card-title text-lg md:text-xl mb-4">
-            Уровни и привилегии
+            {t('rules.levelsTab')}
           </h2>
 
           {/* Desktop Table View */}
@@ -296,11 +298,11 @@ const GradeCard = ({ grade, level }) => {
             <table className="table table-zebra w-full">
               <thead>
                 <tr>
-                  <th className="text-xs md:text-sm">Класс</th>
-                  <th className="text-xs md:text-sm">Уроки за месяц</th>
-                  <th className="text-xs md:text-sm">Пробный период</th>
+                  <th className="text-xs md:text-sm">{t('rules.grade')}</th>
+                  <th className="text-xs md:text-sm">{t('rules.lessonsPerMonth')}</th>
+                  <th className="text-xs md:text-sm">{t('rules.trialPeriod')}</th>
                   <th className="text-xs md:text-sm">
-                    Дополнительные возможности
+                    {t('rules.perks')}
                   </th>
                 </tr>
               </thead>
@@ -316,7 +318,7 @@ const GradeCard = ({ grade, level }) => {
                       </td>
                       <td>
                         <span className="badge badge-ghost text-xs">
-                          {value.trialPeriod || 0} мес
+                          {value.trialPeriod || 0} {t('common.months')}
                         </span>
                       </td>
                       <td>
@@ -345,7 +347,7 @@ const GradeCard = ({ grade, level }) => {
                       colSpan="4"
                       className="text-center py-8 text-base-content/50 text-sm"
                     >
-                      Нет уровней для отображения
+                      {t('rules.noLevels')}
                     </td>
                   </tr>
                 )}
@@ -361,7 +363,7 @@ const GradeCard = ({ grade, level }) => {
               ))
             ) : (
               <div className="text-center py-8 text-base-content/50 text-sm">
-                Нет уровней для отображения
+                {t('rules.noLevels')}
               </div>
             )}
           </div>

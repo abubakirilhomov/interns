@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 import { fetchProfile } from "../store/slices/authSlice";
 import { fetchDashboardStats } from "../store/slices/dashboardSlice";
 import { Link } from "react-router-dom";
@@ -21,6 +22,7 @@ import useMobileDetection from "../hooks/useMobileDetection";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const { user, isLoading: isUserLoading } = useSelector((state) => state.auth);
   const { stats, isLoading, error } = useSelector(
@@ -39,7 +41,7 @@ const Dashboard = () => {
   }
 
   if (error) {
-    return <p className="text-error text-center mt-6">Ошибка: {error}</p>;
+    return <p className="text-error text-center mt-6">{t('dashboard.error', { error })}</p>;
   }
 
   if (!stats) return null;
@@ -76,30 +78,30 @@ const Dashboard = () => {
         {planStatus?.isPlanBlocked && (
           <div className="alert alert-error shadow">
             <span>
-              Аккаунт ограничен: план не выполнен. Выполнено {planStatus.confirmedLessonsThisMonth} из {planStatus.requiredLessonsByNow} к текущей дате.
+              {t('dashboard.planBlockedAlert', { confirmed: planStatus.confirmedLessonsThisMonth, required: planStatus.requiredLessonsByNow })}
             </span>
           </div>
         )}
         <DashboardAlerts
           daysRemaining={daysRemaining}
-          percentage={percentage} // Можно переключить на trialStats.progressPercentage если нужно
+          percentage={percentage}
           canGetConcession={canGetConcession}
           nearDeadline={nearDeadline}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-          {/* Grade Badge - занимает левую часть */}
+          {/* Grade Badge */}
           <div className="md:col-span-4 card bg-base-100/60 shadow-xl backdrop-blur p-6 flex flex-col justify-center items-center text-center border border-base-200">
-            <h3 className="text-sm uppercase tracking-widest text-base-content/60 mb-4 font-semibold">Ваш текущий грейд</h3>
+            <h3 className="text-sm uppercase tracking-widest text-base-content/60 mb-4 font-semibold">{t('dashboard.yourGrade')}</h3>
             <div className="transform scale-125 mb-2">
               <GradeBadge
-                grades={user?.grades || "Ошибка"}
-                grade={grade || "Не указан"}
+                grades={user?.grades || t('common.error')}
+                grade={grade || t('common.notSpecified')}
               />
             </div>
           </div>
 
-          {/* Timer - занимает правую часть */}
+          {/* Timer */}
           <div className="md:col-span-8">
             <ProbationTimer
               probation={probation}
@@ -107,7 +109,6 @@ const Dashboard = () => {
               daysWorking={daysWorking}
               trialPeriodDays={trialPeriodDays}
               daysRemaining={daysRemaining}
-            // Передаем также trialStats если нужно
             />
           </div>
         </div>
@@ -117,8 +118,7 @@ const Dashboard = () => {
       <StatusPanel
         lessonsConfirmed={lessonsConfirmed || lessonsThisMonth}
         lessonsPending={lessonsPending || 0}
-        // adjustedMonthlyGoal={adjustedMonthlyGoal || monthlyGoal} // Removed legacy prop requirement if handled inside
-        trialStats={trialStats} // 🆕 Передаём объект статистики испытательного срока
+        trialStats={trialStats}
         percentage={percentage || 0}
         daysWorking={daysWorking || 0}
         trialPeriodDays={trialPeriodDays || 30}
@@ -137,9 +137,9 @@ const Dashboard = () => {
       {/* Timeline Section */}
       <div>
         <div className="flex justify-between items-center mb-4 px-2">
-          <h2 className="text-xl font-bold text-base-content px-2">Ваш путь развития</h2>
+          <h2 className="text-xl font-bold text-base-content px-2">{t('dashboard.yourPath')}</h2>
           <Link to="/activity" className="btn btn-sm btn-ghost gap-2 text-primary">
-            Вся активность <ArrowRight className="w-4 h-4" />
+            {t('dashboard.allActivity')} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
         <ProgressTimeline

@@ -91,7 +91,7 @@ const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
             </div>
           ))}
 
-          {/* Active Filling Line (simplified logic for demo) */}
+          {/* Active Filling Line */}
           <div
             className="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-success to-primary -z-10 rounded-full transform -translate-y-1/2 transition-all duration-1000 ease-out"
             style={{ width: `${(internGradeIndex / (gradeOrder.length - 1)) * 100}%` }}

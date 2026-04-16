@@ -1,4 +1,5 @@
 import React from "react";
+import { withTranslation } from "react-i18next";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -19,6 +20,7 @@ class ErrorBoundary extends React.Component {
   }
 
   render() {
+    const { t } = this.props;
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
@@ -29,9 +31,9 @@ class ErrorBoundary extends React.Component {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                 </svg>
               </div>
-              <h2 className="card-title text-lg">Что-то пошло не так</h2>
+              <h2 className="card-title text-lg">{t('errors.somethingWrong')}</h2>
               <p className="text-sm text-base-content/60">
-                Произошла непредвиденная ошибка. Попробуйте перезагрузить страницу.
+                {t('errors.unexpectedError')}
               </p>
               {this.state.error && (
                 <div className="bg-base-200 rounded-lg px-3 py-2 w-full text-left mt-2">
@@ -40,7 +42,7 @@ class ErrorBoundary extends React.Component {
               )}
               <div className="card-actions mt-4">
                 <button onClick={this.handleReload} className="btn btn-primary btn-sm">
-                  Перезагрузить
+                  {t('errors.reload')}
                 </button>
               </div>
             </div>
@@ -53,4 +55,4 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default ErrorBoundary;
+export default withTranslation()(ErrorBoundary);

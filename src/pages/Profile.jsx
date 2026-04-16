@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { updateProfile } from '../store/slices/authSlice';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -28,6 +29,7 @@ const GRADE_BG = {
 };
 
 const Profile = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { user, isLoading } = useSelector((state) => state.auth);
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -119,11 +121,11 @@ const Profile = () => {
     setPasswordError('');
     setPasswordSuccess('');
     if (passwordForm.newPassword.length < 6) {
-      setPasswordError("Kamida 6 ta belgi bo'lishi kerak");
+      setPasswordError(t('profile.minChars'));
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordError("Parollar mos kelmaydi");
+      setPasswordError(t('profile.passwordsDontMatch'));
       return;
     }
     setPasswordLoading(true);
@@ -132,12 +134,12 @@ const Profile = () => {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword,
       });
-      setPasswordSuccess("Parol muvaffaqiyatli o'zgartirildi");
+      setPasswordSuccess(t('profile.passwordChanged'));
       setIsChangingPassword(false);
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
       setPasswordError(
-        error.response?.data?.message || error.response?.data?.error || "Parolni o'zgartirishda xatolik"
+        error.response?.data?.message || error.response?.data?.error || t('profile.passwordError')
       );
     } finally {
       setPasswordLoading(false);
@@ -197,7 +199,7 @@ const Profile = () => {
                 </span>
                 {isPlanBlocked && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
-                    Reja bajarilmagan
+                    {t('profile.planBlocked')}
                   </span>
                 )}
                 {user?.isHeadIntern && (
@@ -211,7 +213,7 @@ const Profile = () => {
               <div className="mt-4 w-full max-w-sm mx-auto sm:mx-0">
                 <div className="flex justify-between items-center text-xs mb-1">
                   <span className="font-semibold text-base-content">
-                    {lessonsConfirmed} / {monthlyGoal} dars
+                    {lessonsConfirmed} / {monthlyGoal} {t('profile.lessonsProgress')}
                   </span>
                   <span className="text-base-content/50">{lessonsPct}%</span>
                 </div>
@@ -223,7 +225,7 @@ const Profile = () => {
                 </div>
                 {nextGrade && (
                   <p className="text-xs text-base-content/40 mt-1">
-                    Keyingi daraja: <span className="font-medium">{GRADE_LABELS[nextGrade]}</span>
+                    {t('profile.nextGrade')} <span className="font-medium">{GRADE_LABELS[nextGrade]}</span>
                   </p>
                 )}
               </div>
@@ -235,9 +237,9 @@ const Profile = () => {
       {/* ═══ STATS ROW ═══ */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { value: avgScore, label: "O'rtacha ball", icon: '⭐' },
-          { value: feedbackCount, label: 'Fikrlar soni', icon: '💬' },
-          { value: branchCount, label: 'Filiallar', icon: '🏢' },
+          { value: avgScore, label: t('profile.avgScore'), icon: '⭐' },
+          { value: feedbackCount, label: t('profile.feedbackCount'), icon: '💬' },
+          { value: branchCount, label: t('profile.branchCount'), icon: '🏢' },
         ].map((s) => (
           <div key={s.label} className="card bg-base-100 shadow">
             <div className="card-body p-4 items-center text-center">
@@ -253,7 +255,7 @@ const Profile = () => {
       <div className="card bg-base-100 shadow">
         <div className="card-body p-4">
           <h3 className="font-bold text-sm text-base-content/60 uppercase tracking-wide mb-3">
-            Telegram guruhlar
+            {t('profile.telegramGroups')}
           </h3>
           <div className="flex flex-wrap gap-2">
             <a
@@ -262,7 +264,7 @@ const Profile = () => {
               rel="noopener noreferrer"
               className="btn btn-sm btn-primary gap-1"
             >
-              Umumiy guruh
+              {t('profile.generalGroup')}
             </a>
             {user?.branches?.map((b, i) =>
               b.branch?.telegramLink ? (
@@ -273,7 +275,7 @@ const Profile = () => {
                   rel="noopener noreferrer"
                   className="btn btn-sm btn-outline btn-primary gap-1"
                 >
-                  {b.branch?.name || 'Filial'}
+                  {b.branch?.name || t('profile.branches')}
                 </a>
               ) : null
             )}
@@ -286,11 +288,11 @@ const Profile = () => {
         <div className="card-body">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-sm text-base-content/60 uppercase tracking-wide">
-              Shaxsiy ma'lumotlar
+              {t('profile.title')}
             </h3>
             {!isEditing && (
               <button onClick={() => setIsEditing(true)} className="btn btn-sm btn-ghost btn-primary">
-                Tahrirlash
+                {t('profile.edit')}
               </button>
             )}
           </div>
@@ -299,35 +301,35 @@ const Profile = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
-                  <label className="label"><span className="label-text font-medium">Ism</span></label>
+                  <label className="label"><span className="label-text font-medium">{t('profile.name')}</span></label>
                   <input type="text" name="name" value={formData.name} onChange={handleChange}
                     className="input input-bordered input-primary" required />
                 </div>
                 <div className="form-control">
-                  <label className="label"><span className="label-text font-medium">Familiya</span></label>
+                  <label className="label"><span className="label-text font-medium">{t('profile.lastName')}</span></label>
                   <input type="text" name="lastName" value={formData.lastName} onChange={handleChange}
                     className="input input-bordered input-primary" required />
                 </div>
               </div>
               <div className="form-control">
-                <label className="label"><span className="label-text font-medium">Username</span></label>
+                <label className="label"><span className="label-text font-medium">{t('profile.username')}</span></label>
                 <input type="text" name="username" value={formData.username} onChange={handleChange}
                   className="input input-bordered input-primary" required />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
-                  <label className="label"><span className="label-text font-medium">Telefon</span></label>
+                  <label className="label"><span className="label-text font-medium">{t('profile.phone')}</span></label>
                   <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange}
                     className="input input-bordered input-primary" />
                 </div>
                 <div className="form-control">
-                  <label className="label"><span className="label-text font-medium">Telegram</span></label>
+                  <label className="label"><span className="label-text font-medium">{t('profile.telegram')}</span></label>
                   <input type="text" name="telegram" value={formData.telegram} onChange={handleChange}
                     className="input input-bordered input-primary" />
                 </div>
               </div>
               <div className="form-control">
-                <label className="label"><span className="label-text font-medium">Soha</span></label>
+                <label className="label"><span className="label-text font-medium">{t('profile.sphere')}</span></label>
                 <select name="sphere" value={formData.sphere} onChange={handleChange} className="select select-bordered">
                   <option value="backend-nodejs">Backend (Node.js)</option>
                   <option value="backend-python">Backend (Python)</option>
@@ -338,27 +340,27 @@ const Profile = () => {
                 </select>
               </div>
               <div className="form-control">
-                <label className="label"><span className="label-text font-medium">Profil rasmi</span></label>
+                <label className="label"><span className="label-text font-medium">{t('profile.profilePhoto')}</span></label>
                 <input type="file" accept="image/*" className="file-input file-input-bordered"
                   onChange={(e) => handlePhotoUpload(e.target.files?.[0])} disabled={uploadingPhoto} />
-                {uploadingPhoto && <span className="text-xs mt-1">Yuklanmoqda...</span>}
+                {uploadingPhoto && <span className="text-xs mt-1">{t('common.uploading')}</span>}
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="submit" className="btn btn-primary btn-sm" disabled={isLoading}>
-                  {isLoading ? <><LoadingSpinner size="sm" /> Saqlanmoqda...</> : 'Saqlash'}
+                  {isLoading ? <><LoadingSpinner size="sm" /> {t('common.saving')}</> : t('common.save')}
                 </button>
-                <button type="button" onClick={handleCancel} className="btn btn-ghost btn-sm">Bekor qilish</button>
+                <button type="button" onClick={handleCancel} className="btn btn-ghost btn-sm">{t('common.cancel')}</button>
               </div>
             </form>
           ) : (
             <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
               {[
-                ['Ism', user?.name],
-                ['Familiya', user?.lastName],
-                ['Username', `@${user?.username}`],
-                ['Telefon', user?.phoneNumber],
-                ['Telegram', user?.telegram],
-                ['Soha', user?.sphere],
+                [t('profile.name'), user?.name],
+                [t('profile.lastName'), user?.lastName],
+                [t('profile.username'), `@${user?.username}`],
+                [t('profile.phone'), user?.phoneNumber],
+                [t('profile.telegram'), user?.telegram],
+                [t('profile.sphere'), user?.sphere],
               ].map(([label, val]) => (
                 <div key={label}>
                   <span className="text-base-content/40 text-xs uppercase tracking-wide">{label}</span>
@@ -366,7 +368,7 @@ const Profile = () => {
                 </div>
               ))}
               <div>
-                <span className="text-base-content/40 text-xs uppercase tracking-wide">Daraja</span>
+                <span className="text-base-content/40 text-xs uppercase tracking-wide">{t('profile.grade')}</span>
                 <div className="mt-1">
                   <span className={`px-2 py-0.5 rounded text-xs font-bold ${GRADE_BG[grade]}`}>
                     {GRADE_LABELS[grade]}
@@ -374,7 +376,7 @@ const Profile = () => {
                 </div>
               </div>
               <div>
-                <span className="text-base-content/40 text-xs uppercase tracking-wide">Filiallar</span>
+                <span className="text-base-content/40 text-xs uppercase tracking-wide">{t('profile.branches')}</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {user?.branches?.length
                     ? user.branches.map((b, i) => (
@@ -394,7 +396,7 @@ const Profile = () => {
       <div className="card bg-base-100 shadow">
         <div className="card-body">
           <h3 className="font-bold text-sm text-base-content/60 uppercase tracking-wide mb-3">
-            Xavfsizlik
+            {t('profile.security')}
           </h3>
 
           {passwordSuccess && !isChangingPassword && (
@@ -405,7 +407,7 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               <button onClick={() => { setIsChangingPassword(true); setPasswordSuccess(''); }}
                 className="btn btn-sm btn-outline btn-warning flex-1">
-                Parolni o'zgartirish
+                {t('profile.changePassword')}
               </button>
             </div>
           ) : (
@@ -414,30 +416,30 @@ const Profile = () => {
                 <div className="alert alert-error text-sm py-2"><span>{passwordError}</span></div>
               )}
               <div className="form-control">
-                <label className="label"><span className="label-text font-medium">Joriy parol</span></label>
+                <label className="label"><span className="label-text font-medium">{t('profile.currentPassword')}</span></label>
                 <input type="password" name="currentPassword" value={passwordForm.currentPassword}
                   onChange={handlePasswordChange} className="input input-bordered input-primary" required />
               </div>
               <div className="form-control">
-                <label className="label"><span className="label-text font-medium">Yangi parol</span></label>
+                <label className="label"><span className="label-text font-medium">{t('profile.newPassword')}</span></label>
                 <input type="password" name="newPassword" value={passwordForm.newPassword}
                   onChange={handlePasswordChange} className="input input-bordered input-primary" required />
-                <label className="label"><span className="label-text-alt">Kamida 6 ta belgi</span></label>
+                <label className="label"><span className="label-text-alt">{t('profile.minChars')}</span></label>
               </div>
               <div className="form-control">
-                <label className="label"><span className="label-text font-medium">Parolni tasdiqlang</span></label>
+                <label className="label"><span className="label-text font-medium">{t('profile.confirmPassword')}</span></label>
                 <input type="password" name="confirmPassword" value={passwordForm.confirmPassword}
                   onChange={handlePasswordChange} className="input input-bordered input-primary" required />
               </div>
               <div className="flex gap-2 pt-1">
                 <button type="submit" className="btn btn-primary btn-sm flex-1" disabled={passwordLoading}>
-                  {passwordLoading ? <><LoadingSpinner size="sm" /> Saqlanmoqda...</> : 'Saqlash'}
+                  {passwordLoading ? <><LoadingSpinner size="sm" /> {t('common.saving')}</> : t('common.save')}
                 </button>
                 <button type="button" onClick={() => {
                   setIsChangingPassword(false);
                   setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
                   setPasswordError('');
-                }} className="btn btn-ghost btn-sm flex-1">Bekor qilish</button>
+                }} className="btn btn-ghost btn-sm flex-1">{t('common.cancel')}</button>
               </div>
             </form>
           )}

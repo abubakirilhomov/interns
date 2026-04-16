@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const HeadInternWarnings = () => {
+  const { t } = useTranslation();
   const { user } = useSelector((state) => state.auth);
   const [interns, setInterns] = useState([]);
   const [rules, setRules] = useState([]);
@@ -39,7 +41,7 @@ const HeadInternWarnings = () => {
         setRules(allRules);
       } catch (err) {
         console.error("Ошибка при загрузке данных:", err);
-        toast.error("Ошибка при загрузке данных");
+        toast.error(t('headIntern.loadError'));
       } finally {
         setDataLoading(false);
       }
@@ -66,7 +68,7 @@ const HeadInternWarnings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedIntern || !selectedRule) {
-      toast.error("Выберите стажёра и правило");
+      toast.error(t('headIntern.selectBoth'));
       return;
     }
 
@@ -79,7 +81,7 @@ const HeadInternWarnings = () => {
 
       const internName = interns.find((i) => i._id === selectedIntern);
       toast.success(
-        `Предупреждение выдано стажёру ${internName?.name || ""} ${internName?.lastName || ""}`
+        t('headIntern.success', { name: internName?.name || "", lastName: internName?.lastName || "" })
       );
       setSelectedIntern("");
       setSelectedRule("");
@@ -88,7 +90,7 @@ const HeadInternWarnings = () => {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.error ||
-        "Ошибка при выдаче предупреждения";
+        t('headIntern.submitError');
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -99,7 +101,7 @@ const HeadInternWarnings = () => {
     return (
       <div className="max-w-lg mx-auto mt-10 p-6">
         <div className="alert alert-error">
-          <span>Эта страница доступна только Head Intern</span>
+          <span>{t('headIntern.accessDenied')}</span>
         </div>
       </div>
     );
@@ -117,23 +119,23 @@ const HeadInternWarnings = () => {
     <div className="max-w-lg mx-auto mt-10 p-6 bg-base-300 shadow rounded-lg">
       <div className="flex items-center gap-2 mb-4">
         <span className="text-2xl">👑</span>
-        <h2 className="text-xl font-bold">Выдать предупреждение</h2>
+        <h2 className="text-xl font-bold">{t('headIntern.title')}</h2>
       </div>
 
       <p className="text-sm text-base-content/70 mb-6">
-        Как Head Intern вы можете выдавать предупреждения стажёрам вашего филиала
+        {t('headIntern.subtitle')}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-medium mb-1">Стажёр *</label>
+          <label className="block font-medium mb-1">{t('headIntern.selectIntern')}</label>
           <select
             className="select select-bordered w-full"
             value={selectedIntern}
             onChange={(e) => setSelectedIntern(e.target.value)}
             required
           >
-            <option value="">Выберите стажёра</option>
+            <option value="">{t('headIntern.selectInternPlaceholder')}</option>
             {interns.map((intern) => (
               <option key={intern._id} value={intern._id}>
                 {intern.name} {intern.lastName} — {intern.grade}
@@ -142,20 +144,20 @@ const HeadInternWarnings = () => {
           </select>
           {interns.length === 0 && (
             <p className="text-xs text-warning mt-1">
-              Нет стажёров в вашем филиале
+              {t('headIntern.noInterns')}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block font-medium mb-1">Нарушение *</label>
+          <label className="block font-medium mb-1">{t('headIntern.selectRule')}</label>
           <select
             className="select select-bordered w-full"
             value={selectedRule}
             onChange={(e) => setSelectedRule(e.target.value)}
             required
           >
-            <option value="">Выберите правило</option>
+            <option value="">{t('headIntern.selectRulePlaceholder')}</option>
             {rules.map((rule) => (
               <option key={rule._id} value={rule._id}>
                 [{rule.category?.toUpperCase()}] {rule.title}
@@ -175,11 +177,11 @@ const HeadInternWarnings = () => {
                     </span>
                     <span className="font-medium">{rule.title}</span>
                     {rule.example && (
-                      <p className="text-xs opacity-70 mt-1">Пример: {rule.example}</p>
+                      <p className="text-xs opacity-70 mt-1">{t('rules.exampleLabel')} {rule.example}</p>
                     )}
                     {rule.consequence && (
                       <p className="text-xs text-error mt-1">
-                        Последствие: {rule.consequence}
+                        {t('rules.consequenceLabel')} {rule.consequence}
                       </p>
                     )}
                   </div>
@@ -190,10 +192,10 @@ const HeadInternWarnings = () => {
         </div>
 
         <div>
-          <label className="block font-medium mb-1">Комментарий</label>
+          <label className="block font-medium mb-1">{t('headIntern.comment')}</label>
           <textarea
             className="textarea textarea-bordered w-full"
-            placeholder="Опционально: опишите ситуацию..."
+            placeholder={t('headIntern.commentPlaceholder')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
@@ -202,7 +204,7 @@ const HeadInternWarnings = () => {
 
         <div className="alert alert-warning py-2">
           <span className="text-sm">
-            Предупреждение будет зафиксировано в системе и видно администратору
+            {t('headIntern.notice')}
           </span>
         </div>
 
@@ -214,7 +216,7 @@ const HeadInternWarnings = () => {
           {loading ? (
             <span className="loading loading-spinner loading-sm" />
           ) : (
-            "⚠️ Выдать предупреждение"
+            t('headIntern.submitWarning')
           )}
         </button>
       </form>
