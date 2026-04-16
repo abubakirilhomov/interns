@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { logout } from "../../store/slices/authSlice";
-import { toggleSidebar, setTheme } from "../../store/slices/uiSlice";
+import { toggleSidebar, setTheme, setLanguage } from "../../store/slices/uiSlice";
 import { FiMenu } from "react-icons/fi";
 import { MdColorLens } from "react-icons/md";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const dispatch = useDispatch();
+  const { t, i18n } = useTranslation();
   const { user } = useSelector((state) => state.auth);
-  const { theme } = useSelector((state) => state.ui);
+  const { theme, language } = useSelector((state) => state.ui);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
@@ -95,6 +97,12 @@ const Navbar = () => {
     setThemeDropdownOpen(false);
   };
 
+  const handleLanguageToggle = () => {
+    const next = language === 'ru' ? 'uz' : 'ru';
+    dispatch(setLanguage(next));
+    i18n.changeLanguage(next);
+  };
+
   const handleLogout = () => {
     dispatch(logout());
     setDropdownOpen(false);
@@ -123,6 +131,16 @@ const Navbar = () => {
       </div>
 
       <div className="flex gap-2 items-center">
+        {/* Language Toggle */}
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm font-bold text-xs px-2"
+          onClick={handleLanguageToggle}
+          title={language === 'ru' ? "O'zbekcha" : 'Русский'}
+        >
+          {language === 'ru' ? 'UZ' : 'RU'}
+        </button>
+
         {/* Theme Dropdown */}
         <div className="relative" ref={themeRef}>
           <button
@@ -140,7 +158,7 @@ const Navbar = () => {
           {themeDropdownOpen && (
             <ul className="menu menu-sm gap-2 absolute right-0 dropdown-content mt-3 z-20 p-2 shadow bg-base-100 rounded-box w-52 max-h-96 overflow-y-auto">
               <li className="menu-title">
-                <span>Выберите тему</span>
+                <span>{t('nav.selectTheme')}</span>
               </li>
               {themes.map((thm) => (
                 <li data-theme={thm} className="rounded" key={thm}>
@@ -189,10 +207,10 @@ const Navbar = () => {
                 </span>
               </li>
               <li>
-                <Link to="/profile">Профиль</Link>
+                <Link to="/profile">{t('nav.profile')}</Link>
               </li>
               <li>
-                <button onClick={handleLogout}>Выйти</button>
+                <button onClick={handleLogout}>{t('common.logout')}</button>
               </li>
             </ul>
           )}

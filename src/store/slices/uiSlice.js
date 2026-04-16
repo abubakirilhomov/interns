@@ -5,6 +5,7 @@ const uiSlice = createSlice({
   initialState: {
     sidebarOpen: false,
     theme: 'light',
+    language: localStorage.getItem('language') || 'ru',
     notifications: [],
   },
   reducers: {
@@ -16,6 +17,10 @@ const uiSlice = createSlice({
     },
     setTheme: (state, action) => {
       state.theme = action.payload;
+    },
+    setLanguage: (state, action) => {
+      state.language = action.payload;
+      localStorage.setItem('language', action.payload);
     },
     addNotification: (state, action) => {
       state.notifications.push({
@@ -35,6 +40,7 @@ export const {
   toggleSidebar,
   closeSidebar,
   setTheme,
+  setLanguage,
   addNotification,
   removeNotification,
 } = uiSlice.actions;
