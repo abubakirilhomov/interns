@@ -152,7 +152,8 @@ const Profile = () => {
   const lessonsConfirmed = stats?.lessonsConfirmed || 0;
   const monthlyGoal = stats?.monthlyGoal || 24;
   const lessonsPct = monthlyGoal > 0 ? Math.min(Math.round((lessonsConfirmed / monthlyGoal) * 100), 100) : 0;
-  const avgScore = stats?.averageScore?.toFixed(1) || user?.score?.toFixed(1) || '0.0';
+  const rawScore = stats?.averageScore ?? user?.score;
+  const avgScore = typeof rawScore === 'number' && Number.isFinite(rawScore) ? rawScore.toFixed(1) : '0.0';
   const feedbackCount = user?.feedbacks?.length || 0;
   const branchCount = user?.branches?.length || 0;
   const isPlanBlocked = stats?.planStatus?.isPlanBlocked || user?.isPlanBlocked;
