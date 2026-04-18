@@ -16,9 +16,9 @@ const Rules = () => {
   // Category colors configuration
   const categoryColors = {
     green: "bg-green-500 text-white",
-    yellow: "bg-yellow-500 text-black",
+    yellow: "bg-yellow-400 text-yellow-900",
     red: "bg-red-500 text-white",
-    black: "bg-black text-white",
+    black: "bg-gray-800 text-white",
   };
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const Rules = () => {
           </h3>
           <div
             className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-              categoryColors[rule.category] || "bg-gray-300"
+              categoryColors[rule.category] || "bg-base-300"
             }`}
             title={`Категория: ${rule.category}`}
           >
@@ -247,7 +247,7 @@ const GradeCard = ({ grade, level }) => {
                       <td>
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            categoryColors[rule.category] || "bg-gray-300"
+                            categoryColors[rule.category] || "bg-base-300"
                           }`}
                           title={`Категория: ${rule.category}`}
                         >
