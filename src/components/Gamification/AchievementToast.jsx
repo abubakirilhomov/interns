@@ -1,7 +1,16 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import confetti from "canvas-confetti";
+
+const fireConfetti = () =>
+  import("canvas-confetti").then((m) =>
+    (m.default || m)({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ["#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#3b82f6"],
+    })
+  ).catch(() => {});
 
 const AchievementToast = ({ badges = [], onDone }) => {
   const { t, i18n } = useTranslation();
@@ -9,12 +18,7 @@ const AchievementToast = ({ badges = [], onDone }) => {
   useEffect(() => {
     if (badges.length === 0) return;
 
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ["#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#3b82f6"],
-    });
+    fireConfetti();
 
     const timer = setTimeout(() => {
       onDone?.();
