@@ -51,7 +51,7 @@ const Dashboard = () => {
   if (!stats) {
     return (
       <div className="space-y-6 pb-10">
-        <DashboardHeader user={user} streak={streak} />
+        <DashboardHeader user={user} streak={null} />
         <div className="card bg-base-100 shadow p-8 text-center">
           <div className="text-4xl mb-4">📚</div>
           <h3 className="text-lg font-bold text-base-content mb-2">{t('tooltips.emptyLessons')}</h3>
