@@ -82,6 +82,7 @@ const Dashboard = () => {
     planStatus,
     recentReviews,
     streak,
+    ranking,
   } = stats;
 
   return (
@@ -169,6 +170,34 @@ const Dashboard = () => {
 
       {/* Quick Actions */}
       <QuickActions isMobile={isMobile} />
+
+      {/* Rank + Percentile */}
+      {ranking && ranking.rank > 0 && (
+        <div className="grid grid-cols-2 gap-3">
+          <div className="card bg-gradient-to-br from-primary/10 to-primary/5 shadow">
+            <div className="card-body p-4 items-center text-center">
+              <span className="text-2xl">🏅</span>
+              <span className="text-2xl font-bold text-primary">
+                #{ranking.rank}
+              </span>
+              <span className="text-xs text-base-content/50">
+                {t('gamification.rankOf', { rank: ranking.rank, total: ranking.totalInterns })}
+              </span>
+            </div>
+          </div>
+          <div className="card bg-gradient-to-br from-success/10 to-success/5 shadow">
+            <div className="card-body p-4 items-center text-center">
+              <span className="text-2xl">📊</span>
+              <span className="text-2xl font-bold text-success">
+                {ranking.percentile}%
+              </span>
+              <span className="text-xs text-base-content/50">
+                {t('gamification.percentile', { percent: ranking.percentile })}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Recent reviews + monthly progress */}
       <RecentActivityWidget user={user} lessons={stats?.recentLessons || []} isMobile={isMobile} />
