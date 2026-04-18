@@ -18,6 +18,7 @@ import StatusPanel from "../components/Dashboard/StatusPanel";
 import DashboardAlerts from "../components/Dashboard/DashboardAlerts";
 import PlanProgressWidget from "../components/Dashboard/PlanProgressWidget";
 import QuickActions from "../components/Dashboard/QuickActions";
+import WeeklyChampion from "../components/Dashboard/WeeklyChampion";
 import RecentActivityWidget from "../components/Dashboard/RecentActivity";
 import LocationShare from "../components/LocationShare";
 
@@ -83,6 +84,7 @@ const Dashboard = () => {
     recentReviews,
     streak,
     ranking,
+    weeklyChampion,
   } = stats;
 
   return (
@@ -167,6 +169,9 @@ const Dashboard = () => {
           isMobile={isMobile}
         />
       </div>
+
+      {/* Weekly Champion */}
+      <WeeklyChampion champion={weeklyChampion} currentUserId={user?._id} />
 
       {/* Quick Actions */}
       <QuickActions isMobile={isMobile} />
