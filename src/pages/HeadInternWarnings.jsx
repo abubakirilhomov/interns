@@ -116,7 +116,7 @@ const HeadInternWarnings = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-base-300 shadow rounded-lg">
+    <div className="w-full max-w-lg mx-auto mt-6 sm:mt-10 p-4 sm:p-6 bg-base-100 shadow rounded-2xl">
       <div className="flex items-center gap-2 mb-4">
         <span className="text-2xl">👑</span>
         <h2 className="text-xl font-bold">{t('headIntern.title')}</h2>

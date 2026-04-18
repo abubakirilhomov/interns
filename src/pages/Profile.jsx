@@ -4,29 +4,7 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { updateProfile } from '../store/slices/authSlice';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
-
-const GRADES = ['junior', 'strongJunior', 'middle', 'strongMiddle', 'senior'];
-const GRADE_LABELS = {
-  junior: 'Junior',
-  strongJunior: 'Strong Junior',
-  middle: 'Middle',
-  strongMiddle: 'Strong Middle',
-  senior: 'Senior',
-};
-const GRADE_COLORS = {
-  junior: 'bg-green-500',
-  strongJunior: 'bg-blue-500',
-  middle: 'bg-yellow-500',
-  strongMiddle: 'bg-orange-500',
-  senior: 'bg-red-500',
-};
-const GRADE_BG = {
-  junior: 'bg-green-100 text-green-700',
-  strongJunior: 'bg-blue-100 text-blue-700',
-  middle: 'bg-yellow-100 text-yellow-700',
-  strongMiddle: 'bg-orange-100 text-orange-700',
-  senior: 'bg-red-100 text-red-700',
-};
+import { GRADE_ORDER as GRADES, GRADE_LABELS, GRADE_COLORS, GRADE_BG } from '../constants/gradeColors';
 
 const Profile = () => {
   const { t } = useTranslation();
