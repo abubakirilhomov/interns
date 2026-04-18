@@ -2,7 +2,8 @@ import React from "react";
 import { useTranslation } from 'react-i18next';
 
 const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'uz' ? 'uz-Latn' : 'ru-RU';
   const feedbacks = Array.isArray(user.feedbacks) ? user.feedbacks : [];
   const lessonsVisited = Array.isArray(user.lessonsVisited)
     ? user.lessonsVisited
@@ -84,7 +85,7 @@ const RecentActivity = ({ user = {}, lessons = [], isMobile = false }) => {
 
                 try {
                   monthLabel = new Date(`${month}-01`).toLocaleDateString(
-                    "ru-RU",
+                    dateLocale,
                     {
                       year: isMobile ? "2-digit" : "numeric",
                       month: isMobile ? "short" : "long",

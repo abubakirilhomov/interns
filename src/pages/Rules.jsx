@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const Rules = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [rules, setRules] = useState([]);
   const [grades, setGrades] = useState({});
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ const Rules = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("ru-RU");
+    return new Date(dateString).toLocaleDateString(i18n.language === 'uz' ? 'uz-Latn' : 'ru-RU');
   };
 
   const hasGrades = grades && Object.keys(grades).length > 0;

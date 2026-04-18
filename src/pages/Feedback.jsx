@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 
 const Feedback = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, isLoading } = useSelector((state) => state.auth);
+  const dateLocale = i18n.language === 'uz' ? 'uz-Latn' : 'ru-RU';
 
   if (isLoading) {
     return <LoadingSpinner size="lg" className="min-h-96" />;
@@ -122,7 +123,7 @@ const Feedback = () => {
                         )}
                       </div>
                       <span className="text-sm text-base-content/60">
-                        {new Date(feedback.date).toLocaleDateString('ru-RU', {
+                        {new Date(feedback.date).toLocaleDateString(dateLocale, {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'

@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { UserCircle } from "lucide-react";
 
 const DashboardHeader = ({ user }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'uz' ? 'uz-Latn' : 'ru-RU';
   const [greetingKey, setGreetingKey] = useState("dashboard.goodMorning");
 
   useEffect(() => {
@@ -42,7 +43,7 @@ const DashboardHeader = ({ user }) => {
       {/* Date (hidden on mobile) */}
       <div className="hidden md:block text-right">
         <div className="text-sm font-semibold text-base-content/40 uppercase tracking-widest">
-          {new Date().toLocaleDateString('ru-RU', { month: 'long', day: 'numeric', year: 'numeric' })}
+          {new Date().toLocaleDateString(dateLocale, { month: 'long', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
     </div>
