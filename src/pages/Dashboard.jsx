@@ -6,7 +6,7 @@ import { fetchDashboardStats } from "../store/slices/dashboardSlice";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-import LoadingSpinner from "../components/UI/LoadingSpinner";
+import { DashboardSkeleton } from "../components/UI/Skeleton";
 import GradeBadge from "../components/UI/GradesBadge";
 
 import DashboardHeader from "../components/Dashboard/DashboardHeader";
@@ -40,7 +40,7 @@ const Dashboard = () => {
   }, [dispatch]);
 
   if (isUserLoading || isLoading) {
-    return <LoadingSpinner size="lg" className="min-h-96" />;
+    return <DashboardSkeleton />;
   }
 
   if (error) {

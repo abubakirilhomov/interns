@@ -7,6 +7,7 @@ import {
 import { Provider, useSelector } from "react-redux";
 import { persistor, store } from "./store";
 import Layout from "./components/Layout/Layout";
+import PageTransition from "./components/UI/PageTransition";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Lessons from "./pages/Lessons";
@@ -20,11 +21,16 @@ import Rating from "./pages/Rating";
 import RecentActivity from "./pages/RecentActivity";
 import HeadInternWarnings from "./pages/HeadInternWarnings";
 
-// 🔒 Защита маршрутов
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
+
+const P = ({ children }) => (
+  <ProtectedRoute>
+    <PageTransition>{children}</PageTransition>
+  </ProtectedRoute>
+);
 
 const AppRoutes = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -32,74 +38,15 @@ const AppRoutes = () => {
   return (
     <Layout>
       <Routes>
-        <Route
-          path="/login"
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/lessons"
-          element={
-            <ProtectedRoute>
-              <Lessons />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/feedback"
-          element={
-            <ProtectedRoute>
-              <Feedback />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/rules"
-          element={
-            <ProtectedRoute>
-              <Rules />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/rating"
-          element={
-            <ProtectedRoute>
-              <Rating />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/activity"
-          element={
-            <ProtectedRoute>
-              <RecentActivity />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/head-intern"
-          element={
-            <ProtectedRoute>
-              <HeadInternWarnings />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <PageTransition><Login /></PageTransition>} />
+        <Route path="/dashboard" element={<P><Dashboard /></P>} />
+        <Route path="/lessons" element={<P><Lessons /></P>} />
+        <Route path="/feedback" element={<P><Feedback /></P>} />
+        <Route path="/rules" element={<P><Rules /></P>} />
+        <Route path="/profile" element={<P><Profile /></P>} />
+        <Route path="/rating" element={<P><Rating /></P>} />
+        <Route path="/activity" element={<P><RecentActivity /></P>} />
+        <Route path="/head-intern" element={<P><HeadInternWarnings /></P>} />
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
