@@ -272,5 +272,16 @@
     "monthlyProgress": "Oylik progress",
     "lessonsProgress": "Darslar progressi",
     "gradeProgress": "Daraja progressi"
+  },
+  "tooltips": {
+    "normTrialPeriod": "Sinov muddati davomida kerakli darslardan nechtasini o'tganingiz",
+    "ratedPending": "Baholangan — mentor tasdiqlagan darslar. Kutilmoqda — hali tasdiqlanmagan",
+    "gradeDeadline": "Joriy daraja boshlanganidan beri necha kun o'tgani (umumiy sinov muddatidan)",
+    "avgScore": "Barcha mentorlardan 5 balli shkala bo'yicha o'rtacha baho",
+    "monthlyPlan": "Oylik dars rejangiz. Qizil — kam, sariq — normal, yashil — a'lo",
+    "probationTimer": "Sinov muddati tugashiga teskari hisob. Tugaganda daraja ko'tarilishi mumkin",
+    "yourGrade": "Tizimdagi joriy darajangiz. Daraja qancha yuqori — shuncha ko'p dars kerak",
+    "emptyLessons": "Progressni kuzatishni boshlash uchun birinchi darsingizni qo'shing!",
+    "quickActions": "Ilovaning asosiy funksiyalariga tezkor kirish"
   }
 }

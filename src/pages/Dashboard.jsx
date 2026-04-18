@@ -10,12 +10,14 @@ import LoadingSpinner from "../components/UI/LoadingSpinner";
 import GradeBadge from "../components/UI/GradesBadge";
 
 import DashboardHeader from "../components/Dashboard/DashboardHeader";
+import InfoTooltip from "../components/UI/InfoTooltip";
 import ProbationTimer from "../components/Dashboard/ProbationTimer";
 import ProgressTimeline from "../components/Dashboard/ProgressTimeline";
 import StatsGrid from "../components/Dashboard/StatsGrid";
 import StatusPanel from "../components/Dashboard/StatusPanel";
 import DashboardAlerts from "../components/Dashboard/DashboardAlerts";
 import PlanProgressWidget from "../components/Dashboard/PlanProgressWidget";
+import QuickActions from "../components/Dashboard/QuickActions";
 import LocationShare from "../components/LocationShare";
 
 import useMobileDetection from "../hooks/useMobileDetection";
@@ -44,7 +46,18 @@ const Dashboard = () => {
     return <p className="text-error text-center mt-6">{t('dashboard.error', { error })}</p>;
   }
 
-  if (!stats) return null;
+  if (!stats) {
+    return (
+      <div className="space-y-6 pb-10">
+        <DashboardHeader user={user} />
+        <div className="card bg-base-100 shadow p-8 text-center">
+          <div className="text-4xl mb-4">📚</div>
+          <h3 className="text-lg font-bold text-base-content mb-2">{t('tooltips.emptyLessons')}</h3>
+          <QuickActions isMobile={isMobile} />
+        </div>
+      </div>
+    );
+  }
 
   const {
     lessonsThisMonth,
@@ -93,7 +106,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
           {/* Grade Badge */}
           <div className="md:col-span-4 card bg-base-100/60 shadow-xl backdrop-blur p-6 flex flex-col justify-center items-center text-center border border-base-200">
-            <h3 className="text-sm uppercase tracking-widest text-base-content/60 mb-4 font-semibold">{t('dashboard.yourGrade')}</h3>
+            <h3 className="text-sm uppercase tracking-widest text-base-content/60 mb-4 font-semibold flex items-center justify-center">{t('dashboard.yourGrade')}<InfoTooltip text={t('tooltips.yourGrade')} /></h3>
             <div className="transform scale-125 mb-2">
               <GradeBadge
                 grades={user?.grades || t('common.error')}
@@ -151,6 +164,9 @@ const Dashboard = () => {
           isMobile={isMobile}
         />
       </div>
+
+      {/* Quick Actions */}
+      <QuickActions isMobile={isMobile} />
 
       {/* Location sharing */}
       <LocationShare />

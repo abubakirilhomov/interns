@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Clock } from "lucide-react";
+import InfoTooltip from "../UI/InfoTooltip";
 
 const MS = 1000;
 const MIN = 60 * MS;
@@ -58,8 +59,9 @@ const ProbationTimer = ({ probation, isMobile, daysWorking, trialPeriodDays, day
           <Clock className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <div className="text-xs font-semibold text-base-content/60 uppercase tracking-wider">
+          <div className="text-xs font-semibold text-base-content/60 uppercase tracking-wider flex items-center">
             {isMobile ? t('dashboard.probation') : t('dashboard.probationFull')}
+            <InfoTooltip text={t('tooltips.probationTimer')} />
           </div>
           <div className="flex items-baseline gap-1">
             <span className="text-sm font-bold text-base-content">{daysWorking}</span>
@@ -105,7 +107,7 @@ const ProbationTimer = ({ probation, isMobile, daysWorking, trialPeriodDays, day
 
 const TimeBlock = ({ value, label }) => (
   <div className="card bg-base-200/50 border border-base-300 p-2 flex flex-col items-center justify-center min-w-[50px]">
-    <span className="font-mono font-bold text-xl md:text-2xl text-primary">
+    <span className="font-mono font-bold text-lg md:text-xl text-primary">
       {String(value).padStart(2, "0")}
     </span>
     <span className="text-[10px] uppercase tracking-wider text-base-content/60 font-medium">

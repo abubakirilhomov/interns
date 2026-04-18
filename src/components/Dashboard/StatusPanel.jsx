@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from 'react-i18next';
 import { Activity, CheckCircle, Calendar, Award } from "lucide-react";
+import InfoTooltip from "../UI/InfoTooltip";
 
 const StatusPanel = ({
     lessonsConfirmed,
@@ -22,7 +23,7 @@ const StatusPanel = ({
                 <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Activity className="w-12 h-12 text-primary" />
                 </div>
-                <div className="text-sm font-medium text-base-content/60 mb-1">{t('dashboard.normTrialPeriod')}</div>
+                <div className="text-sm font-medium text-base-content/60 mb-1 flex items-center">{t('dashboard.normTrialPeriod')}<InfoTooltip text={t('tooltips.normTrialPeriod')} /></div>
                 <div className={`text-3xl font-bold ${normColor} mb-1`}>
                     {totalLessons} <span className="text-lg text-base-content/40 font-normal">/ {targetLessons}</span>
                 </div>
@@ -36,7 +37,7 @@ const StatusPanel = ({
                 <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                     <CheckCircle className="w-12 h-12 text-secondary" />
                 </div>
-                <div className="text-sm font-medium text-base-content/60 mb-1">{t('dashboard.ratedPending')}</div>
+                <div className="text-sm font-medium text-base-content/60 mb-1 flex items-center">{t('dashboard.ratedPending')}<InfoTooltip text={t('tooltips.ratedPending')} /></div>
                 <div className="text-3xl font-bold text-base-content mb-1">
                     {lessonsConfirmed} <span className="text-lg text-base-content/40 font-normal">/ {lessonsPending}</span>
                 </div>
@@ -48,7 +49,7 @@ const StatusPanel = ({
                 <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Calendar className="w-12 h-12 text-accent" />
                 </div>
-                <div className="text-sm font-medium text-base-content/60 mb-1">{t('dashboard.gradeDeadline')}</div>
+                <div className="text-sm font-medium text-base-content/60 mb-1 flex items-center">{t('dashboard.gradeDeadline')}<InfoTooltip text={t('tooltips.gradeDeadline')} /></div>
                 <div className="text-3xl font-bold text-base-content mb-1">
                     {daysWorking} <span className="text-lg text-base-content/40 font-normal">/ {trialPeriodDays}</span>
                 </div>
@@ -60,7 +61,7 @@ const StatusPanel = ({
                 <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Award className="w-12 h-12 text-warning" />
                 </div>
-                <div className="text-sm font-medium text-base-content/60 mb-1">{t('dashboard.avgScore')}</div>
+                <div className="text-sm font-medium text-base-content/60 mb-1 flex items-center">{t('dashboard.avgScore')}<InfoTooltip text={t('tooltips.avgScore')} /></div>
                 <div className="text-3xl font-bold text-warning mb-1">
                     {(typeof averageScore === 'number' ? averageScore : parseFloat(averageScore) || 0).toFixed(1)}
                 </div>

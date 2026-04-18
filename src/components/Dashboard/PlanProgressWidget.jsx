@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from 'react-i18next';
 import { BookOpen } from "lucide-react";
+import InfoTooltip from "../UI/InfoTooltip";
 
 const PlanProgressWidget = ({
   lessonsConfirmed,
@@ -44,8 +45,9 @@ const PlanProgressWidget = ({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-primary" />
-          <h3 className="text-base font-semibold text-base-content">
+          <h3 className="text-base font-semibold text-base-content flex items-center">
             {t('dashboard.monthlyPlan')}
+            <InfoTooltip text={t('tooltips.monthlyPlan')} />
           </h3>
         </div>
 
