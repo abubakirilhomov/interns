@@ -304,6 +304,23 @@
     "lessonsProgress": "Прогресс уроков",
     "gradeProgress": "Прогресс грейда"
   },
+  "gamification": {
+    "streak": "Серия",
+    "streakDays": "{{count}} дней подряд",
+    "streakDay": "{{count}} день подряд",
+    "longestStreak": "Рекорд: {{count}}",
+    "noStreak": "Начните серию!",
+    "badges": "Достижения",
+    "badgeEarned": "Новое достижение!",
+    "congratulations": "Поздравляем!",
+    "locked": "Заблокировано",
+    "rank": "Ваш ранг",
+    "rankOf": "#{{rank}} из {{total}}",
+    "percentile": "Лучше {{percent}}% интернов",
+    "weeklyChampion": "Чемпион недели",
+    "xp": "Очки опыта",
+    "level": "Уровень {{level}}"
+  },
   "tooltips": {
     "normTrialPeriod": "Сколько уроков вы прошли из необходимого количества за испытательный срок",
     "ratedPending": "Оценённые — уроки, которые ментор уже подтвердил. Ожидают — ещё не подтверждены",

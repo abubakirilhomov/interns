@@ -273,6 +273,23 @@
     "lessonsProgress": "Darslar progressi",
     "gradeProgress": "Daraja progressi"
   },
+  "gamification": {
+    "streak": "Seriya",
+    "streakDays": "{{count}} kun ketma-ket",
+    "streakDay": "{{count}} kun ketma-ket",
+    "longestStreak": "Rekord: {{count}}",
+    "noStreak": "Seriyani boshlang!",
+    "badges": "Yutuqlar",
+    "badgeEarned": "Yangi yutuq!",
+    "congratulations": "Tabriklaymiz!",
+    "locked": "Qulflangan",
+    "rank": "Sizning o'rningiz",
+    "rankOf": "#{{rank}} / {{total}}",
+    "percentile": "Internlarning {{percent}}% dan yaxshiroq",
+    "weeklyChampion": "Hafta chempioni",
+    "xp": "Tajriba ballari",
+    "level": "{{level}}-daraja"
+  },
   "tooltips": {
     "normTrialPeriod": "Sinov muddati davomida kerakli darslardan nechtasini o'tganingiz",
     "ratedPending": "Baholangan — mentor tasdiqlagan darslar. Kutilmoqda — hali tasdiqlanmagan",

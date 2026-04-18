@@ -50,7 +50,7 @@ const Dashboard = () => {
   if (!stats) {
     return (
       <div className="space-y-6 pb-10">
-        <DashboardHeader user={user} />
+        <DashboardHeader user={user} streak={streak} />
         <div className="card bg-base-100 shadow p-8 text-center">
           <div className="text-4xl mb-4">📚</div>
           <h3 className="text-lg font-bold text-base-content mb-2">{t('tooltips.emptyLessons')}</h3>
@@ -81,12 +81,13 @@ const Dashboard = () => {
     trialStats,
     planStatus,
     recentReviews,
+    streak,
   } = stats;
 
   return (
     <div className="space-y-6 md:space-y-8 pb-10">
       {/* Header Section */}
-      <DashboardHeader user={user} />
+      <DashboardHeader user={user} streak={streak} />
 
       {/* Hero Section: Alerts + Grade + Timer */}
       <div className="space-y-6">

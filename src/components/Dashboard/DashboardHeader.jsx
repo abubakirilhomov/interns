@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { UserCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { UserCircle, Flame } from "lucide-react";
 
-const DashboardHeader = ({ user }) => {
+const DashboardHeader = ({ user, streak }) => {
   const { t, i18n } = useTranslation();
   const dateLocale = i18n.language === 'uz' ? 'uz-Latn' : 'ru-RU';
   const [greetingKey, setGreetingKey] = useState("dashboard.goodMorning");
@@ -40,10 +41,30 @@ const DashboardHeader = ({ user }) => {
         </div>
       </div>
 
-      {/* Date (hidden on mobile) */}
-      <div className="hidden md:block text-right">
-        <div className="text-sm font-semibold text-base-content/40 uppercase tracking-widest">
-          {new Date().toLocaleDateString(dateLocale, { month: 'long', day: 'numeric', year: 'numeric' })}
+      <div className="flex flex-col items-end gap-2">
+        {/* Streak badge */}
+        {streak?.current > 0 ? (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-lg"
+          >
+            <Flame className="w-4 h-4" />
+            <span className="text-sm font-bold">{streak.current}</span>
+            <span className="text-xs hidden sm:inline">{t('gamification.streakDays', { count: streak.current })}</span>
+          </motion.div>
+        ) : (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-base-200 text-base-content/40 rounded-full text-xs">
+            <Flame className="w-3.5 h-3.5" />
+            <span>{t('gamification.noStreak')}</span>
+          </div>
+        )}
+
+        {/* Date (hidden on mobile) */}
+        <div className="hidden md:block text-right">
+          <div className="text-xs font-semibold text-base-content/40 uppercase tracking-widest">
+            {new Date().toLocaleDateString(dateLocale, { month: 'long', day: 'numeric', year: 'numeric' })}
+          </div>
         </div>
       </div>
     </div>
