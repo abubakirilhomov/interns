@@ -18,6 +18,7 @@ import StatusPanel from "../components/Dashboard/StatusPanel";
 import DashboardAlerts from "../components/Dashboard/DashboardAlerts";
 import PlanProgressWidget from "../components/Dashboard/PlanProgressWidget";
 import QuickActions from "../components/Dashboard/QuickActions";
+import RecentActivityWidget from "../components/Dashboard/RecentActivity";
 import LocationShare from "../components/LocationShare";
 
 import useMobileDetection from "../hooks/useMobileDetection";
@@ -167,6 +168,9 @@ const Dashboard = () => {
 
       {/* Quick Actions */}
       <QuickActions isMobile={isMobile} />
+
+      {/* Recent reviews + monthly progress */}
+      <RecentActivityWidget user={user} lessons={stats?.recentLessons || []} isMobile={isMobile} />
 
       {/* Location sharing */}
       <LocationShare />
