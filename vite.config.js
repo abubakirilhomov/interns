@@ -10,11 +10,26 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\/api\//,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "api-cache",
+              expiration: { maxEntries: 50, maxAgeSeconds: 300 },
+              networkTimeoutSeconds: 5,
+            },
+          },
+        ],
+        navigateFallback: "/index.html",
+      },
       manifest: {
         name: "InternHub",
         short_name: "Interns",
         description: "CRM для стажеров Mars IT",
-        theme_color: "#ffffff",
+        theme_color: "#6366f1",
         background_color: "#ffffff",
         display: "standalone",
         start_url: "/",
@@ -30,10 +45,10 @@ export default defineConfig({
             type: "image/png",
           },
           {
-        src: "/apple-touch-icon.png",
-        sizes: "180x180",
-        type: "image/png",
-      },
+            src: "/apple-touch-icon.png",
+            sizes: "180x180",
+            type: "image/png",
+          },
         ],
       },
     }),

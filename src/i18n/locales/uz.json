@@ -25,6 +25,9 @@
     "from": "dan",
     "score": "ball",
     "confirmed": "Tasdiqlangan",
+    "installApp": "Ilovani o'rnating",
+    "installDesc": "Tezkor kirish uchun bosh ekranga qo'shing",
+    "install": "O'rnatish",
     "pending": "Kutilmoqda",
     "active": "Faol",
     "blocked": "Bloklangan"

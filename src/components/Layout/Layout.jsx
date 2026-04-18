@@ -5,6 +5,7 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from '../LessonFeedbackModal';
 import AchievementToast from '../Gamification/AchievementToast';
+import InstallPrompt from '../InstallPrompt';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -104,6 +105,7 @@ const Layout = ({ children }) => {
         badges={celebrateBadges}
         onDone={() => setCelebrateBadges([])}
       />
+      <InstallPrompt />
     </div>
   );
 };
