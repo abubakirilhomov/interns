@@ -106,7 +106,7 @@ const Feedback = () => {
           
           {feedbacks.length > 0 ? (
             <div className="space-y-4">
-              {feedbacks
+              {[...feedbacks]
                 .sort((a, b) => new Date(b.date) - new Date(a.date))
                 .map((feedback, index) => (
                   <div key={index} className="border-l-4 border-primary bg-base-200 p-4 rounded-r-lg">
@@ -115,9 +115,11 @@ const Feedback = () => {
                         <div className="badge badge-warning badge-lg">
                           {feedback.stars} ⭐
                         </div>
-                        <span className="text-sm text-base-content/70">
-                          ID: {feedback.mentorId}
-                        </span>
+                        {feedback.mentorName && (
+                          <span className="text-sm text-base-content/70">
+                            {feedback.mentorName}
+                          </span>
+                        )}
                       </div>
                       <span className="text-sm text-base-content/60">
                         {new Date(feedback.date).toLocaleDateString('ru-RU', {
