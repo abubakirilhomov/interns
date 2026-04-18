@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from '../LessonFeedbackModal';
+import AchievementToast from '../Gamification/AchievementToast';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -18,6 +19,16 @@ const readPendingId = () => {
 const Layout = ({ children }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [pendingFeedbackId, setPendingFeedbackId] = useState(() => readPendingId());
+  const [celebrateBadges, setCelebrateBadges] = useState([]);
+
+  // Listen for new badges from dashboard stats
+  useEffect(() => {
+    const onNewBadges = (e) => {
+      if (e.detail?.length > 0) setCelebrateBadges(e.detail);
+    };
+    window.addEventListener('new-badges', onNewBadges);
+    return () => window.removeEventListener('new-badges', onNewBadges);
+  }, []);
 
   // Self-heal: if the server tracks an unrated lesson for this intern but
   // our localStorage is empty (stale client / PWA cache / fresh device),
@@ -88,6 +99,11 @@ const Layout = ({ children }) => {
           }}
         />
       )}
+
+      <AchievementToast
+        badges={celebrateBadges}
+        onDone={() => setCelebrateBadges([])}
+      />
     </div>
   );
 };

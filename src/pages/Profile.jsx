@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { updateProfile } from '../store/slices/authSlice';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import BadgeShowcase from '../components/Gamification/BadgeShowcase';
 import { GRADE_ORDER as GRADES, GRADE_LABELS, GRADE_COLORS, GRADE_BG } from '../constants/gradeColors';
 
 const Profile = () => {
@@ -228,6 +229,9 @@ const Profile = () => {
           </div>
         ))}
       </div>
+
+      {/* ═══ BADGES ═══ */}
+      <BadgeShowcase />
 
       {/* ═══ TELEGRAM ═══ */}
       <div className="card bg-base-100 shadow">
