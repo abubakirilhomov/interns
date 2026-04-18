@@ -138,6 +138,11 @@ const Profile = () => {
   const feedbackCount = user?.feedbacks?.length || 0;
   const branchCount = user?.branches?.length || 0;
   const isPlanBlocked = stats?.planStatus?.isPlanBlocked || user?.isPlanBlocked;
+  const xp = stats?.xp || 0;
+  const lvl = stats?.level || 1;
+  const xpCurrent = xp - (lvl - 1) * (lvl - 1) * 100;
+  const xpNeeded = lvl * lvl * 100 - (lvl - 1) * (lvl - 1) * 100;
+  const xpPct = xpNeeded > 0 ? Math.min(Math.round((xpCurrent / xpNeeded) * 100), 100) : 0;
   const photo = user?.profilePhoto;
   const initials = `${user?.name?.[0] || ''}${user?.lastName?.[0] || ''}`.toUpperCase();
 
@@ -207,6 +212,22 @@ const Profile = () => {
                     {t('profile.nextGrade')} <span className="font-medium">{GRADE_LABELS[nextGrade]}</span>
                   </p>
                 )}
+
+                {/* XP bar */}
+                <div className="mt-3 w-full max-w-sm mx-auto sm:mx-0">
+                  <div className="flex justify-between items-center text-xs mb-1">
+                    <span className="font-semibold text-secondary">
+                      {t('gamification.level', { level: lvl })} · {xp} XP
+                    </span>
+                    <span className="text-base-content/40">{xpCurrent}/{xpNeeded}</span>
+                  </div>
+                  <div className="w-full h-2 bg-base-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-secondary to-accent transition-all duration-500"
+                      style={{ width: `${xpPct}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
