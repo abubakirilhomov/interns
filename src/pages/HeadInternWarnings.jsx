@@ -26,12 +26,10 @@ const HeadInternWarnings = () => {
         ]);
 
         const allInterns = internsRes.data || [];
+        // Backend уже скоупит по филиалу (GET /interns фильтрует по user.branchId),
+        // здесь только исключаем самого себя.
         const branchInterns = allInterns.filter(
-          (i) =>
-            i._id !== user?._id &&
-            (i.branch?._id === user?.branchId ||
-              i.branch === user?.branchId ||
-              i.branch?._id?.toString() === user?.branchId?.toString())
+          (i) => String(i._id) !== String(user?._id)
         );
         setInterns(branchInterns);
 
