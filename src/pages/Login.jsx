@@ -145,6 +145,14 @@ const Login = () => {
 
             <div className="divider text-base-content/50">{t('login.or')}</div>
 
+            <a
+              href={`${import.meta.env.VITE_API_URL}/auth/marsid/start?app=interns`}
+              className="btn btn-outline w-full"
+            >
+              <span className="w-5 h-5 inline-flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-500 text-white text-[10px] font-bold mr-2">M</span>
+              Войти через Mars ID
+            </a>
+
             <div className="text-center">
               <p className="text-sm text-base-content/70">
                 {t('login.noAccount')}

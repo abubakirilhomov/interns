@@ -20,6 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Rating from "./pages/Rating";
 import RecentActivity from "./pages/RecentActivity";
 import HeadInternWarnings from "./pages/HeadInternWarnings";
+import MarsIdReturn from "./pages/MarsIdReturn";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -39,6 +40,7 @@ const AppRoutes = () => {
     <Layout>
       <Routes>
         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <PageTransition><Login /></PageTransition>} />
+        <Route path="/auth/marsid/return" element={<PageTransition><MarsIdReturn /></PageTransition>} />
         <Route path="/dashboard" element={<P><Dashboard /></P>} />
         <Route path="/lessons" element={<P><Lessons /></P>} />
         <Route path="/feedback" element={<P><Feedback /></P>} />
