@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import { fetchRatings } from "../store/slices/ratingSlice";
 import { motion, AnimatePresence } from "framer-motion";
+import RatingExplainer from "../components/RatingExplainer";
 import {
   FaTrophy,
   FaMedal,
@@ -91,6 +92,7 @@ const Rating = () => {
           <p className="text-base-content/70 text-sm md:text-base mt-2">
             {t('rating.subtitle')}
           </p>
+          <RatingExplainer />
         </div>
 
         {/* Табы */}

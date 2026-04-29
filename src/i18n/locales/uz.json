@@ -192,7 +192,31 @@
     "activeCount": "faol",
     "overallStats": "Umumiy statistika",
     "bestBranch": "Eng yaxshi filial",
-    "loadError": "Yuklab bo'lmadi: {{error}}"
+    "loadError": "Yuklab bo'lmadi: {{error}}",
+    "explainerLink": "Reyting qanday hisoblanadi?",
+    "explainer": {
+      "title": "Reyting qanday hisoblanadi?",
+      "intro": "Reytingingiz to'rtta ko'rsatkichdan iborat. Har biri 0–5 shkalada, keyin og'irlik bo'yicha qo'shiladi.",
+      "formulaHeading": "Formula",
+      "formula": "Reyting = ★ × 0.5 + Faollik × 1.0 + Reja × 1.0 + Hajm × 0.5",
+      "weightStars": "Ustozning bahosi",
+      "weightStarsDesc": "1–5 yulduzcha shkalasida ustoz qo'ygan o'rtacha baho. Eng katta og'irlikka ega — yuqori bahosiz reytingni ko'tarish qiyin.",
+      "weightActivity": "Faollik",
+      "weightActivityDesc": "Tashrif buyurgan darslarning qancha qismi ustoz tomonidan baholangan. Masalan, 10 ta dars — barchasi baholangan = 100%.",
+      "weightPlan": "Reja bajarilishi",
+      "weightPlanDesc": "Daraja bo'yicha oylik norma (junior — 24, strongJunior — 40 va h.k.). Bonus darslar ham hisobga olinadi.",
+      "weightVolume": "Umumiy hajm",
+      "weightVolumeDesc": "Jami darslar soni (tashrif + bonus). Logaritmik shkala — birinchi darslar ko'p ta'sir qiladi, keyinroq ta'sir kamayadi.",
+      "specialsHeading": "Muhim nuanslar",
+      "specialBonus": "Bonus darslar Reja va Hajmga kiradi, lekin Faollikka kirmaydi (chunki ustoz ularni baholamaydi).",
+      "specialMentor": "Eng katta og'irlik — ustozning bahosida (50%). Ustoz fikrisiz reytingni ko'tarish qiyin.",
+      "specialDiminishing": "30 ta darsdan keyin Hajm ko'rsatkichi sekinlashadi — diminishing returns.",
+      "tipsHeading": "Reytingni qanday ko'tarish",
+      "tip1": "Har darsdan keyin ustozdan fikr-mulohaza oling.",
+      "tip2": "Oylik norma darslarni vaqtida bajaring.",
+      "tip3": "Yuqori bahoga (4–5 yulduzcha) erishishga harakat qiling.",
+      "close": "Yopish"
+    }
   },
   "rules": {
     "title": "Qoidalar va qoidabuzarliklar",
