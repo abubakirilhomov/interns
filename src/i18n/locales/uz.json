@@ -123,6 +123,7 @@
     "monthlyPlan": "Oylik reja",
     "trialPlan": "Sinov muddati rejasi",
     "planBlocked": "⚠️ Reja bloklangan",
+    "planBlockedAlert": "Akkaunt cheklangan: reja bajarilmagan. {{confirmed}} ta dars tasdiqlangan, {{required}} ta kerak edi.",
     "activationEnabled": "✅ Faollashtirish yoqilgan",
     "lessonsConfirmed": "dars tasdiqlangan",
     "deficit": "ortda qolish: {{count}} dars",
@@ -137,7 +138,9 @@
     "lessonsCompleted": "O'tilgan darslar",
     "feedbackReceived": "Olingan fikrlar",
     "level": "Daraja",
-    "perMonth": "oyiga"
+    "perMonth": "oyiga",
+    "frozenWithDate": "Akkauntingiz {{date}} gacha vaqtincha muzlatilgan. Reja bloklanmaydi, lekin yangi darslar qo'shish mavjud emas.",
+    "frozenNoDate": "Akkauntingiz vaqtincha muzlatilgan. Reja bloklanmaydi, lekin yangi darslar qo'shish mavjud emas."
   },
   "lessons": {
     "title": "Dars qo'shish",

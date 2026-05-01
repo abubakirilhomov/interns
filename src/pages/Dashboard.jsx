@@ -87,8 +87,8 @@ const Dashboard = () => {
     weeklyChampion,
   } = stats;
   const isFrozen = Boolean(user?.status === "frozen" || user?.isFrozen || planStatus?.isFrozen);
-  const freezeReturnDate = user?.freezeInfo?.expectedReturn || planStatus?.freezeExpectedReturn
-    ? new Date(user?.freezeInfo?.expectedReturn || planStatus?.freezeExpectedReturn).toLocaleDateString("ru-RU")
+  const freezeReturnDate = (user?.freezeInfo?.expectedReturn || planStatus?.freezeExpectedReturn)
+    ? new Date(user?.freezeInfo?.expectedReturn || planStatus?.freezeExpectedReturn).toLocaleDateString()
     : null;
 
   return (
@@ -109,8 +109,8 @@ const Dashboard = () => {
           <div className="alert alert-warning shadow">
             <span>
               {freezeReturnDate
-                ? `Ваш аккаунт временно заморожен до ${freezeReturnDate}. План не блокируется, но создание новых уроков недоступно.`
-                : "Ваш аккаунт временно заморожен. План не блокируется, но создание новых уроков недоступно."}
+                ? t('dashboard.frozenWithDate', { date: freezeReturnDate })
+                : t('dashboard.frozenNoDate')}
             </span>
           </div>
         )}
