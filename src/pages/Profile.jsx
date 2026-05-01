@@ -138,6 +138,10 @@ const Profile = () => {
   const feedbackCount = user?.feedbacks?.length || 0;
   const branchCount = user?.branches?.length || 0;
   const isPlanBlocked = stats?.planStatus?.isPlanBlocked || user?.isPlanBlocked;
+  const isFrozen = Boolean(user?.status === 'frozen' || user?.isFrozen || stats?.planStatus?.isFrozen);
+  const freezeReturnDate = user?.freezeInfo?.expectedReturn || stats?.planStatus?.freezeExpectedReturn
+    ? new Date(user?.freezeInfo?.expectedReturn || stats?.planStatus?.freezeExpectedReturn).toLocaleDateString('ru-RU')
+    : null;
   const xp = stats?.xp || 0;
   const lvl = stats?.level || 1;
   const xpCurrent = xp - (lvl - 1) * (lvl - 1) * 100;
@@ -151,6 +155,15 @@ const Profile = () => {
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
+      {isFrozen && (
+        <div className="alert alert-warning shadow">
+          <span>
+            {freezeReturnDate
+              ? `Аккаунт временно заморожен до ${freezeReturnDate}.`
+              : 'Аккаунт временно заморожен.'}
+          </span>
+        </div>
+      )}
       {/* ═══ HERO CARD ═══ */}
       <div className="card bg-base-100 shadow">
         <div className="card-body">
@@ -184,6 +197,11 @@ const Profile = () => {
                 {isPlanBlocked && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
                     {t('profile.planBlocked')}
+                  </span>
+                )}
+                {isFrozen && (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700">
+                    Заморожен
                   </span>
                 )}
                 {user?.isHeadIntern && (

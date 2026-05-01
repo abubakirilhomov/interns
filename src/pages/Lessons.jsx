@@ -14,6 +14,10 @@ const AddLessonPage = () => {
   const { user } = useSelector((state) => state.auth);
   const { isLoading, error, success } = useSelector((state) => state.lessons);
   const isPlanBlocked = Boolean(user?.planStatus?.isPlanBlocked || user?.isPlanBlocked);
+  const isFrozen = Boolean(user?.status === "frozen" || user?.isFrozen || user?.planStatus?.isFrozen);
+  const freezeReturnDate = user?.freezeInfo?.expectedReturn
+    ? new Date(user.freezeInfo.expectedReturn).toLocaleDateString("ru-RU")
+    : null;
 
   const [topic, setTopic] = useState("");
   const [time, setTime] = useState("");
@@ -64,6 +68,15 @@ const AddLessonPage = () => {
 
     if (submittingRef.current) return;
     submittingRef.current = true;
+
+    if (isFrozen) {
+      submittingRef.current = false;
+      return toast.warning(
+        freezeReturnDate
+          ? `Аккаунт временно заморожен до ${freezeReturnDate}. Добавление уроков недоступно.`
+          : "Аккаунт временно заморожен. Добавление уроков недоступно."
+      );
+    }
 
     if (!topic || !time || !group || !selectedMentor) {
       submittingRef.current = false;
@@ -199,12 +212,21 @@ const AddLessonPage = () => {
             {t('lessons.planBlockedMsg')}
           </p>
         )}
+        {isFrozen && (
+          <div className="alert alert-warning">
+            <span>
+              {freezeReturnDate
+                ? `Ваш аккаунт временно заморожен до ${freezeReturnDate}. Добавление уроков недоступно.`
+                : "Ваш аккаунт временно заморожен. Добавление уроков недоступно."}
+            </span>
+          </div>
+        )}
         {error && <p className="text-red-500">{error}</p>}
 
         <button
           type="submit"
           className="btn btn-primary w-full"
-          disabled={isLoading || isPlanBlocked}
+          disabled={isLoading || isPlanBlocked || isFrozen}
         >
           {isLoading ? t('common.saving') : t('lessons.submit')}
         </button>

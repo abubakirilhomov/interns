@@ -21,6 +21,7 @@ const Layout = ({ children }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [pendingFeedbackId, setPendingFeedbackId] = useState(() => readPendingId());
   const [celebrateBadges, setCelebrateBadges] = useState([]);
+  const isFrozen = Boolean(user?.status === 'frozen' || user?.isFrozen || user?.planStatus?.isFrozen);
 
   // Listen for new badges from dashboard stats
   useEffect(() => {
@@ -35,7 +36,7 @@ const Layout = ({ children }) => {
   // our localStorage is empty (stale client / PWA cache / fresh device),
   // fetch it and open the modal anyway.
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'intern') return;
+    if (!isAuthenticated || user?.role !== 'intern' || isFrozen) return;
     let cancelled = false;
     axios
       .get(`${API_URL}/lessons/pending-feedback`)
@@ -51,7 +52,7 @@ const Layout = ({ children }) => {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, user?._id, user?.role]);
+  }, [isAuthenticated, user?._id, user?.role, isFrozen]);
 
   // Re-check pending feedback on auth change, storage events (cross-tab),
   // and a custom in-tab event dispatched when a lesson is created.
@@ -91,7 +92,7 @@ const Layout = ({ children }) => {
         </main>
       </div>
 
-      {pendingFeedbackId && (
+      {pendingFeedbackId && !isFrozen && (
         <LessonFeedbackModal
           lessonId={pendingFeedbackId}
           onSuccess={() => {
