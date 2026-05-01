@@ -157,10 +157,11 @@ const Dashboard = () => {
         averageScore={averageScore}
       />
 
-      {/* Monthly Plan Progress */}
+      {/* Trial Plan Progress */}
       <PlanProgressWidget
-        lessonsConfirmed={lessonsConfirmed}
-        monthlyGoal={monthlyGoal}
+        lessonsConfirmed={trialStats?.totalLessons ?? lessonsConfirmed}
+        monthlyGoal={trialStats?.targetLessons ?? monthlyGoal}
+        daysRemaining={daysRemaining}
         planStatus={planStatus}
       />
 

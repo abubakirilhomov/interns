@@ -6,6 +6,7 @@ import InfoTooltip from "../UI/InfoTooltip";
 const PlanProgressWidget = ({
   lessonsConfirmed,
   monthlyGoal,
+  daysRemaining,
   planStatus,
 }) => {
   const { t } = useTranslation();
@@ -17,14 +18,6 @@ const PlanProgressWidget = ({
     requiredLessonsByNow = 0,
     deficit = 0,
   } = planStatus || {};
-
-  // Days until end of current calendar month
-  const now = new Date();
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  const daysUntilMonthEnd = Math.max(
-    Math.ceil((lastDay - now) / (1000 * 60 * 60 * 24)),
-    0
-  );
 
   const goal = monthlyGoal || 0;
   const confirmed = lessonsConfirmed ?? confirmedLessonsThisMonth;
@@ -46,8 +39,8 @@ const PlanProgressWidget = ({
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-primary" />
           <h3 className="text-base font-semibold text-base-content flex items-center">
-            {t('dashboard.monthlyPlan')}
-            <InfoTooltip text={t('tooltips.monthlyPlan')} />
+            {t('dashboard.trialPlan')}
+            <InfoTooltip text={t('tooltips.trialPlan')} />
           </h3>
         </div>
 
@@ -92,9 +85,11 @@ const PlanProgressWidget = ({
               {t('dashboard.deficit', { count: deficit })}
             </span>
           )}
-          <span>
-            {t('dashboard.untilMonthEnd', { count: daysUntilMonthEnd })}
-          </span>
+          {daysRemaining != null && (
+            <span>
+              {t('dashboard.untilTrialEnd', { count: daysRemaining })}
+            </span>
+          )}
         </div>
       </div>
 
