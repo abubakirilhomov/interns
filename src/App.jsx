@@ -1,11 +1,13 @@
+import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { Provider, useSelector } from "react-redux";
+import { Provider, useSelector, useDispatch } from "react-redux";
 import { persistor, store } from "./store";
+import { verifyToken, markAuthInitialized } from "./store/slices/authSlice";
 import Layout from "./components/Layout/Layout";
 import PageTransition from "./components/UI/PageTransition";
 import Login from "./pages/Login";
@@ -23,8 +25,22 @@ import HeadInternWarnings from "./pages/HeadInternWarnings";
 import MarsIdReturn from "./pages/MarsIdReturn";
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, authInitialized } = useSelector((state) => state.auth);
+  if (!authInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-base-content/70">
+        Загрузка...
+      </div>
+    );
+  }
   return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const HeadInternGuard = ({ children }) => {
+  const { user, authInitialized } = useSelector((state) => state.auth);
+  if (!authInitialized) return null;
+  if (!user?.isHeadIntern) return <Navigate to="/dashboard" replace />;
+  return children;
 };
 
 const P = ({ children }) => (
@@ -34,7 +50,18 @@ const P = ({ children }) => (
 );
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const { isAuthenticated, authInitialized, token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (authInitialized) return;
+    const persistedToken = token || localStorage.getItem("token");
+    if (persistedToken) {
+      dispatch(verifyToken());
+    } else {
+      dispatch(markAuthInitialized());
+    }
+  }, [authInitialized, token, dispatch]);
 
   return (
     <Layout>
@@ -48,7 +75,7 @@ const AppRoutes = () => {
         <Route path="/profile" element={<P><Profile /></P>} />
         <Route path="/rating" element={<P><Rating /></P>} />
         <Route path="/activity" element={<P><RecentActivity /></P>} />
-        <Route path="/head-intern" element={<P><HeadInternWarnings /></P>} />
+        <Route path="/head-intern" element={<P><HeadInternGuard><HeadInternWarnings /></HeadInternGuard></P>} />
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>

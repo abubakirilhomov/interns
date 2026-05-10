@@ -10,7 +10,7 @@ import dashboardReducer from "./slices/dashboardSlice";
 const authPersistConfig = {
   key: "auth",
   storage,
-  blacklist: ["isLoading", "error"],
+  blacklist: ["isLoading", "error", "authInitialized"],
 };
 
 const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);

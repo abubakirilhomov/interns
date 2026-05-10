@@ -110,6 +110,7 @@ const authSlice = createSlice({
     isLoading: false,
     error: null,
     isAuthenticated: false,
+    authInitialized: false,
     needsBranchSelect: false,
     pendingLoginData: null,
   },
@@ -118,12 +119,16 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.authInitialized = true;
       state.needsBranchSelect = false;
       state.pendingLoginData = null;
       state.error = null;
       setAuthToken(null);
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("activeBranchId");
+    },
+    markAuthInitialized: (state) => {
+      state.authInitialized = true;
     },
     clearError: (state) => {
       state.error = null;
@@ -167,6 +172,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
+        state.authInitialized = true;
       })
       .addCase(verifyToken.rejected, (state, action) => {
         state.isLoading = false;
@@ -174,6 +180,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.token = null;
+        state.authInitialized = true;
       })
       // Login
       .addCase(loginIntern.pending, (state) => {
@@ -240,5 +247,5 @@ if (token) {
   setAuthToken(token);
 }
 
-export const { logout, clearError, selectBranch, setSession } = authSlice.actions;
+export const { logout, clearError, selectBranch, setSession, markAuthInitialized } = authSlice.actions;
 export default authSlice.reducer;
