@@ -114,6 +114,7 @@
     "probation": "Sinov muddati",
     "probationFull": "Sinov muddati",
     "probationEnded": "Sinov muddati tugadi",
+    "probationEndedHint": "Darajangizni oshirish uchun menejeringizga murojaat qiling",
     "probationRemaining": "{{count}} kun qoldi",
     "deadlineReached": "Muddat tugadi",
     "d": "k",

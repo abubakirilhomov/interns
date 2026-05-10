@@ -114,6 +114,7 @@
     "probation": "Испыт. срок",
     "probationFull": "Испытательный срок",
     "probationEnded": "Испытательный срок завершён",
+    "probationEndedHint": "Обратитесь к своему менеджеру для повышения грейда",
     "probationRemaining": "Осталось {{count}} дней",
     "deadlineReached": "Срок подошел к концу",
     "d": "дн",

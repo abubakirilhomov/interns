@@ -32,12 +32,17 @@ const ProbationTimer = ({ probation, isMobile, daysWorking, trialPeriodDays, day
 
   if (probation.isExpired || timeLeftMs <= 0) {
     return (
-      <div className="card bg-success/10 border border-success/20 p-4 flex items-center justify-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center">
-          <span className="text-lg">🎉</span>
+      <div className="card bg-success/10 border border-success/20 p-4 flex flex-col items-center gap-3 text-center">
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center">
+            <span className="text-lg">🎉</span>
+          </div>
+          <div className="text-sm font-bold text-success">
+            {t('dashboard.probationEnded')}
+          </div>
         </div>
-        <div className="text-sm font-bold text-success">
-          {t('dashboard.probationEnded')}
+        <div className="text-xs text-base-content/60">
+          {t('dashboard.probationEndedHint')}
         </div>
       </div>
     );
