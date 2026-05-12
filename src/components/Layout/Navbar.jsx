@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { logout } from "../../store/slices/authSlice";
+import { logoutIntern } from "../../store/slices/authSlice";
 import { toggleSidebar, setTheme, setLanguage } from "../../store/slices/uiSlice";
 import { FiMenu } from "react-icons/fi";
 import { MdColorLens } from "react-icons/md";
@@ -104,7 +104,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutIntern());
     setDropdownOpen(false);
   };
 

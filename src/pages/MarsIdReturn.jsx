@@ -36,9 +36,10 @@ const MarsIdReturn = () => {
     if (fragment.token && fragment.user) {
       try {
         const user = JSON.parse(fragment.user);
+        // Refresh cookie set on the API origin during OIDC redirect;
+        // only the access token + user are passed through the fragment.
         dispatch(setSession({
           token: fragment.token,
-          refreshToken: fragment.refreshToken,
           user,
         }));
       } catch {

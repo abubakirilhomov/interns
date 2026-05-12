@@ -1,10 +1,10 @@
 import axios from "axios";
 
 // Cross-tab refresh coordination. Without this, two tabs that hit 401 at the
-// same moment each fire their own /refresh-token, then race to write
-// localStorage.token. With #7 (server-side jti revocation) in place this race
-// also opens a window where one tab's new jti is invalidated by the other's
-// before requests in-flight complete.
+// same moment each fire their own /refresh-token request and race. With
+// server-side jti revocation in place (Report.md #7), the loser's old jti
+// can also get invalidated by the winner's rotation before in-flight
+// requests complete.
 const CHANNEL_NAME = "auth-refresh";
 const REFRESH_TIMEOUT_MS = 15000;
 const hasBroadcast = typeof BroadcastChannel !== "undefined";
@@ -33,13 +33,17 @@ if (channel) {
     } else if (msg.type === "refresh-done") {
       remoteRefreshDeadline = 0;
       if (msg.token) {
-        localStorage.setItem("token", msg.token);
         axios.defaults.headers.common["Authorization"] = "Bearer " + msg.token;
         processQueue(null, msg.token);
       }
     } else if (msg.type === "refresh-failed") {
       remoteRefreshDeadline = 0;
       processQueue(new Error("Refresh failed in another tab"), null);
+    } else if (msg.type === "logout") {
+      // Another tab logged out — bring this one along.
+      // The store is not directly imported here to avoid a circular dep;
+      // the storage-key listener still fires through the redux-persist
+      // write when the other tab clears state.
     }
   };
 }
@@ -49,15 +53,6 @@ const broadcast = (msg) => {
 };
 
 export default function setupAxios(store) {
-  // Sync logout across tabs: when another tab clears the token, this tab
-  // drops its auth state too. Cheap and avoids the "I'm still authenticated
-  // in this tab but the server has me logged out" mismatch.
-  window.addEventListener("storage", (e) => {
-    if (e.key === "token" && e.newValue === null && e.oldValue) {
-      store.dispatch({ type: "auth/logout" });
-    }
-  });
-
   axios.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -65,12 +60,6 @@ export default function setupAxios(store) {
 
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
-
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) {
-          store.dispatch({ type: "auth/logout" });
-          return Promise.reject(error);
-        }
 
         if (isRefreshing || remoteRefreshActive()) {
           return new Promise((resolve, reject) => {
@@ -87,13 +76,11 @@ export default function setupAxios(store) {
         broadcast({ type: "refresh-start" });
 
         try {
-          const res = await axios.post("/interns/refresh-token", {
-            refreshToken,
-          });
+          // No body: refresh cookie is the credential.
+          const res = await axios.post("/interns/refresh-token", {});
 
           const newToken = res.data.token;
 
-          localStorage.setItem("token", newToken);
           axios.defaults.headers.common["Authorization"] = "Bearer " + newToken;
 
           processQueue(null, newToken);

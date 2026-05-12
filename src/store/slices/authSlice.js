@@ -1,24 +1,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// API base URL - adjust according to your backend
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
-// Configure axios defaults
 axios.defaults.baseURL = API_URL;
+// Refresh cookie is on the API origin; we're cross-origin, so credentials
+// must be opt-in on every request (login, refresh, logout, normal API calls).
+axios.defaults.withCredentials = true;
 
-// Set token in axios headers
+// Access token now lives only in axios.defaults.headers + Redux state.
+// Refresh token rides the httpOnly cookie set by the backend.
 const setAuthToken = (token) => {
   if (token) {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    localStorage.setItem("token", token);
   } else {
     delete axios.defaults.headers.common["Authorization"];
-    localStorage.removeItem("token");
   }
 };
 
-// Inject X-Active-Branch on every request
 axios.interceptors.request.use((config) => {
   const activeBranch = localStorage.getItem("activeBranchId");
   if (activeBranch) {
@@ -27,7 +26,6 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-// Async thunks
 export const verifyToken = createAsyncThunk(
   "auth/verifyToken",
   async (_, { rejectWithValue }) => {
@@ -41,6 +39,21 @@ export const verifyToken = createAsyncThunk(
   }
 );
 
+// Cold-boot rehydration: POST /interns/refresh-token with the httpOnly
+// cookie. On 200 we hydrate the in-memory access token; on 401 the user
+// has to log in again.
+export const silentRefresh = createAsyncThunk(
+  "auth/silentRefresh",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.post("/interns/refresh-token", {});
+      return response.data?.token || null;
+    } catch (error) {
+      return rejectWithValue(error.response?.status || "network");
+    }
+  }
+);
+
 export const loginIntern = createAsyncThunk(
   "auth/loginIntern",
   async ({ username, password }, { rejectWithValue }) => {
@@ -49,12 +62,23 @@ export const loginIntern = createAsyncThunk(
         username,
         password,
       });
-      const { token, user, refreshToken } = response.data;
+      const { token, user } = response.data;
 
       setAuthToken(token);
-      return { token, refreshToken, user };
+      return { token, user };
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || "Ошибка при входе");
+    }
+  }
+);
+
+export const logoutIntern = createAsyncThunk(
+  "auth/logoutIntern",
+  async () => {
+    try {
+      await axios.post("/interns/logout", {});
+    } catch {
+      // Server may be unreachable; we still tear down local state.
     }
   }
 );
@@ -101,12 +125,22 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
+const clearLocalSession = (state) => {
+  state.user = null;
+  state.token = null;
+  state.isAuthenticated = false;
+  state.needsBranchSelect = false;
+  state.pendingLoginData = null;
+  state.error = null;
+  setAuthToken(null);
+  localStorage.removeItem("activeBranchId");
+};
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
     token: null,
-    refreshToken: null,
     isLoading: false,
     error: null,
     isAuthenticated: false,
@@ -115,17 +149,11 @@ const authSlice = createSlice({
     pendingLoginData: null,
   },
   reducers: {
+    // Forced local logout: used by axiosRefresh when refresh fails. Does
+    // NOT call the server (we're already unauthorized).
     logout: (state) => {
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
+      clearLocalSession(state);
       state.authInitialized = true;
-      state.needsBranchSelect = false;
-      state.pendingLoginData = null;
-      state.error = null;
-      setAuthToken(null);
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("activeBranchId");
     },
     markAuthInitialized: (state) => {
       state.authInitialized = true;
@@ -138,11 +166,10 @@ const authSlice = createSlice({
       localStorage.setItem("activeBranchId", String(branchId));
       const data = state.pendingLoginData;
       setAuthToken(data.token);
-      localStorage.setItem("refreshToken", data.refreshToken);
       state.isAuthenticated = true;
+      state.authInitialized = true;
       state.needsBranchSelect = false;
       state.token = data.token;
-      state.refreshToken = data.refreshToken;
       state.user = data.user;
       state.pendingLoginData = null;
     },
@@ -156,18 +183,23 @@ const authSlice = createSlice({
       }
       const branchId = data.user?.branchId || branchIds[0] || null;
       if (branchId) localStorage.setItem("activeBranchId", String(branchId));
-      localStorage.setItem("refreshToken", data.refreshToken);
       setAuthToken(data.token);
       state.token = data.token;
-      state.refreshToken = data.refreshToken;
       state.user = data.user;
       state.isAuthenticated = true;
+      state.authInitialized = true;
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Verify Token
+      // Belt-and-suspenders against legacy persisted blobs that contain a
+      // stale `token` field. With the new whitelist redux-persist already
+      // skips it, but this clears any in-flight contamination.
+      .addCase("persist/REHYDRATE", (state) => {
+        state.token = null;
+        state.isAuthenticated = Boolean(state.user);
+      })
       .addCase(verifyToken.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
@@ -182,7 +214,18 @@ const authSlice = createSlice({
         state.token = null;
         state.authInitialized = true;
       })
-      // Login
+      .addCase(silentRefresh.fulfilled, (state, action) => {
+        if (action.payload) {
+          setAuthToken(action.payload);
+          state.token = action.payload;
+          state.isAuthenticated = Boolean(state.user);
+        }
+        state.authInitialized = true;
+      })
+      .addCase(silentRefresh.rejected, (state) => {
+        clearLocalSession(state);
+        state.authInitialized = true;
+      })
       .addCase(loginIntern.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -199,12 +242,11 @@ const authSlice = createSlice({
         } else {
           const branchId = data.user?.branchId || branchIds[0] || null;
           if (branchId) localStorage.setItem("activeBranchId", String(branchId));
-          localStorage.setItem("refreshToken", data.refreshToken);
           setAuthToken(data.token);
           state.token = data.token;
-          state.refreshToken = data.refreshToken;
           state.user = data.user;
           state.isAuthenticated = true;
+          state.authInitialized = true;
         }
       })
       .addCase(loginIntern.rejected, (state, action) => {
@@ -212,7 +254,14 @@ const authSlice = createSlice({
         state.error = action.payload;
         state.isAuthenticated = false;
       })
-      // Update Profile
+      .addCase(logoutIntern.fulfilled, (state) => {
+        clearLocalSession(state);
+        state.authInitialized = true;
+      })
+      .addCase(logoutIntern.rejected, (state) => {
+        clearLocalSession(state);
+        state.authInitialized = true;
+      })
       .addCase(updateProfile.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -225,7 +274,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      // Fetch Profile
       .addCase(fetchProfile.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -240,12 +288,6 @@ const authSlice = createSlice({
       });
   },
 });
-
-// Initialize token validation on app load
-const token = localStorage.getItem("token");
-if (token) {
-  setAuthToken(token);
-}
 
 export const { logout, clearError, selectBranch, setSession, markAuthInitialized } = authSlice.actions;
 export default authSlice.reducer;

@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import { persistor, store } from "./store";
-import { verifyToken, markAuthInitialized } from "./store/slices/authSlice";
+import { silentRefresh } from "./store/slices/authSlice";
 import Layout from "./components/Layout/Layout";
 import PageTransition from "./components/UI/PageTransition";
 import Login from "./pages/Login";
@@ -55,13 +55,12 @@ const AppRoutes = () => {
 
   useEffect(() => {
     if (authInitialized) return;
-    const persistedToken = token || localStorage.getItem("token");
-    if (persistedToken) {
-      dispatch(verifyToken());
-    } else {
-      dispatch(markAuthInitialized());
-    }
-  }, [authInitialized, token, dispatch]);
+    // Always try silent refresh on cold boot — the refresh cookie may be
+    // there even when nothing is in Redux/localStorage. If no cookie, the
+    // server will 401 and the thunk's rejected handler flips
+    // authInitialized=true with the user still logged out.
+    dispatch(silentRefresh());
+  }, [authInitialized, dispatch]);
 
   return (
     <Layout>

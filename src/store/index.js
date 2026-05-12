@@ -6,11 +6,15 @@ import lessonsReducer from "./slices/lessonSlice";
 import uiReducer from "./slices/uiSlice";
 import ratingReducer from "./slices/ratingSlice"
 import dashboardReducer from "./slices/dashboardSlice";
-// Конфиг для persist auth
+// Конфиг для persist auth.
+// Tokens are NOT persisted any more — access token lives only in memory,
+// refresh token rides the httpOnly cookie. Only the non-credential `user`
+// blob is rehydrated for snappy boot UX. authInitialized stays transient
+// because cold boot must always run silentRefresh.
 const authPersistConfig = {
   key: "auth",
   storage,
-  blacklist: ["isLoading", "error", "authInitialized"],
+  whitelist: ["user"],
 };
 
 const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
