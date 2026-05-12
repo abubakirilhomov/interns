@@ -42,13 +42,31 @@ export const verifyToken = createAsyncThunk(
 // Cold-boot rehydration: POST /interns/refresh-token with the httpOnly
 // cookie. On 200 we hydrate the in-memory access token; on 401 the user
 // has to log in again.
+//
+// Migration shim: a session from before the cookie cutover still has its
+// refresh token in localStorage. We pass it as body fallback exactly once;
+// on success the backend rotates and sets the cookie, after which we
+// clean up the legacy keys so the next refresh is cookie-only.
 export const silentRefresh = createAsyncThunk(
   "auth/silentRefresh",
   async (_, { rejectWithValue }) => {
+    const legacy = localStorage.getItem("refreshToken");
     try {
-      const response = await axios.post("/interns/refresh-token", {});
+      const response = await axios.post(
+        "/interns/refresh-token",
+        legacy ? { refreshToken: legacy } : {}
+      );
+      if (legacy) {
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("token");
+      }
       return response.data?.token || null;
     } catch (error) {
+      // If even the legacy fallback failed there's nothing to recover.
+      if (legacy) {
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("token");
+      }
       return rejectWithValue(error.response?.status || "network");
     }
   }

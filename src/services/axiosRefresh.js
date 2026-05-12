@@ -76,8 +76,18 @@ export default function setupAxios(store) {
         broadcast({ type: "refresh-start" });
 
         try {
-          // No body: refresh cookie is the credential.
-          const res = await axios.post("/interns/refresh-token", {});
+          // Cookie is the credential. Migration shim: if a pre-cutover
+          // refreshToken is still in localStorage, pass it as body so an
+          // active session doesn't get force-logged-out on first 401.
+          const legacy = localStorage.getItem("refreshToken");
+          const res = await axios.post(
+            "/interns/refresh-token",
+            legacy ? { refreshToken: legacy } : {}
+          );
+          if (legacy) {
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("token");
+          }
 
           const newToken = res.data.token;
 
