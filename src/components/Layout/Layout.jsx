@@ -4,6 +4,7 @@ import axios from 'axios';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from '../LessonFeedbackModal';
+import InternshipSurveyModal from '../InternshipSurveyModal';
 import AchievementToast from '../Gamification/AchievementToast';
 import InstallPrompt from '../InstallPrompt';
 
@@ -21,7 +22,24 @@ const Layout = ({ children }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [pendingFeedbackId, setPendingFeedbackId] = useState(() => readPendingId());
   const [celebrateBadges, setCelebrateBadges] = useState([]);
+  const [surveyDismissed, setSurveyDismissed] = useState(false);
   const isFrozen = Boolean(user?.status === 'frozen' || user?.isFrozen || user?.planStatus?.isFrozen);
+  // One-time participant survey. Show only after auth is settled, only for
+  // interns (not mentors/admins via shared layout), only when neither
+  // pending-feedback modal is up (it has higher priority — blocks lessons),
+  // not for frozen/archived interns, and only until they submit. Dismiss
+  // ("Позже") just hides for this session; next visit re-shows.
+  const surveySubmitted = Boolean(
+    user?.surveyCompleted || user?.internshipSurvey?.submittedAt
+  );
+  const showSurvey =
+    isAuthenticated &&
+    user?.role === 'intern' &&
+    user?.status === 'active' &&
+    !isFrozen &&
+    !surveySubmitted &&
+    !pendingFeedbackId &&
+    !surveyDismissed;
 
   // Listen for new badges from dashboard stats
   useEffect(() => {
@@ -100,6 +118,10 @@ const Layout = ({ children }) => {
             window.dispatchEvent(new Event('feedback-pending-changed'));
           }}
         />
+      )}
+
+      {showSurvey && (
+        <InternshipSurveyModal onClose={() => setSurveyDismissed(true)} />
       )}
 
       <AchievementToast

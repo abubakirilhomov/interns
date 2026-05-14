@@ -124,6 +124,25 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
+// One-time participant survey. Submitted from the dashboard modal. After
+// success the user blob gets surveyCompleted=true so the modal won't show
+// again on subsequent loads.
+export const submitInternshipSurvey = createAsyncThunk(
+  "auth/submitInternshipSurvey",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post("/interns/me/survey", formData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Не удалось сохранить ответы"
+      );
+    }
+  }
+);
+
 export const fetchProfile = createAsyncThunk(
   "auth/fetchProfile",
   async (_, { rejectWithValue, getState }) => {
@@ -313,6 +332,14 @@ const authSlice = createSlice({
       .addCase(fetchProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      .addCase(submitInternshipSurvey.fulfilled, (state, action) => {
+        const payload = action.payload || {};
+        state.user = {
+          ...state.user,
+          surveyCompleted: true,
+          internshipSurvey: payload.internshipSurvey || { submittedAt: new Date().toISOString() },
+        };
       });
   },
 });

@@ -334,5 +334,29 @@
     "yourGrade": "Tizimdagi joriy darajangiz. Daraja qancha yuqori — shuncha ko'p dars kerak",
     "emptyLessons": "Progressni kuzatishni boshlash uchun birinchi darsingizni qo'shing!",
     "quickActions": "Ilovaning asosiy funksiyalariga tezkor kirish"
+  },
+  "internshipSurvey": {
+    "title": "Ishtirokchi anketasi",
+    "subtitle": "Dasturni yaxshilashga yordam ber — Marsdagi yo'lingni qisqacha aytib ber. Bu bir daqiqadan kam vaqt oladi.",
+    "marsStudyStartLabel": "Marsda qachondan o'qishni boshlading?",
+    "internStartLabel": "Qachon intern bo'lding?",
+    "statusLabel": "Hozir sen:",
+    "statusStudying": "Marsda o'qishni davom ettiryapman",
+    "statusGraduated": "Dasturdan chiqdim",
+    "proCourseLabel": "Pro-kursni tugatdingmi?",
+    "proCourseYes": "Ha",
+    "proCourseNo": "Yo'q",
+    "submit": "Yuborish",
+    "submitting": "Yuborilmoqda…",
+    "later": "Keyinroq",
+    "thankYou": "Rahmat! Javoblar saqlandi.",
+    "errors": {
+      "dateRequired": "Sanani ko'rsat",
+      "futureDate": "Sana kelajakda bo'lishi mumkin emas",
+      "internAfterStudy": "Internlik sanasi o'qish boshlanishidan keyin bo'lishi kerak",
+      "statusRequired": "Variantni tanla",
+      "proCourseRequired": "Pro-kurs haqida javob ber",
+      "generic": "Javoblarni saqlash imkoni bo'lmadi. Yana urinib ko'r."
+    }
   }
 }
