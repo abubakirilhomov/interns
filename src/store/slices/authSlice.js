@@ -191,6 +191,16 @@ const authSlice = createSlice({
       state.user = data.user;
       state.pendingLoginData = null;
     },
+    // Runtime branch switch (post-login). Caller is expected to reload the
+    // page after dispatch so all slices refetch with the new X-Active-Branch
+    // header. Rejected silently if the id is not in the user's allowed list.
+    switchActiveBranch: (state, action) => {
+      const branchId = String(action.payload);
+      const allowed = (state.user?.branchIds || []).map(String);
+      if (!allowed.includes(branchId)) return;
+      localStorage.setItem("activeBranchId", branchId);
+      state.user = { ...state.user, activeBranchId: branchId };
+    },
     setSession: (state, action) => {
       const data = action.payload || {};
       const branchIds = data.user?.branchIds || [];
@@ -307,5 +317,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, selectBranch, setSession, markAuthInitialized } = authSlice.actions;
+export const { logout, clearError, selectBranch, switchActiveBranch, setSession, markAuthInitialized } = authSlice.actions;
 export default authSlice.reducer;

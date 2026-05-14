@@ -6,6 +6,7 @@ import { toggleSidebar, setTheme, setLanguage } from "../../store/slices/uiSlice
 import { FiMenu } from "react-icons/fi";
 import { MdColorLens } from "react-icons/md";
 import { Link } from "react-router-dom";
+import BranchSwitcher from "./BranchSwitcher";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -131,6 +132,9 @@ const Navbar = () => {
       </div>
 
       <div className="flex gap-2 items-center">
+        {/* Branch switcher — only renders when user has 2+ branches */}
+        <BranchSwitcher />
+
         {/* Language Toggle */}
         <button
           type="button"
