@@ -52,13 +52,32 @@ const broadcast = (msg) => {
   if (channel) channel.postMessage(msg);
 };
 
+// Endpoints that must NEVER be retried via refresh. Trying to refresh a
+// failing /refresh-token call recurses into this interceptor, queues the
+// retry against itself, and deadlocks — silentRefresh never resolves and
+// authInitialized stays false forever (the "бесконечная загрузка" symptom
+// some users see when their refresh cookie is missing/expired or blocked
+// by browser cross-site cookie rules like Safari ITP).
+const isAuthEndpoint = (config) => {
+  const url = config?.url || "";
+  return (
+    url.includes("/refresh-token") ||
+    url.endsWith("/login") ||
+    url.endsWith("/logout")
+  );
+};
+
 export default function setupAxios(store) {
   axios.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
 
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      if (
+        error.response?.status === 401 &&
+        !originalRequest._retry &&
+        !isAuthEndpoint(originalRequest)
+      ) {
         originalRequest._retry = true;
 
         if (isRefreshing || remoteRefreshActive()) {
