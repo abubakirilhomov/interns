@@ -358,5 +358,39 @@
       "proCourseRequired": "Pro-kurs haqida javob ber",
       "generic": "Javoblarni saqlash imkoni bo'lmadi. Yana urinib ko'r."
     }
+  },
+  "weeklyPlan": {
+    "indicator": {
+      "weeks_one": "hafta",
+      "weeks_few": "hafta",
+      "weeks_many": "hafta",
+      "weeks_other": "hafta",
+      "startStreak": "Strikni boshla",
+      "restricted": "Cheklangan",
+      "adminBlock": "Bloklangan",
+      "streakTooltip_one": "{{count}} hafta ketma-ket rejada 🔥",
+      "streakTooltip_few": "{{count}} hafta ketma-ket rejada 🔥",
+      "streakTooltip_many": "{{count}} hafta ketma-ket rejada 🔥",
+      "streakBestTooltip_one": "{{count}} hafta — shaxsiy rekord! ★",
+      "streakBestTooltip_few": "{{count}} hafta ketma-ket — shaxsiy rekord! ★",
+      "streakBestTooltip_many": "{{count}} hafta ketma-ket — shaxsiy rekord! ★",
+      "noStreakTooltip": "Haftalik rejani bajar — strik boshlanadi",
+      "restrictedTooltip": "O'tgan haftada reja bajarilmagan. Yangi tizimning ko'rinishi — hozircha bloklashlarsiz.",
+      "adminBlockTooltip": "O'z-o'zini faollashtirish limiti tugagan yoki ikki hafta ketma-ket bajarilmagan. Ko'rinish — hozircha bloklashsiz."
+    },
+    "banner": {
+      "previewNote": "Hozir bu ko'rinish — hech qanday bloklash yo'q. 2 haftadan keyin to'liq yoqamiz.",
+      "atRisk": {
+        "title": "Hafta oxirigacha {{days}} kun va yana {{deficit}} ta dars qo'shish kerak"
+      },
+      "restricted": {
+        "title": "O'tgan hafta yopilmagan: {{target}} tadan {{done}} ta dars",
+        "activations": "Bu oyda o'z-o'zini faollashtirish: {{dots}} {{left}} / 2"
+      },
+      "adminBlock": {
+        "title": "O'z-o'zini faollashtirish limiti tugagan",
+        "body": "Tizim to'liq ishga tushganda — blokdan chiqarish uchun menejerga murojaat qilish kerak bo'ladi."
+      }
+    }
   }
 }

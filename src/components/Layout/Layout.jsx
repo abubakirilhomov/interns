@@ -1,12 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import WeeklyPlanBanner from './WeeklyPlanBanner';
 import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from '../LessonFeedbackModal';
 import InternshipSurveyModal from '../InternshipSurveyModal';
 import AchievementToast from '../Gamification/AchievementToast';
 import InstallPrompt from '../InstallPrompt';
+import { fetchWeeklyPlan } from '../../store/slices/weeklyPlanSlice';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -19,11 +21,22 @@ const readPendingId = () => {
 };
 
 const Layout = ({ children }) => {
+  const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [pendingFeedbackId, setPendingFeedbackId] = useState(() => readPendingId());
   const [celebrateBadges, setCelebrateBadges] = useState([]);
   const [surveyDismissed, setSurveyDismissed] = useState(false);
   const isFrozen = Boolean(user?.status === 'frozen' || user?.isFrozen || user?.planStatus?.isFrozen);
+
+  // Fetch weeklyPlan once on auth, refetch on window focus (no setInterval —
+  // status only changes Monday cron / self-activate; focus refresh is enough).
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'intern' || isFrozen) return;
+    dispatch(fetchWeeklyPlan());
+    const onFocus = () => dispatch(fetchWeeklyPlan());
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [dispatch, isAuthenticated, user?._id, user?.role, isFrozen]);
   // One-time participant survey. Show only after auth is settled, only for
   // interns (not mentors/admins via shared layout), only when neither
   // pending-feedback modal is up (it has higher priority — blocks lessons),
@@ -104,6 +117,9 @@ const Layout = ({ children }) => {
       <div className="flex">
         <Sidebar />
         <main className="flex-1 min-w-0 md:p-0 lg:ml-0">
+          {/* Weekly-plan banner — Phase 1b read-only preview. Renders
+              nothing when status === 'ok' && !isAtRisk. */}
+          {!isFrozen && <WeeklyPlanBanner />}
           <div className="p-4 md:p-6 max-h-[90vh] overflow-y-auto">
             {children}
           </div>

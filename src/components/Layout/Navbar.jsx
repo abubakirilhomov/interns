@@ -7,6 +7,7 @@ import { FiMenu } from "react-icons/fi";
 import { MdColorLens } from "react-icons/md";
 import { Link } from "react-router-dom";
 import BranchSwitcher from "./BranchSwitcher";
+import WeeklyPlanIndicator from "./WeeklyPlanIndicator";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -134,6 +135,10 @@ const Navbar = () => {
       <div className="flex gap-2 items-center">
         {/* Branch switcher — only renders when user has 2+ branches */}
         <BranchSwitcher />
+
+        {/* Weekly-plan streak indicator (🔥) — Phase 1b read-only.
+            Hidden until /interns/me/weekly-plan resolves. */}
+        <WeeklyPlanIndicator />
 
         {/* Language Toggle */}
         <button

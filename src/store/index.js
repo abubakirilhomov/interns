@@ -6,6 +6,7 @@ import lessonsReducer from "./slices/lessonSlice";
 import uiReducer from "./slices/uiSlice";
 import ratingReducer from "./slices/ratingSlice"
 import dashboardReducer from "./slices/dashboardSlice";
+import weeklyPlanReducer from "./slices/weeklyPlanSlice";
 // Конфиг для persist auth.
 // Tokens are NOT persisted any more — access token lives only in memory,
 // refresh token rides the httpOnly cookie. Only the non-credential `user`
@@ -34,6 +35,7 @@ export const store = configureStore({
     lessons: lessonsReducer,
     ui: persistedUiReducer,
     dashboard: dashboardReducer,
+    weeklyPlan: weeklyPlanReducer,
     rating: ratingReducer
   },
   middleware: (getDefaultMiddleware) =>
