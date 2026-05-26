@@ -98,13 +98,9 @@ const Dashboard = () => {
 
       {/* Hero Section: Alerts + Grade + Timer */}
       <div className="space-y-6">
-        {planStatus?.isPlanBlocked && (
-          <div className="alert alert-error shadow">
-            <span>
-              {t('dashboard.planBlockedAlert', { confirmed: planStatus.confirmedLessonsThisMonth, required: planStatus.requiredLessonsByNow })}
-            </span>
-          </div>
-        )}
+        {/* Старый planBlocked-баннер убран: Layout уже рендерит
+            WeeklyPlanBanner от единого источника (state.weeklyPlan.data),
+            а старый planStatus.isPlanBlocked теперь dead post-Phase 2. */}
         {isFrozen && (
           <div className="alert alert-warning shadow">
             <span>

@@ -13,7 +13,15 @@ const AddLessonPage = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { isLoading, error, success } = useSelector((state) => state.lessons);
-  const isPlanBlocked = Boolean(user?.planStatus?.isPlanBlocked || user?.isPlanBlocked);
+  // Phase 2: gate on weeklyPlan.status (что enforced на бэке в
+  // lessonController). Старое user.planStatus.isPlanBlocked — от daily
+  // правила из internPlanStatus.js, оно теперь dead. Если читать его —
+  // фронт блокирует кнопку, а бэк бы пропустил → "у меня заблок, а админ
+  // показывает Активен" (как репортили 2026-05-26).
+  const weeklyPlan = useSelector((state) => state.weeklyPlan.data);
+  const isPlanBlocked = ["restricted", "admin_block"].includes(
+    weeklyPlan?.status
+  );
   const isFrozen = Boolean(user?.status === "frozen" || user?.isFrozen || user?.planStatus?.isFrozen);
   const freezeReturnDate = user?.freezeInfo?.expectedReturn
     ? new Date(user.freezeInfo.expectedReturn).toLocaleDateString("ru-RU")
@@ -207,11 +215,10 @@ const AddLessonPage = () => {
           </select>
         </div>
 
-        {isPlanBlocked && (
-          <p className="text-red-500">
-            {t('lessons.planBlockedMsg')}
-          </p>
-        )}
+        {/* Inline-сообщение про блок убрано — Layout рендерит WeeklyPlanBanner,
+            который не только сообщает о блоке, но и предлагает кнопку
+            "Реактивировать" (если есть активации в этом месяце). Тут нам
+            достаточно disabled-state на самой кнопке. */}
         {isFrozen && (
           <div className="alert alert-warning">
             <span>

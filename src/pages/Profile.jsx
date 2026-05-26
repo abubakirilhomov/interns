@@ -137,7 +137,12 @@ const Profile = () => {
   const avgScore = typeof rawScore === 'number' && Number.isFinite(rawScore) ? rawScore.toFixed(1) : '0.0';
   const feedbackCount = user?.feedbacks?.length || 0;
   const branchCount = user?.branches?.length || 0;
-  const isPlanBlocked = stats?.planStatus?.isPlanBlocked || user?.isPlanBlocked;
+  // Phase 2: читаем weeklyPlan.status (dashboard response теперь его
+  // включает). Старый planStatus.isPlanBlocked был от daily-правила,
+  // которое больше не enforced на бэке.
+  const isPlanBlocked = ["restricted", "admin_block"].includes(
+    stats?.weeklyPlan?.status
+  );
   const isFrozen = Boolean(user?.status === 'frozen' || user?.isFrozen || stats?.planStatus?.isFrozen);
   const freezeReturnDate = user?.freezeInfo?.expectedReturn || stats?.planStatus?.freezeExpectedReturn
     ? new Date(user?.freezeInfo?.expectedReturn || stats?.planStatus?.freezeExpectedReturn).toLocaleDateString('ru-RU')

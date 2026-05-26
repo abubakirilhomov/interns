@@ -11,9 +11,12 @@ const PlanProgressWidget = ({
 }) => {
   const { t } = useTranslation();
 
+  // Phase 2: больше не читаем isPlanBlocked / isManuallyActivated из
+  // planStatus — это поля от старого daily-правила, оно dead post-Phase 2.
+  // Виджет теперь чисто прогресс-визуализация по месячному плану. Сам факт
+  // блокировки рендерится Layout-баннером (WeeklyPlanBanner) от
+  // state.weeklyPlan.data.
   const {
-    isPlanBlocked = false,
-    isManuallyActivated = false,
     confirmedLessonsThisMonth = 0,
     requiredLessonsByNow = 0,
     deficit = 0,
@@ -23,10 +26,9 @@ const PlanProgressWidget = ({
   const confirmed = lessonsConfirmed ?? confirmedLessonsThisMonth;
   const progressPercent = goal > 0 ? Math.min(Math.round((confirmed / goal) * 100), 100) : 0;
 
+  // Цвет прогресса теперь от процента, а не от блок-флага.
   const progressColor =
-    isPlanBlocked
-      ? "progress-error"
-      : progressPercent >= 80
+    progressPercent >= 80
       ? "progress-success"
       : progressPercent >= 50
       ? "progress-warning"
@@ -44,18 +46,11 @@ const PlanProgressWidget = ({
           </h3>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          {isPlanBlocked && (
-            <span className="badge badge-error badge-sm gap-1 font-semibold">
-              {t('dashboard.planBlocked')}
-            </span>
-          )}
-          {isManuallyActivated && (
-            <span className="badge badge-success badge-sm gap-1 font-semibold">
-              {t('dashboard.activationEnabled')}
-            </span>
-          )}
-        </div>
+        {/* Бейджи "План заблокирован" / "Активация включена" убраны —
+            старые daily-флаги мисляли (например 26.05.26 интерны видели
+            красный бейдж даже когда weeklyPlan.status === 'ok' и
+            createLesson реально проходил). Источник правды — Layout
+            WeeklyPlanBanner. */}
       </div>
 
       {/* Progress bar */}
