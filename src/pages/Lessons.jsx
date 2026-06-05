@@ -107,12 +107,17 @@ const AddLessonPage = () => {
       setGroup("");
       setFeedback("");
       setSelectedMentor("");
+      // Урок создан — сразу подтверждаем тостом при любом исходе. Раньше тост
+      // стоял в ветке else (когда у урока нет _id), но у реально созданного
+      // урока _id есть всегда → выполнялась ветка if (открывала фидбек-модалку),
+      // а тост успеха не показывался никогда — интерн не понимал, добавился урок
+      // или нет.
+      toast.success(t('common.sentSuccess'));
+      dispatch(resetLessonState());
+      // Урок требует оценки интерна — открываем фидбек-модалку (её рендерит Layout).
       if (lesson?._id) {
         localStorage.setItem(PENDING_FEEDBACK_KEY, lesson._id);
         window.dispatchEvent(new Event("feedback-pending-changed"));
-      } else {
-        toast.success(t('common.sentSuccess'));
-        dispatch(resetLessonState());
       }
     } catch (err) {
       // If backend says there's a pending feedback lesson — show modal for it
@@ -238,7 +243,9 @@ const AddLessonPage = () => {
           {isLoading ? t('common.saving') : t('lessons.submit')}
         </button>
       </form>
-      <ToastContainer position="top-right" />
+      {/* z-index выше модалки фидбека (z-[9999]) — иначе тост успеха окажется
+          под затемнённым backdrop модалки и его не будет видно. */}
+      <ToastContainer position="top-right" style={{ zIndex: 10000 }} />
     </div>
   );
 };
