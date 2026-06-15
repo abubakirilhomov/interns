@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { updateProfile } from '../store/slices/authSlice';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import BadgeShowcase from '../components/Gamification/BadgeShowcase';
@@ -11,7 +12,6 @@ const Profile = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { user, isLoading } = useSelector((state) => state.auth);
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -58,21 +58,22 @@ const Profile = () => {
 
   const handlePhotoUpload = async (file) => {
     if (!file) return;
-    const token = localStorage.getItem('token');
     try {
       setUploadingPhoto(true);
       const data = new FormData();
       data.append('file', file);
       data.append('folder', 'interns');
-      const response = await fetch(`${API_URL}/uploads/image`, {
-        method: 'POST',
-        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: data,
-      });
-      const result = await response.json();
-      if (!response.ok || !result?.success) throw new Error();
+      // Use the shared axios instance: it carries the access token
+      // (axios.defaults.headers) and baseURL. The token is no longer in
+      // localStorage, so a raw fetch would send an unauthenticated request.
+      // Let axios set the multipart boundary — do not set Content-Type manually.
+      const { data: result } = await axios.post('/uploads/image', data);
+      if (!result?.success) throw new Error('Upload failed');
       setFormData((prev) => ({ ...prev, profilePhoto: result.data.url }));
-    } catch {
+    } catch (err) {
+      const message =
+        err?.response?.data?.message || 'Не удалось загрузить фото. Попробуйте ещё раз.';
+      toast.error(message);
     } finally {
       setUploadingPhoto(false);
     }

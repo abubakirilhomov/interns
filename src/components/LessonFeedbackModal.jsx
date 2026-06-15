@@ -129,8 +129,8 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer transition-colors border ${
                   checked
                     ? type === "negative"
-                      ? "bg-red-50 border-red-200"
-                      : "bg-green-50 border-green-200"
+                      ? "bg-error/10 border-error/30"
+                      : "bg-success/10 border-success/30"
                     : "bg-base-200/40 border-transparent hover:bg-base-200"
                 }`}
               >
@@ -144,7 +144,7 @@ const LessonFeedbackModal = ({ lessonId, onSuccess }) => {
                 />
                 <span className="text-sm leading-snug flex-1">{c.label}</span>
                 {type === "negative" && c.weight >= 3 && (
-                  <span className="text-xs text-red-400 font-medium flex-shrink-0">{t('feedbackModal.serious')}</span>
+                  <span className="text-xs text-error font-medium flex-shrink-0">{t('feedbackModal.serious')}</span>
                 )}
               </label>
             );
