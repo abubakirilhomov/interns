@@ -22,6 +22,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Rating from "./pages/Rating";
 import RecentActivity from "./pages/RecentActivity";
 import HeadInternWarnings from "./pages/HeadInternWarnings";
+import HeadInternCreateIntern from "./pages/HeadInternCreateIntern";
 import MarsIdReturn from "./pages/MarsIdReturn";
 
 const ProtectedRoute = ({ children }) => {
@@ -75,6 +76,7 @@ const AppRoutes = () => {
         <Route path="/rating" element={<P><Rating /></P>} />
         <Route path="/activity" element={<P><RecentActivity /></P>} />
         <Route path="/head-intern" element={<P><HeadInternGuard><HeadInternWarnings /></HeadInternGuard></P>} />
+        <Route path="/head-intern/create" element={<P><HeadInternGuard><HeadInternCreateIntern /></HeadInternGuard></P>} />
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
