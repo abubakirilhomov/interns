@@ -37,7 +37,14 @@ const Rating = () => {
   const filteredInterns =
     selectedBranch === "all"
       ? interns
-      : interns?.filter((intern) => intern.branch === selectedBranch);
+      : interns?.filter((intern) =>
+          // Интерн с несколькими филиалами: intern.branch — это объединённая
+          // строка "A, B", поэтому фильтруем по списку филиалов branchNames,
+          // иначе мульти-филиальные интерны пропадают из рейтинга по филиалу.
+          Array.isArray(intern.branchNames) && intern.branchNames.length
+            ? intern.branchNames.includes(selectedBranch)
+            : intern.branch === selectedBranch
+        );
 
   const paginatedInterns = filteredInterns?.slice(
     (currentPage - 1) * itemsPerPage,
