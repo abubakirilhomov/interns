@@ -6,6 +6,7 @@ import InfoTooltip from "../UI/InfoTooltip";
 const StatusPanel = ({
     lessonsConfirmed,
     lessonsPending,
+    confirmedAllTime,
     trialStats,
     daysWorking,
     trialPeriodDays,
@@ -29,6 +30,18 @@ const StatusPanel = ({
                 </div>
                 <div className="text-xs font-semibold px-2 py-1 bg-base-200 rounded-full inline-block text-base-content/70">
                     {progressPercentage}% {t('dashboard.completed')}
+                </div>
+                {/* Пояснение: trial-счётчик считается с даты повышения грейда
+                    (probationStartDate сбрасывается при grade up). Рядом показываем
+                    общий confirmed за всё время, чтобы падение не читалось как «уроки пропали». */}
+                <div className="mt-2 text-[11px] leading-snug text-base-content/50">
+                    <div>{t('dashboard.trialSincePromotion')}</div>
+                    {typeof confirmedAllTime === 'number' && (
+                        <div className="mt-0.5">
+                            {t('dashboard.allTimeConfirmed')}:{' '}
+                            <span className="font-semibold text-base-content/80">{confirmedAllTime}</span>
+                        </div>
+                    )}
                 </div>
             </div>
 

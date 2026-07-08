@@ -65,6 +65,7 @@ const Dashboard = () => {
     lessonsThisMonth,
     lessonsConfirmed,
     lessonsPending,
+    confirmedAllTime,
     totalLessons,
     monthlyGoal,
     adjustedMonthlyGoal,
@@ -146,6 +147,7 @@ const Dashboard = () => {
       <StatusPanel
         lessonsConfirmed={lessonsConfirmed || lessonsThisMonth}
         lessonsPending={lessonsPending || 0}
+        confirmedAllTime={confirmedAllTime}
         trialStats={trialStats}
         percentage={percentage || 0}
         daysWorking={daysWorking || 0}

@@ -105,6 +105,8 @@
     "concessionDesc": "Ajoyib yangilik! Agar rejani to'liq bajarmagan bo'lsangiz ham ({{percentage}}%), muddat tugaganda imtiyoz bilan ko'tarilish mumkin.",
     "normTrialPeriod": "Norma (Sinov muddati)",
     "completed": "bajarildi",
+    "trialSincePromotion": "Grade oshirilgan sanadan hisoblanadi",
+    "allTimeConfirmed": "Butun davr uchun jami tasdiqlangan",
     "ratedPending": "Baholangan / Kutilmoqda",
     "currentMonth": "joriy oy",
     "gradeDeadline": "Daraja muddati",
@@ -354,7 +356,7 @@
     "level": "{{level}}-daraja"
   },
   "tooltips": {
-    "normTrialPeriod": "Sinov muddati davomida kerakli darslardan nechtasini o'tganingiz",
+    "normTrialPeriod": "Joriy sinov muddatida nechta dars tasdiqlangan. Grade oshirilgan sanadan hisoblanadi va grade oshganda nolga tushadi — bu SIZNING barcha darslaringiz emas. Butun davr uchun umumiy tasdiqlangan darslar soni pastda ko'rsatilgan.",
     "ratedPending": "Baholangan — mentor tasdiqlagan darslar. Kutilmoqda — hali tasdiqlanmagan",
     "gradeDeadline": "Joriy daraja boshlanganidan beri necha kun o'tgani (umumiy sinov muddatidan)",
     "avgScore": "Barcha mentorlardan 5 balli shkala bo'yicha o'rtacha baho",
