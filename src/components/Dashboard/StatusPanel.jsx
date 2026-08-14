@@ -1,0 +1,93 @@
+import React from "react";
+import { useTranslation } from 'react-i18next';
+import { Activity, CheckCircle, Calendar, Award } from "lucide-react";
+import InfoTooltip from "../UI/InfoTooltip";
+
+const StatusPanel = ({
+    lessonsConfirmed,
+    lessonsPending,
+    confirmedAllTime,
+    trialStats,
+    daysWorking,
+    trialPeriodDays,
+    averageScore
+}) => {
+    const { t } = useTranslation();
+    const { totalLessons, targetLessons, progressPercentage } = trialStats || { totalLessons: 0, targetLessons: 0, progressPercentage: 0 };
+
+    // 100% bajarilganda — tilla (gold) rang.
+    const normColor = progressPercentage >= 100 ? 'text-gold' : progressPercentage >= 80 ? 'text-success' : progressPercentage >= 50 ? 'text-warning' : 'text-error';
+    const normBadgeClass = progressPercentage >= 100
+      ? 'bg-gold-20 text-gold font-bold'
+      : 'bg-base-200 rounded-full inline-block text-base-content/70';
+
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {/* Norm completion (trial period) */}
+            <div className="card bg-base-100/60 shadow-xl backdrop-blur p-4 relative overflow-hidden group border border-base-200">
+                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Activity className="w-12 h-12 text-primary" />
+                </div>
+                <div className="text-sm font-medium text-base-content/60 mb-1 flex items-center">{t('dashboard.normTrialPeriod')}<InfoTooltip text={t('tooltips.normTrialPeriod')} /></div>
+                <div className={`text-3xl font-bold ${normColor} mb-1`}>
+                    {totalLessons} <span className="text-lg text-base-content/40 font-normal">/ {targetLessons}</span>
+                </div>
+                <div className={`text-xs font-semibold px-2 py-1 ${normBadgeClass}`}>
+                    {progressPercentage}% {t('dashboard.completed')}
+                </div>
+                {/* Пояснение: trial-счётчик считается с даты повышения грейда
+                    (probationStartDate сбрасывается при grade up). Рядом показываем
+                    общий confirmed за всё время, чтобы падение не читалось как «уроки пропали». */}
+                <div className="mt-2 text-[11px] leading-snug text-base-content/50">
+                    <div>{t('dashboard.trialSincePromotion')}</div>
+                    {typeof confirmedAllTime === 'number' && (
+                        <div className="mt-0.5">
+                            {t('dashboard.allTimeConfirmed')}:{' '}
+                            <span className="font-semibold text-base-content/80">{confirmedAllTime}</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Rated / Pending */}
+            <div className="card bg-base-100/60 shadow-xl backdrop-blur p-4 relative overflow-hidden group border border-base-200">
+                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <CheckCircle className="w-12 h-12 text-secondary" />
+                </div>
+                <div className="text-sm font-medium text-base-content/60 mb-1 flex items-center">{t('dashboard.ratedPending')}<InfoTooltip text={t('tooltips.ratedPending')} /></div>
+                <div className="text-3xl font-bold text-base-content mb-1">
+                    {lessonsConfirmed} <span className="text-lg text-base-content/40 font-normal">/ {lessonsPending}</span>
+                </div>
+                <div className="text-xs text-base-content/40 font-medium">{t('dashboard.currentMonth')}</div>
+            </div>
+
+            {/* Grade deadline */}
+            <div className="card bg-base-100/60 shadow-xl backdrop-blur p-4 relative overflow-hidden group border border-base-200">
+                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Calendar className="w-12 h-12 text-accent" />
+                </div>
+                <div className="text-sm font-medium text-base-content/60 mb-1 flex items-center">{t('dashboard.gradeDeadline')}<InfoTooltip text={t('tooltips.gradeDeadline')} /></div>
+                <div className="text-3xl font-bold text-base-content mb-1">
+                    {daysWorking} <span className="text-lg text-base-content/40 font-normal">/ {trialPeriodDays}</span>
+                </div>
+                <div className="text-xs text-base-content/40 font-medium">{t('dashboard.daysPassed')}</div>
+            </div>
+
+            {/* Average score */}
+            <div className="card bg-base-100/60 shadow-xl backdrop-blur p-4 relative overflow-hidden group border border-base-200">
+                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Award className="w-12 h-12 text-warning" />
+                </div>
+                <div className="text-sm font-medium text-base-content/60 mb-1 flex items-center">{t('dashboard.avgScore')}<InfoTooltip text={t('tooltips.avgScore')} /></div>
+                <div className="text-3xl font-bold text-warning mb-1">
+                    {(typeof averageScore === 'number' ? averageScore : parseFloat(averageScore) || 0).toFixed(1)}
+                </div>
+                <div className="text-xs font-semibold px-2 py-1 bg-warning/10 text-warning rounded-full inline-block">
+                    {t('dashboard.outOf5')}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default StatusPanel;

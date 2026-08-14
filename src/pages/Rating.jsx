@@ -1,0 +1,616 @@
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from "react-router-dom";
+import { fetchRatings } from "../store/slices/ratingSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import RatingExplainer from "../components/RatingExplainer";
+import { getPenaltyBadgeClass, getPenaltyLabel } from "../utils/penaltyUtils";
+import {
+  FaTrophy,
+  FaMedal,
+  FaStar,
+  FaChartLine,
+  FaBuilding,
+  FaUserGraduate,
+  FaCheckCircle,
+  FaBook,
+  FaSearch,
+  FaCrown
+} from "react-icons/fa";
+
+// 🔴 Shtraf belgisi: eng yomon darajaga qarab rang
+const penaltyBadge = (level) => {
+  if (!level) return null;
+  const badgeClass = getPenaltyBadgeClass(level);
+  const label = getPenaltyLabel(level);
+  const icon =
+    level === "black" ? "⚫" :
+    level === "red" ? "🔴" :
+    level === "yellow" ? "🟡" :
+    "🟢";
+  return (
+    <span className={`badge badge-xs ${badgeClass} gap-1`} title={label}>
+      {icon}
+    </span>
+  );
+};
+
+// Head-intern/senior avatarga sekin miltillovchi tilla nur — ajralib turishi uchun.
+const isPremium = (intern) => Boolean(intern.isHeadIntern || intern.isSenior || intern.grade === "senior");
+
+// Premium (senior — cyan) / Head-intern (tilla/oltin) — faqat vizual farqlash.
+const getPremiumTextClass = (intern) => {
+  const senior = intern.isSenior || intern.grade === "senior";
+  const head = intern.isHeadIntern;
+  if (senior && head) return "split-gold-senior-text";
+  if (head) return "gold-text";
+  if (senior) return "senior-text";
+  return "";
+};
+
+// Head-intern avatar tepasida toj
+const avatarCrown = (intern, size = "text-xs") =>
+  intern.isHeadIntern ? (
+    <FaCrown
+      className={`absolute -top-2 left-1/2 -translate-x-1/2 text-amber-400 drop-shadow ${size}`}
+    />
+  ) : null;
+
+const Rating = () => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { interns, branches, loading, error } = useSelector(
+    (state) => state.rating
+  );
+  const [activeTab, setActiveTab] = useState("interns");
+  const [selectedBranch, setSelectedBranch] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    dispatch(fetchRatings());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedBranch, searchTerm]);
+
+  const filteredInterns =
+    selectedBranch === "all"
+      ? interns
+      : interns?.filter((intern) =>
+          // Интерн с несколькими филиалами: intern.branch — это объединённая
+          // строка "A, B", поэтому фильтруем по списку филиалов branchNames,
+          // иначе мульти-филиальные интерны пропадают из рейтинга по филиалу.
+          Array.isArray(intern.branchNames) && intern.branchNames.length
+            ? intern.branchNames.includes(selectedBranch)
+            : intern.branch === selectedBranch
+        );
+
+  // Qidiruv: ism yoki username bo'yicha
+  const searchedInterns = (filteredInterns || []).filter((intern) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      intern.name?.toLowerCase().includes(q) ||
+      intern.username?.toLowerCase().includes(q)
+    );
+  });
+
+  const paginatedInterns = searchedInterns?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil((searchedInterns?.length || 0) / itemsPerPage);
+
+  const getMedalIcon = (index) => {
+    if (index === 0) return <FaTrophy className="text-yellow-700 text-xl md:text-2xl" />;
+    if (index === 1) return <FaMedal className="text-gray-400 text-xl md:text-2xl" />;
+    if (index === 2) return <FaMedal className="text-amber-700 text-xl md:text-2xl" />;
+    return null;
+  };
+
+  const getRatingColor = (score) => {
+    if (score >= 4.5) return "text-green-500";
+    if (score >= 3.5) return "text-blue-500";
+    if (score >= 2.5) return "text-yellow-500";
+    return "text-red-500";
+  };
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="alert alert-error">
+          <span>{t('rating.loadError', { error })}</span>
+        </div>
+      </div>
+    );
+
+  return (
+    <div className="min-h-screen bg-base-200 px-3 py-6 md:px-8">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-7xl mx-auto"
+      >
+        {/* Заголовок */}
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-5xl font-bold text-primary flex items-center justify-center gap-2 md:gap-3 flex-wrap">
+            <FaTrophy className="text-yellow-500" />
+            {t('rating.title')}
+          </h1>
+          <p className="text-base-content/70 text-sm md:text-base mt-2">
+            {t('rating.subtitle')}
+          </p>
+          <RatingExplainer />
+        </div>
+
+        {/* Табы */}
+        <div className="tabs tabs-boxed justify-center mb-6 bg-base-100 p-1.5 md:p-2 flex-nowrap overflow-x-auto">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`tab tab-sm md:tab-lg gap-2 whitespace-nowrap ${
+              activeTab === "interns" ? "tab-active" : ""
+            }`}
+            onClick={() => setActiveTab("interns")}
+          >
+            <FaUserGraduate />
+            {t('rating.interns')}
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`tab tab-sm md:tab-lg gap-2 whitespace-nowrap ${
+              activeTab === "branches" ? "tab-active" : ""
+            }`}
+            onClick={() => setActiveTab("branches")}
+          >
+            <FaBuilding />
+            {t('rating.branches')}
+          </motion.button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {activeTab === "interns" ? (
+            <motion.div
+              key="interns"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Фильтр + поиск */}
+              <div className="mb-6 flex flex-col sm:flex-row justify-center gap-3">
+                <div className="relative w-full max-w-sm">
+                  <input
+                    type="text"
+                    placeholder={t('rating.searchPlaceholder')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="input input-bordered input-primary w-full pr-9 text-sm md:text-base"
+                  />
+                  <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40" />
+                </div>
+                <select
+                  className="select select-bordered select-primary w-full max-w-xs text-sm md:text-base"
+                  value={selectedBranch}
+                  onChange={(e) => setSelectedBranch(e.target.value)}
+                >
+                  <option value="all">{t('rating.allBranches')}</option>
+                  {branches?.map((branch) => (
+                    <option key={branch.branch} value={branch.branch}>
+                      {branch.branch}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* ТОП 3 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {searchedInterns?.slice(0, 3).map((intern, index) => (
+                  <motion.div
+                    key={intern.internId}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`card bg-gradient-to-br ${
+                      index === 0
+                        ? "from-yellow-400 to-yellow-600"
+                        : index === 1
+                        ? "from-gray-300 to-gray-500"
+                        : "from-amber-600 to-amber-800"
+                    } text-white shadow-xl cursor-pointer`}
+                    onClick={() => navigate(`/intern/${intern.internId}`)}
+                  >
+                    <div className="card-body items-center text-center p-4 md:p-6">
+                      <div className={`mb-2 relative rounded-full ${intern.isHeadIntern ? "flow-border-gold" : ""}`}>
+                        {avatarCrown(intern, "text-base md:text-lg")}
+                        {intern.profilePhoto ? (
+                          <img
+                            src={intern.profilePhoto}
+                            alt={intern.name}
+                            className={`w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-white/40 shadow-lg ${isPremium(intern) ? "glow-gold" : ""}`}
+                          />
+                        ) : (
+                          <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center border-4 border-white/40 shadow-lg text-xl md:text-2xl font-bold ${isPremium(intern) ? "glow-gold" : ""}`}>
+                            {intern.name.charAt(0)}
+                          </div>
+                        )}
+                        <div className="absolute -bottom-2 -right-2">
+                          {getMedalIcon(index)}
+                        </div>
+                      </div>
+                      <h2 className="card-title text-lg md:text-2xl mt-2">{intern.name}</h2>
+                      <p className="opacity-90 text-sm">{intern.branch}</p>
+                      <div className="badge badge-lg bg-white/20 border-0 mt-2 text-xs md:text-sm">
+                        {t('rating.ratingLabel', { score: intern.ratingScore })}
+                      </div>
+                      <div className="flex gap-3 md:gap-4 mt-3 text-xs md:text-sm flex-wrap justify-center">
+                        <div>
+                          <FaStar className="inline mr-1" />
+                          {intern.averageStars}
+                        </div>
+                        <div>
+                          <FaBook className="inline mr-1" />
+                          {intern.lessons}
+                        </div>
+                        <div>
+                          <FaCheckCircle className="inline mr-1" />
+                          {intern.planCompletion}%
+                        </div>
+                        {/* 🔴 Shtraf belgisi */}
+                        {penaltyBadge(intern.penaltyInfo?.worstLevel)}
+                        {/* Рейтинговый цвет */}
+                        
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {searchedInterns?.length === 0 && (
+                <div className="text-center text-base-content/50 py-10">
+                  {t('rating.noResults')}
+                </div>
+              )}
+
+              {/* Таблица */}
+              <div className="card bg-base-100 shadow-xl overflow-hidden">
+                <div className="card-body p-3 md:p-6">
+                  <h2 className="card-title text-lg md:text-2xl mb-3 md:mb-4">
+                    <FaChartLine className="text-primary" />
+                    {t('rating.fullList')}
+                  </h2>
+
+                  {/* Mobile version: Cards */}
+                  <div className="block sm:hidden">
+                    {paginatedInterns?.map((intern, index) => {
+                      const globalIndex = (currentPage - 1) * itemsPerPage + index;
+                      return (
+                        <motion.div
+                          key={intern.internId}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: index * 0.03 }}
+                          className="card bg-base-100 shadow mb-4 cursor-pointer"
+                          onClick={() => navigate(`/intern/${intern.internId}`)}
+                        >
+                          <div className="card-body p-4 text-xs">
+                            <div className="flex justify-between items-center mb-2">
+                              <div className="font-bold flex items-center gap-2">
+                                <div className={`relative flex-shrink-0 rounded-full ${intern.isHeadIntern ? "flow-border-gold" : ""}`}>
+                                  {avatarCrown(intern, "text-[10px]")}
+                                  {intern.profilePhoto ? (
+                                    <img
+                                      src={intern.profilePhoto}
+                                      alt={intern.name}
+                                      className={`w-9 h-9 rounded-full object-cover ${isPremium(intern) ? "glow-gold" : ""}`}
+                                    />
+                                  ) : (
+                                    <div className={`w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold ${isPremium(intern) ? "glow-gold" : ""}`}>
+                                      {intern.name.charAt(0)}
+                                    </div>
+                                  )}
+                                  {globalIndex < 3 && (
+                                    <div className="absolute -bottom-1 -right-1 text-xs">
+                                      {getMedalIcon(globalIndex)}
+                                    </div>
+                                  )}
+                                </div>
+                                <span className={getPremiumTextClass(intern)}>{globalIndex >= 3 && `#${globalIndex + 1} `}{intern.name}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className={`font-bold ${getRatingColor(intern.ratingScore)}`}>
+                                  {intern.ratingScore}
+                                </div>
+                                {penaltyBadge(intern.penaltyInfo?.worstLevel)}
+                              </div>
+                            </div>
+                            <div>{t('rating.branch')} {intern.branch}</div>
+                            <div>{t('rating.course')} <span className="badge badge-primary">{intern.grade}</span></div>
+                            <div className="flex flex-col">
+                              <FaStar className="inline text-yellow-500 mr-1" />
+                              {intern.averageStars}
+                            </div>
+                            <div>{t('rating.lessonsLabel')} {intern.lessons}</div>
+                            <div>{t('rating.reviewsLabel')} {intern.feedbacks}</div>
+                            <div>{t('rating.activity')} {(intern.activityRate * 100).toFixed(0)}%</div>
+                            <div className="flex items-center">
+                              {t('rating.plan')}
+                              <progress
+                                className="progress progress-success ml-2 w-32"
+                                value={intern.planCompletion}
+                                max="100"
+                              ></progress>
+                              <span className="ml-2">{intern.planCompletion}%</span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Desktop version: Table */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="table table-zebra text-xs md:text-sm w-full">
+                      <thead>
+                        <tr>
+                          <th className="text-center">{t('rating.rank')}</th>
+                          <th>{t('rating.name')}</th>
+                          <th className="hidden sm:table-cell">{t('rating.branch')}</th>
+                          <th className="hidden md:table-cell">{t('rating.course')}</th>
+                          <th className="text-center">{t('rating.ratingCol')}</th>
+                          <th className="hidden md:table-cell text-center">⭐</th>
+                          <th className="hidden md:table-cell text-center">{t('rating.lessonsLabel')}</th>
+                          <th className="hidden md:table-cell text-center">{t('rating.reviewsLabel')}</th>
+                          <th className="hidden lg:table-cell text-center">{t('rating.activity')}</th>
+                          <th className="text-center">{t('rating.plan')}</th>
+                          <th className="text-center">{t('rating.penaltyCol')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paginatedInterns?.map((intern, index) => {
+                          const globalIndex = (currentPage - 1) * itemsPerPage + index;
+                          return (
+                            <motion.tr
+                              key={intern.internId}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: index * 0.03 }}
+                              className="hover cursor-pointer"
+                              onClick={() => navigate(`/intern/${intern.internId}`)}
+                            >
+                              <td className="text-center font-bold">
+                                {globalIndex < 3 ? (
+                                  <div className="flex justify-center">
+                                    {getMedalIcon(globalIndex)}
+                                  </div>
+                                ) : (
+                                  globalIndex + 1
+                                )}
+                              </td>
+                              <td className="font-semibold">
+                                <div className="flex items-center gap-2">
+                                  <div className={`relative flex-shrink-0 rounded-full ${intern.isHeadIntern ? "flow-border-gold" : ""}`}>
+                                    {avatarCrown(intern, "text-[10px]")}
+                                    {intern.profilePhoto ? (
+                                      <img
+                                        src={intern.profilePhoto}
+                                        alt={intern.name}
+                                        className={`w-8 h-8 rounded-full object-cover flex-shrink-0 ${isPremium(intern) ? "glow-gold" : ""}`}
+                                      />
+                                    ) : (
+                                      <div className={`w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold flex-shrink-0 ${isPremium(intern) ? "glow-gold" : ""}`}>
+                                        {intern.name.charAt(0)}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <span className={getPremiumTextClass(intern)}>{intern.name}</span>
+                                </div>
+                              </td>
+                              <td className="hidden sm:table-cell">{intern.branch}</td>
+                              <td className="hidden md:table-cell text-start">
+                                <div className="badge badge-primary">
+                                  {intern.grade}
+                                </div>
+                              </td>
+                              <td className={`text-center font-bold ${getRatingColor(intern.ratingScore)}`}>
+                                {intern.ratingScore}
+                              </td>
+                              <td className="hidden md:table-cell text-center">
+                                <FaStar className="inline text-yellow-500 mr-1" />
+                                {intern.averageStars}
+                              </td>
+                              <td className="hidden md:table-cell text-center">{intern.lessons}</td>
+                              <td className="hidden md:table-cell text-center">{intern.feedbacks}</td>
+                              <td className="hidden lg:table-cell text-center">
+                                <div className="badge badge-outline">
+                                  {(intern.activityRate * 100).toFixed(0)}%
+                                </div>
+                              </td>
+                              <td className="text-center whitespace-nowrap">
+                                <progress
+                                  className="progress progress-success w-16 md:w-20"
+                                  value={intern.planCompletion}
+                                  max="100"
+                                ></progress>
+                                <span className="text-[10px] ml-1">
+                                  {intern.planCompletion}%
+                                </span>
+                              </td>
+                              {/* 🔴 Shtraf ustun: eng yomon daraja + jami son */}
+                              <td className="text-center">
+                                <div className="flex flex-col items-center gap-1">
+                                  {penaltyBadge(intern.penaltyInfo?.worstLevel)}
+                                  {intern.penaltyInfo?.total > 0 && (
+                                    <span className="text-xs text-base-content/50">
+                                      {intern.penaltyInfo.total}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                            </motion.tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center mt-4">
+                      <div className="join">
+                        <button
+                          className="join-item btn btn-sm"
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        >
+                          «
+                        </button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <button
+                            key={page}
+                            className={`join-item btn btn-sm ${currentPage === page ? 'btn-active' : ''}`}
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                        <button
+                          className="join-item btn btn-sm"
+                          disabled={currentPage === totalPages}
+                          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        >
+                          »
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            /* ФИЛИАЛЫ */
+            <motion.div
+              key="branches"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {branches?.map((branch, index) => (
+                  <motion.div
+                    key={branch.branch}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                    className="card bg-base-100 shadow-xl hover:shadow-2xl"
+                  >
+                    <div className="card-body p-4 md:p-6">
+                      <div className="flex items-center justify-between mb-2 md:mb-4">
+                        <h2 className="card-title text-base md:text-xl flex items-center gap-2">
+                          <FaBuilding className="text-primary" />
+                          {branch.branch}
+                        </h2>
+                        {index < 3 && <div>{getMedalIcon(index)}</div>}
+                      </div>
+
+                      <div className="stats stats-vertical shadow text-sm md:text-base">
+                        <div className="stat">
+                          <div className="stat-title">{t('rating.avgRating')}</div>
+                          <div
+                            className={`stat-value text-2xl md:text-3xl ${getRatingColor(
+                              branch.average
+                            )}`}
+                          >
+                            {branch.average}
+                          </div>
+                        </div>
+
+                        <div className="stat">
+                          <div className="stat-title">{t('rating.interns')}</div>
+                          <div className="stat-value text-xl md:text-2xl text-primary">
+                            {branch.internsCount}
+                          </div>
+                          <div className="stat-desc flex items-center gap-1">
+                            <FaUserGraduate /> {t('rating.activeCount')}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="card-actions justify-end mt-4">
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            setActiveTab("interns");
+                            setSelectedBranch(branch.branch);
+                          }}
+                        >
+                          {t('rating.viewInterns')}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Umumiy statistika */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="card bg-base-100 shadow-xl mt-6 md:mt-8"
+              >
+                <div className="card-body p-4 md:p-6">
+                  <h2 className="card-title text-lg md:text-2xl mb-3 md:mb-4">
+                    <FaChartLine className="text-primary" />
+                    {t('rating.overallStats')}
+                  </h2>
+                  <div className="stats stats-vertical sm:stats-horizontal shadow w-full text-sm md:text-base overflow-x-auto">
+                    <div className="stat">
+                      <div className="stat-title">{t('rating.branches')}</div>
+                      <div className="stat-value text-primary">
+                        {branches?.length || 0}
+                      </div>
+                    </div>
+                    <div className="stat">
+                      <div className="stat-title">{t('rating.interns')}</div>
+                      <div className="stat-value text-secondary">
+                        {interns?.length || 0}
+                      </div>
+                    </div>
+                    <div className="stat">
+                      <div className="stat-title">{t('rating.bestBranch')}</div>
+                      <div className="stat-value text-accent text-lg">
+                        {branches?.[0]?.branch || "-"}
+                      </div>
+                      <div className="stat-desc text-xs md:text-sm">
+                        {branches?.[0]?.average || 0} {t('rating.pointsSuffix')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Rating;

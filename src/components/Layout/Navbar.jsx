@@ -1,0 +1,261 @@
+import { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { logoutIntern } from "../../store/slices/authSlice";
+import { toggleSidebar, setTheme, setLanguage } from "../../store/slices/uiSlice";
+import { FiMenu } from "react-icons/fi";
+import { MdColorLens } from "react-icons/md";
+import { Link } from "react-router-dom";
+import BranchSwitcher from "./BranchSwitcher";
+import WeeklyPlanIndicator from "./WeeklyPlanIndicator";
+
+const Navbar = () => {
+  const dispatch = useDispatch();
+  const { t, i18n } = useTranslation();
+  const { user } = useSelector((state) => state.auth);
+  const { theme, language } = useSelector((state) => state.ui);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+
+  const themeRef = useRef(null);
+  const userRef = useRef(null);
+
+  // Head-intern uchun Halloween rejimi — avtomatik yoqiladi (birinchi marta
+  // head-intern bo'lganda), lekin xohlagan payti o'zi o'chirib/yoqa oladi.
+  // Har bir foydalanuvchi uchun alohida saqlanadi (localStorage), asosiy
+  // "theme" dropdown'idan mustaqil ustama sifatida ishlaydi.
+  const [halloweenOn, setHalloweenOn] = useState(false);
+
+  useEffect(() => {
+    if (!user?._id) return;
+    const key = `halloweenMode_${user._id}`;
+    const saved = localStorage.getItem(key);
+    if (saved !== null) {
+      setHalloweenOn(saved === "on");
+    } else if (user.isHeadIntern) {
+      setHalloweenOn(true);
+    }
+  }, [user?._id, user?.isHeadIntern]);
+
+  const themes = [
+    "light",
+    "dark",
+    "cupcake",
+    "bumblebee",
+    "emerald",
+    "corporate",
+    "synthwave",
+    "retro",
+    "cyberpunk",
+    "valentine",
+    "halloween",
+    "garden",
+    "forest",
+    "aqua",
+    "lofi",
+    "pastel",
+    "fantasy",
+    "wireframe",
+    "black",
+    "luxury",
+    "dracula",
+    "cmyk",
+    "autumn",
+    "business",
+    "acid",
+    "lemonade",
+    "night",
+    "coffee",
+    "winter",
+    "dim",
+    "nord",
+    "sunset",
+    "caramellatte",
+    "abyss",
+    "silk",
+  ];
+
+  // Применяем тему к html при изменении. Halloween rejimi yoqilgan bo'lsa,
+  // u oddiy tema tanlovidan ustun turadi (lekin uni almashtirmaydi — o'chirilsa
+  // foydalanuvchining oldingi tanlagan temasiga qaytadi).
+  useEffect(() => {
+    if (!theme) return;
+    const activeTheme = halloweenOn ? "halloween" : theme;
+    document.documentElement.setAttribute("data-theme", activeTheme);
+    localStorage.setItem("theme", theme);
+  }, [theme, halloweenOn]);
+
+  // Обработка кликов вне dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        (themeRef.current && !themeRef.current.contains(e.target)) &&
+        (userRef.current && !userRef.current.contains(e.target))
+      ) {
+        setDropdownOpen(false);
+        setThemeDropdownOpen(false);
+      }
+    };
+
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setDropdownOpen(false);
+        setThemeDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
+
+  const handleThemeChange = (selectedTheme) => {
+    dispatch(setTheme(selectedTheme));
+    // Ro'yxatdan qo'lda "halloween" tanlansa/tanlanmasa — halloweenOn
+    // holatini ham shunga moslashtiramiz, ikkalasi bir-biriga zid bo'lib
+    // qolmasligi uchun.
+    if (user?.isHeadIntern) {
+      const nextOn = selectedTheme === "halloween";
+      setHalloweenOn(nextOn);
+      if (user?._id) {
+        localStorage.setItem(`halloweenMode_${user._id}`, nextOn ? "on" : "off");
+      }
+    }
+    setThemeDropdownOpen(false);
+  };
+
+  const handleLanguageToggle = () => {
+    const next = language === 'ru' ? 'uz' : 'ru';
+    dispatch(setLanguage(next));
+    i18n.changeLanguage(next);
+  };
+
+  const handleLogout = () => {
+    dispatch(logoutIntern());
+    setDropdownOpen(false);
+  };
+
+  const getInitials = () => {
+    const a = user?.name?.trim()?.[0]?.toUpperCase() || "";
+    const b = user?.lastName?.trim()?.[0]?.toUpperCase() || "";
+    return a + b || user?.name?.slice(0, 2)?.toUpperCase() || "U";
+  };
+
+  return (
+    <div className="navbar bg-base-100 shadow-sm border-b border-base-200">
+      <div className="flex-1">
+        <button
+          type="button"
+          className="btn btn-ghost lg:hidden"
+          onClick={() => dispatch(toggleSidebar())}
+        >
+          <FiMenu className="w-6 h-6" />
+        </button>
+        <a className="btn btn-ghost text-xl font-bold text-primary">
+          <span className="hidden sm:inline">InternHub</span>
+          <span className="sm:hidden">IH</span>
+        </a>
+      </div>
+
+      <div className="flex gap-2 items-center">
+        {/* Branch switcher — only renders when user has 2+ branches */}
+        <BranchSwitcher />
+
+        {/* Weekly-plan streak indicator (🔥) — Phase 1b read-only.
+            Hidden until /interns/me/weekly-plan resolves. */}
+        <WeeklyPlanIndicator />
+
+        {/* Language Toggle */}
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm font-bold text-xs px-2"
+          onClick={handleLanguageToggle}
+          title={language === 'ru' ? "O'zbekcha" : 'Русский'}
+        >
+          {language === 'ru' ? 'UZ' : 'RU'}
+        </button>
+
+        {/* Theme Dropdown */}
+        <div className="relative" ref={themeRef}>
+          <button
+            type="button"
+            className="btn btn-ghost btn-circle"
+            onClick={(e) => {
+              e.stopPropagation();
+              setThemeDropdownOpen((prev) => !prev);
+              setDropdownOpen(false);
+            }}
+          >
+            <MdColorLens className="w-6 h-6" />
+          </button>
+
+          {themeDropdownOpen && (
+            <ul className="menu menu-sm gap-2 absolute right-0 dropdown-content mt-3 z-20 p-2 shadow bg-base-100 rounded-box w-52 max-h-96 overflow-y-auto">
+              <li className="menu-title">
+                <span>{t('nav.selectTheme')}</span>
+              </li>
+              {themes.map((thm) => (
+                <li data-theme={thm} className="rounded" key={thm}>
+                  <button
+                    type="button"
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      handleThemeChange(thm);
+                    }}
+                    className={`w-full min-w-32 p-4 text-left ${
+                      theme === thm ? "font-bold text-primary" : ""
+                    }`}
+                  >
+                    {thm.charAt(0).toUpperCase() + thm.slice(1)}
+                    {theme === thm && " ✓"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="relative" ref={userRef}>
+          <button
+            type="button"
+            className="btn btn-ghost btn-circle avatar"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDropdownOpen((prev) => !prev);
+              setThemeDropdownOpen(false);
+            }}
+          >
+            <div className="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center overflow-hidden">
+              {user?.profilePhoto ? (
+                <img src={user.profilePhoto} alt={getInitials()} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-sm w-full flex justify-center items-center h-full font-semibold">{getInitials()}</span>
+              )}
+            </div>
+          </button>
+
+          {dropdownOpen && (
+            <ul className="menu absolute right-0 menu-sm dropdown-content mt-3 z-20 p-2 shadow bg-base-100 rounded-box w-52">
+              <li className="flex items-center justify-center">
+                <span className="">
+                  {user?.name} {user?.lastName}
+                </span>
+              </li>
+              <li>
+                <Link to="/profile">{t('nav.profile')}</Link>
+              </li>
+              <li>
+                <button onClick={handleLogout}>{t('common.logout')}</button>
+              </li>
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Navbar;
