@@ -21,6 +21,23 @@ const Navbar = () => {
   const themeRef = useRef(null);
   const userRef = useRef(null);
 
+  // Head-intern uchun Halloween rejimi — avtomatik yoqiladi (birinchi marta
+  // head-intern bo'lganda), lekin xohlagan payti o'zi o'chirib/yoqa oladi.
+  // Har bir foydalanuvchi uchun alohida saqlanadi (localStorage), asosiy
+  // "theme" dropdown'idan mustaqil ustama sifatida ishlaydi.
+  const [halloweenOn, setHalloweenOn] = useState(false);
+
+  useEffect(() => {
+    if (!user?._id) return;
+    const key = `halloweenMode_${user._id}`;
+    const saved = localStorage.getItem(key);
+    if (saved !== null) {
+      setHalloweenOn(saved === "on");
+    } else if (user.isHeadIntern) {
+      setHalloweenOn(true);
+    }
+  }, [user?._id, user?.isHeadIntern]);
+
   const themes = [
     "light",
     "dark",
@@ -59,13 +76,15 @@ const Navbar = () => {
     "silk",
   ];
 
-  // Применяем тему к html при изменении
+  // Применяем тему к html при изменении. Halloween rejimi yoqilgan bo'lsa,
+  // u oddiy tema tanlovidan ustun turadi (lekin uni almashtirmaydi — o'chirilsa
+  // foydalanuvchining oldingi tanlagan temasiga qaytadi).
   useEffect(() => {
-    if (theme) {
-      document.documentElement.setAttribute("data-theme", theme);
-      localStorage.setItem("theme", theme);
-    }
-  }, [theme]);
+    if (!theme) return;
+    const activeTheme = halloweenOn ? "halloween" : theme;
+    document.documentElement.setAttribute("data-theme", activeTheme);
+    localStorage.setItem("theme", theme);
+  }, [theme, halloweenOn]);
 
   // Обработка кликов вне dropdown
   useEffect(() => {
@@ -96,6 +115,16 @@ const Navbar = () => {
 
   const handleThemeChange = (selectedTheme) => {
     dispatch(setTheme(selectedTheme));
+    // Ro'yxatdan qo'lda "halloween" tanlansa/tanlanmasa — halloweenOn
+    // holatini ham shunga moslashtiramiz, ikkalasi bir-biriga zid bo'lib
+    // qolmasligi uchun.
+    if (user?.isHeadIntern) {
+      const nextOn = selectedTheme === "halloween";
+      setHalloweenOn(nextOn);
+      if (user?._id) {
+        localStorage.setItem(`halloweenMode_${user._id}`, nextOn ? "on" : "off");
+      }
+    }
     setThemeDropdownOpen(false);
   };
 

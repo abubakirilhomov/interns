@@ -47,3 +47,27 @@ export const GRADE_BADGE = {
   strongMiddle: 'badge-accent',
   senior: 'badge-error',
 };
+
+export const RATING_COLORS = {
+  black: 'bg-neutral-800 text-neutral-100',
+  red: 'bg-red-100 text-red-700',
+  yellow: 'bg-yellow-500 text-yellow-700',
+  green: 'bg-green-500 text-green-600',
+};
+
+export const RATING_BADGES = {
+  black: 'badge-neutral',
+  red: 'badge-error',
+  yellow: 'badge-warning',
+  green: 'badge-success',
+};
+
+export const PREMIUM_COLORS = {
+  vip: 'bg-gradient-to-r from-amber-600 to-orange-500 text-white',
+  premium: 'bg-gradient-to-r from-yellow-400 to-amber-400 text-amber-950',
+};
+
+export const PREMIUM_BADGES = {
+  vip: 'badge-warning',
+  premium: 'badge-warning',
+};

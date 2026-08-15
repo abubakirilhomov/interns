@@ -54,3 +54,116 @@ body {
 .text-gradient-success {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-success to-primary;
 }
+
+/* Tilla (Gold) rang - 100% reja bajarilishi uchun */
+.text-gold {
+  color: #d4af37;
+}
+
+.bg-gold-20 {
+  background-color: rgba(212, 175, 55, 0.2);
+}
+
+.progress-gold {
+  background-color: #f5e6b8;
+}
+
+.progress-gold::-webkit-progress-bar {
+  background-color: #f5e6b8;
+  border-radius: 9999px;
+}
+
+.progress-gold::-webkit-progress-value {
+  background: linear-gradient(90deg, #d4af37, #f0d060, #d4af37);
+  border-radius: 9999px;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+}
+
+.progress-gold::-moz-progress-bar {
+  background: linear-gradient(90deg, #d4af37, #f0d060, #d4af37);
+  border-radius: 9999px;
+}
+
+/* ─── Head-intern (to'q tilla/orange) va Senior (sariq tilla) ranglar ───────── */
+/* Harakatlanuvchi gradient uchun umumiy shimmer animatsiyasi — tezlik
+   sinf bo'yicha farqlanadi: senior sekin/sokin, head-intern tez/kuchli,
+   ikkalasi birga eng tez. */
+@keyframes shimmerText {
+  to { background-position: 200% center; }
+}
+
+/* Senior — juda sokin, sekin miltillovchi shimmer (subtle hissiyot). */
+.senior-text {
+  background: linear-gradient(90deg, #eab308, #fde047, #facc15, #eab308);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmerText 4.5s linear infinite;
+}
+
+/* Head-intern — tezroq, quyuqroq shimmer (kuchli, sezilarli hissiyot). */
+.gold-text {
+  background: linear-gradient(90deg, #b45309, #d97706, #f59e0b, #d97706, #b45309);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmerText 2s linear infinite;
+}
+
+/* Senior + Head-intern: yarmi to'q tilla, yarmi sariq tilla — eng tez
+   shimmer, ikkala unvon birlashgan eng kuchli kombinatsiya. */
+.split-gold-senior-text {
+  background: linear-gradient(90deg, #d97706 0%, #d97706 50%, #eab308 50%, #facc15 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmerText 1.4s linear infinite;
+}
+
+/* Chiroqli (glowing) notification */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.5), 0 0 24px rgba(212, 175, 55, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(212, 175, 55, 0.95), 0 0 48px rgba(212, 175, 55, 0.55);
+  }
+}
+
+/* Head-intern uchun suyuqdek OQIB turuvchi tilla-orange ramka — halqa
+   aylanmaydi, aksincha rang chegara bo'ylab suzib/oqib harakatlanadi
+   (background-position siljishi). Elementning o'zida (yoki uning
+   to'g'ridan-to'g'ri ota-elementida) border-radius bo'lishi kerak
+   (masalan rounded-full / rounded-lg), chunki ::before shundan meros oladi. */
+@keyframes flowBorderStream {
+  to { background-position: 300% 50%; }
+}
+.flow-border-gold {
+  position: relative;
+  z-index: 0;
+}
+.flow-border-gold::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  padding: 3px;
+  background: linear-gradient(
+    120deg,
+    #b45309, #f59e0b, #fde047, #f59e0b, #b45309, #f59e0b, #fde047, #f59e0b, #b45309
+  );
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: flowBorderStream 3.5s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.glow-gold {
+  animation: glowPulse 1.6s ease-in-out infinite;
+}

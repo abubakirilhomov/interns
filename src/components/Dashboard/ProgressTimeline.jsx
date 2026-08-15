@@ -9,12 +9,18 @@ const GRADE_LABELS = {
   senior: "Senior",
 };
 
-const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
+const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade, daysWorking = 0, trialPeriodDays = 0 }) => {
   const internGradeIndex = Math.max(0, GRADE_ORDER.indexOf(internGrade));
   let remaining = lessonsVisited;
 
   const steps = GRADE_ORDER.map((grade, index) => {
     const required = grades?.[grade]?.lessonsPerMonth || 0;
+    // Ba'zi darajalar (masalan Senior) darslarga kirishni talab qilmaydi
+    // (required === 0) — shuning uchun "remaining >= required" har doim
+    // to'g'ri chiqib, daraja e'lon qilingan zahoti soxta 100% ko'rsatardi.
+    // Bunday hollarda o'rniga sinov muddatining necha foizi o'tganini
+    // (daysWorking / trialPeriodDays) ko'rsatamiz.
+    const isTimeBased = required === 0;
     let progress = 0;
     let completed = false;
     let current = false;
@@ -23,7 +29,13 @@ const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
       progress = 100;
       completed = true;
     } else if (index === internGradeIndex) {
-      if (remaining >= required) {
+      if (isTimeBased) {
+        progress = trialPeriodDays > 0
+          ? Math.min(Math.round((daysWorking / trialPeriodDays) * 100), 100)
+          : 0;
+        completed = progress >= 100;
+        current = !completed;
+      } else if (remaining >= required) {
         progress = 100;
         completed = true;
       } else if (remaining > 0) {
@@ -33,7 +45,7 @@ const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
       remaining = 0;
     }
 
-    return { id: index, label: GRADE_LABELS[grade], completed, current, progress, required };
+    return { id: index, label: GRADE_LABELS[grade], completed, current, progress, required, isTimeBased };
   });
 
   const StepCircle = ({ step }) => (
@@ -76,7 +88,9 @@ const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
                 </span>
                 {step.current && (
                   <div className="mt-1 px-2 py-0.5 bg-primary/10 rounded-full border border-primary/20">
-                    <span className="text-xs font-semibold text-primary">{lessonsVisited}/{step.required}</span>
+                    <span className="text-xs font-semibold text-primary">
+                      {step.isTimeBased ? `${step.progress}%` : `${lessonsVisited}/${step.required}`}
+                    </span>
                   </div>
                 )}
               </div>
@@ -107,7 +121,9 @@ const ProgressTimeline = ({ lessonsVisited = 0, grades, internGrade }) => {
                   <div className="w-32 h-2 bg-base-200 rounded-full overflow-hidden">
                     <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${step.progress}%` }} />
                   </div>
-                  <span className="text-xs text-primary font-medium">{lessonsVisited}/{step.required}</span>
+                  <span className="text-xs text-primary font-medium">
+                    {step.isTimeBased ? `${step.progress}%` : `${lessonsVisited}/${step.required}`}
+                  </span>
                 </div>
               )}
               {step.completed && (

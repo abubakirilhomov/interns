@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import { fetchProfile } from "../store/slices/authSlice";
@@ -17,12 +17,14 @@ import StatsGrid from "../components/Dashboard/StatsGrid";
 import StatusPanel from "../components/Dashboard/StatusPanel";
 import DashboardAlerts from "../components/Dashboard/DashboardAlerts";
 import PlanProgressWidget from "../components/Dashboard/PlanProgressWidget";
+import SeniorPlanWidget from "../components/Dashboard/SeniorPlanWidget";
 import QuickActions from "../components/Dashboard/QuickActions";
 import WeeklyChampion from "../components/Dashboard/WeeklyChampion";
 import RecentActivityWidget from "../components/Dashboard/RecentActivity";
 import LocationShare from "../components/LocationShare";
 
 import useMobileDetection from "../hooks/useMobileDetection";
+import { getWorstLevel, getPenaltyBadgeClass, getPenaltyLabel } from "../utils/penaltyUtils";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -39,6 +41,17 @@ const Dashboard = () => {
     dispatch(fetchProfile());
     dispatch(fetchDashboardStats());
   }, [dispatch]);
+
+  // Yangi ochilgan yutuqlarni Layout'dagi chiroqli toast'ga yuborish.
+  const newBadgesDispatched = useRef(false);
+  useEffect(() => {
+    if (stats?.newBadges?.length && !newBadgesDispatched.current) {
+      newBadgesDispatched.current = true;
+      window.dispatchEvent(
+        new CustomEvent("new-badges", { detail: stats.newBadges })
+      );
+    }
+  }, [stats?.newBadges]);
 
   if (isUserLoading || isLoading) {
     return <DashboardSkeleton />;
@@ -86,16 +99,83 @@ const Dashboard = () => {
     streak,
     ranking,
     weeklyChampion,
+    violations,
+    violationsCount,
+    lastViolationAt,
+    penaltyInfo,
   } = stats;
   const isFrozen = Boolean(user?.status === "frozen" || user?.isFrozen || planStatus?.isFrozen);
+  const isSenior = user?.grade === "senior" || grade === "senior";
   const freezeReturnDate = (user?.freezeInfo?.expectedReturn || planStatus?.freezeExpectedReturn)
     ? new Date(user?.freezeInfo?.expectedReturn || planStatus?.freezeExpectedReturn).toLocaleDateString()
     : null;
+
+  // 🔴 Shtraf belgisi: eng yomon darajaga qarab rang
+  const penaltyLevel = getWorstLevel(penaltyInfo);
+  const penaltyBadgeClass = penaltyLevel ? getPenaltyBadgeClass(penaltyLevel) : null;
+  const penaltyLabel = penaltyLevel ? getPenaltyLabel(penaltyLevel) : null;
+  const penaltyIcon =
+    penaltyLevel === "black" ? "⚫" :
+    penaltyLevel === "red" ? "🔴" :
+    penaltyLevel === "yellow" ? "🟡" :
+    penaltyLevel === "green" ? "🟢" : null;
 
   return (
     <div className="space-y-6 md:space-y-8 pb-10">
       {/* Header Section */}
       <DashboardHeader user={user} streak={streak} />
+
+      {/* Senior motivational banner — darsga kirish shart emas */}
+      {isSenior && (
+        <div className="card bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-white shadow-xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="card-body relative z-10 p-6 md:p-8">
+            <div className="flex items-center gap-4">
+              <div className="text-5xl md:text-6xl">🕊️</div>
+              <div className="flex-1">
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                  Qushdek ozodsiz!
+                </h2>
+                <p className="mt-2 text-base md:text-lg opacity-95 leading-snug">
+                  Tabriklaymiz! Siz kelajangingizga katta 1-qadamni tashladingiz.
+                  Endi darslarga kirish majburiy emas — siz endi filialingizdagi
+                  tutorlar bilan birgalikda <b>tutorlikni o'rganasiz</b>.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="badge badge-ghost bg-white/20 text-white border-white/30">👨‍🏫 Tutorlik rejimi</span>
+                  <span className="badge badge-ghost bg-white/20 text-white border-white/30">✨ Erkin jadval</span>
+                  <span className="badge badge-ghost bg-white/20 text-white border-white/30">🚀 Kelajak sari</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🔴 Shtraf ogohlantirish: eng yomon darajaga qarab rangli banner */}
+      {penaltyLevel && (
+        <div className={`alert shadow ${
+          penaltyLevel === "black"
+            ? "alert-error"
+            : penaltyLevel === "red"
+            ? "alert-error"
+            : penaltyLevel === "yellow"
+            ? "alert-warning"
+            : "alert-info"
+        }`}>
+          <div className="flex items-center gap-3">
+            <span className="text-xl">{penaltyIcon}</span>
+            <div>
+              <span className="font-bold">
+                {penaltyLabel} shtraf!
+              </span>
+              <span className="ml-2 text-sm opacity-90">
+                Jami: {penaltyInfo?.total || 0} ta
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section: Alerts + Grade + Timer */}
       <div className="space-y-6">
@@ -155,13 +235,23 @@ const Dashboard = () => {
         averageScore={averageScore}
       />
 
-      {/* Trial Plan Progress */}
-      <PlanProgressWidget
-        lessonsConfirmed={trialStats?.totalLessons ?? lessonsConfirmed}
-        monthlyGoal={trialStats?.targetLessons ?? monthlyGoal}
-        daysRemaining={daysRemaining}
-        planStatus={planStatus}
-      />
+      {/* Trial Plan Progress — Senior uchun alohida muddat rejasi ko'rsatiladi */}
+      {isSenior ? (
+        <SeniorPlanWidget
+          probation={probation}
+          daysWorking={daysWorking}
+          trialPeriodDays={trialPeriodDays}
+          daysRemaining={daysRemaining}
+          isSenior={isSenior}
+        />
+      ) : (
+        <PlanProgressWidget
+          lessonsConfirmed={trialStats?.totalLessons ?? lessonsConfirmed}
+          monthlyGoal={trialStats?.targetLessons ?? monthlyGoal}
+          daysRemaining={daysRemaining}
+          planStatus={planStatus}
+        />
+      )}
 
       <div className="divider opacity-50"></div>
 
@@ -178,6 +268,8 @@ const Dashboard = () => {
           grades={user?.grades}
           overallProgressPercentage={overallProgress}
           lessonsVisited={trialStats?.totalLessons || lessonsThisMonth}
+          daysWorking={daysWorking}
+          trialPeriodDays={trialPeriodDays}
           isMobile={isMobile}
         />
       </div>
@@ -212,6 +304,56 @@ const Dashboard = () => {
                 {t('gamification.percentile', { percent: ranking.percentile })}
               </span>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🔴 Shtraflar ro'yxati: oxirgi jarimalar */}
+      {violations && violations.length > 0 && (
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title text-lg md:text-xl mb-3">
+              <span className="text-error">⚠️</span>
+              Shtraflar ({violationsCount || violations.length})
+            </h2>
+            <div className="space-y-3">
+              {violations.slice(0, 5).map((v, idx) => {
+                const category = v.rule?.category || v.rule?.category || "yellow";
+                const catLabel =
+                  category === "black" ? "⚫ Qora" :
+                  category === "red" ? "🔴 Qizil" :
+                  category === "yellow" ? "🟡 Sariq" :
+                  "🟢 Yashil";
+                const badgeClass =
+                  category === "black" ? "badge-neutral" :
+                  category === "red" ? "badge-error" :
+                  category === "yellow" ? "badge-warning" :
+                  "badge-success";
+                return (
+                  <div key={idx} className="border border-base-200 rounded-xl p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className={`badge badge-sm ${badgeClass}`}>{catLabel}</span>
+                        <span className="font-medium text-sm">
+                          {v.rule?.title || "Noma'lum qoida"}
+                        </span>
+                      </div>
+                      <span className="text-xs text-base-content/40">
+                        {new Date(v.date).toLocaleDateString("uz-UZ")}
+                      </span>
+                    </div>
+                    {v.notes && (
+                      <p className="text-sm text-base-content/70 mt-1">{v.notes}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {violations.length > 5 && (
+              <Link to="/profile" className="link link-primary text-sm mt-2 block">
+                Barchasini ko'rish →
+              </Link>
+            )}
           </div>
         </div>
       )}

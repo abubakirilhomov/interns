@@ -20,9 +20,9 @@ import { PersistGate } from "redux-persist/integration/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Rating from "./pages/Rating";
+import InternProfile from "./pages/InternProfile";
 import RecentActivity from "./pages/RecentActivity";
-import HeadInternWarnings from "./pages/HeadInternWarnings";
-import HeadInternCreateIntern from "./pages/HeadInternCreateIntern";
+import HeadInternPanel from "./pages/HeadInternPanel";
 import MarsIdReturn from "./pages/MarsIdReturn";
 
 const ProtectedRoute = ({ children }) => {
@@ -74,9 +74,9 @@ const AppRoutes = () => {
         <Route path="/rules" element={<P><Rules /></P>} />
         <Route path="/profile" element={<P><Profile /></P>} />
         <Route path="/rating" element={<P><Rating /></P>} />
+        <Route path="/intern/:id" element={<P><InternProfile /></P>} />
         <Route path="/activity" element={<P><RecentActivity /></P>} />
-        <Route path="/head-intern" element={<P><HeadInternGuard><HeadInternWarnings /></HeadInternGuard></P>} />
-        <Route path="/head-intern/create" element={<P><HeadInternGuard><HeadInternCreateIntern /></HeadInternGuard></P>} />
+        <Route path="/head-intern" element={<P><HeadInternGuard><HeadInternPanel /></HeadInternGuard></P>} />
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>

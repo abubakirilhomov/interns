@@ -82,7 +82,7 @@ const Sidebar = () => {
     ...(user?.isHeadIntern
       ? [
           {
-            name: t("nav.headIntern"),
+            name: "Head Intern",
             href: "/head-intern",
             icon: (
               <svg
@@ -96,25 +96,6 @@ const Sidebar = () => {
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M5 3l7 4 7-4M5 3v14l7 4 7-4V3"
-                />
-              </svg>
-            ),
-          },
-          {
-            name: t("headInternCreate.navTitle"),
-            href: "/head-intern/create",
-            icon: (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
                 />
               </svg>
             ),
@@ -173,9 +154,7 @@ const Sidebar = () => {
                 className={({ isActive }) =>
                   `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                     item.href === "/head-intern"
-                      ? isActive
-                        ? "bg-warning text-warning-content"
-                        : "text-warning hover:bg-warning/10 border border-warning/30"
+                      ? `flow-border-gold ${isActive ? "bg-warning text-warning-content" : "text-warning hover:bg-warning/10"}`
                       : isActive
                         ? "bg-primary text-primary-content"
                         : "text-base-content hover:bg-base-200"

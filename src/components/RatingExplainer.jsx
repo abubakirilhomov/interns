@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { FaInfoCircle, FaTimes, FaStar, FaCheckCircle, FaBook, FaChartLine } from "react-icons/fa";
+import { FaInfoCircle, FaTimes, FaStar, FaCheckCircle, FaBook, FaChartLine, FaTrophy } from "react-icons/fa";
 
 const WEIGHTS = [
   { key: "weightStars",    weight: "50%", icon: FaStar,        color: "text-yellow-500" },
   { key: "weightActivity", weight: "20%", icon: FaCheckCircle, color: "text-green-500" },
   { key: "weightPlan",     weight: "20%", icon: FaBook,        color: "text-blue-500" },
-  { key: "weightVolume",   weight: "10%", icon: FaChartLine,   color: "text-purple-500" },
+  { key: "weightVolume",   weight: "5%",  icon: FaChartLine,   color: "text-purple-500" },
+  { key: "weightBadges",   weight: "5%",  icon: FaTrophy,      color: "text-amber-500" },
 ];
 
 const RatingExplainer = () => {
@@ -115,6 +116,10 @@ const RatingExplainer = () => {
                     <li className="flex gap-2">
                       <span className="text-amber-500 shrink-0">•</span>
                       <span>{t("rating.explainer.specialDiminishing")}</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-amber-500 shrink-0">•</span>
+                      <span>{t("rating.explainer.specialBadges")}</span>
                     </li>
                   </ul>
                 </div>

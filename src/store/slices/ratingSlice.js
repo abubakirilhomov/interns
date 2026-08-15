@@ -3,7 +3,10 @@ import axios from "axios";
 
 export const fetchRatings = createAsyncThunk("rating/fetchRatings", async (_, { rejectWithValue }) => {
   try {
-    const res = await axios.get(`${import.meta.env.VITE_API_URL}/interns/client-rating`);
+    // Uses the shared axios baseURL configured in authSlice.js. Passing a
+    // full URL here used to interpolate an undefined VITE_API_URL, producing
+    // requests like /api/undefined/interns/client-rating that 404'd.
+    const res = await axios.get("/interns/client-rating");
     return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || err.message);

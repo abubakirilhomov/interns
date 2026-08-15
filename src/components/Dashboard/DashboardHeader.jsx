@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { motion } from "framer-motion";
 import { UserCircle, Flame } from "lucide-react";
+import { getWorstLevel, getPenaltyBadgeClass, getPenaltyLabel } from "../../utils/penaltyUtils";
 
 const DashboardHeader = ({ user, streak }) => {
   const { t, i18n } = useTranslation();
@@ -15,6 +16,16 @@ const DashboardHeader = ({ user, streak }) => {
     else if (hour < 18) setGreetingKey("dashboard.goodAfternoon");
     else setGreetingKey("dashboard.goodEvening");
   }, []);
+
+  // 🔴 Shtraf belgisi: eng yomon darajaga qarab rang
+  const penaltyLevel = getWorstLevel(user?.penaltyInfo);
+  const penaltyBadgeClass = penaltyLevel ? getPenaltyBadgeClass(penaltyLevel) : null;
+  const penaltyLabel = penaltyLevel ? getPenaltyLabel(penaltyLevel) : null;
+  const penaltyIcon =
+    penaltyLevel === "black" ? "⚫" :
+    penaltyLevel === "red" ? "🔴" :
+    penaltyLevel === "yellow" ? "🟡" :
+    penaltyLevel === "green" ? "🟢" : null;
 
   return (
     <div className="glass-panel p-4 md:p-6 flex items-center justify-between mb-6">
@@ -42,6 +53,29 @@ const DashboardHeader = ({ user, streak }) => {
       </div>
 
       <div className="flex flex-col items-end gap-2">
+        {/* 🔴 Shtraf belgisi: eng yomon darajaga qarab rang */}
+        {penaltyLevel && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-lg ${
+              penaltyLevel === "black"
+                ? "bg-neutral-800 text-white"
+                : penaltyLevel === "red"
+                ? "bg-red-100 text-red-700"
+                : penaltyLevel === "yellow"
+                ? "bg-yellow-100 text-yellow-700"
+                : "bg-green-100 text-green-700"
+            }`}
+          >
+            <span className="text-sm">{penaltyIcon}</span>
+            <span className="text-sm font-bold">{penaltyLabel}</span>
+            {user?.penaltyInfo?.total > 0 && (
+              <span className="text-xs opacity-80">({user.penaltyInfo.total})</span>
+            )}
+          </motion.div>
+        )}
+
         {/* Streak badge */}
         {streak?.current > 0 ? (
           <motion.div

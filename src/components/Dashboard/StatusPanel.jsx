@@ -15,7 +15,11 @@ const StatusPanel = ({
     const { t } = useTranslation();
     const { totalLessons, targetLessons, progressPercentage } = trialStats || { totalLessons: 0, targetLessons: 0, progressPercentage: 0 };
 
-    const normColor = progressPercentage >= 80 ? 'text-success' : progressPercentage >= 50 ? 'text-warning' : 'text-error';
+    // 100% bajarilganda — tilla (gold) rang.
+    const normColor = progressPercentage >= 100 ? 'text-gold' : progressPercentage >= 80 ? 'text-success' : progressPercentage >= 50 ? 'text-warning' : 'text-error';
+    const normBadgeClass = progressPercentage >= 100
+      ? 'bg-gold-20 text-gold font-bold'
+      : 'bg-base-200 rounded-full inline-block text-base-content/70';
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -28,7 +32,7 @@ const StatusPanel = ({
                 <div className={`text-3xl font-bold ${normColor} mb-1`}>
                     {totalLessons} <span className="text-lg text-base-content/40 font-normal">/ {targetLessons}</span>
                 </div>
-                <div className="text-xs font-semibold px-2 py-1 bg-base-200 rounded-full inline-block text-base-content/70">
+                <div className={`text-xs font-semibold px-2 py-1 ${normBadgeClass}`}>
                     {progressPercentage}% {t('dashboard.completed')}
                 </div>
                 {/* Пояснение: trial-счётчик считается с даты повышения грейда

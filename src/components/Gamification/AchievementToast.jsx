@@ -7,60 +7,77 @@ const fireConfetti = () =>
     (m.default || m)({
       particleCount: 100,
       spread: 70,
-      origin: { y: 0.6 },
-      colors: ["#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#3b82f6"],
+      origin: { y: 0.3 },
+      colors: ["#d4af37", "#f59e0b", "#8b5cf6", "#10b981", "#3b82f6"],
     })
   ).catch(() => {});
 
+// Yangi yutuq ochilganda tepada chiroqli notification. Foydalanuvchi
+// OK tugmasini bosmaguncha yo'qolmaydi (auto-dismiss yo'q).
 const AchievementToast = ({ badges = [], onDone }) => {
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
     if (badges.length === 0) return;
-
     fireConfetti();
-
-    const timer = setTimeout(() => {
-      onDone?.();
-    }, 4000);
-
-    return () => clearTimeout(timer);
-  }, [badges, onDone]);
+  }, [badges]);
 
   if (badges.length === 0) return null;
 
-  const badge = badges[0];
-  const name = typeof badge.name === "object"
-    ? badge.name[i18n.language] || badge.name.ru
-    : badge.nameUz && i18n.language === "uz" ? badge.nameUz : badge.name;
+  const badgeName = (b) =>
+    typeof b.name === "object"
+      ? b.name[i18n.language] || b.name.ru
+      : b.nameUz && i18n.language === "uz"
+      ? b.nameUz
+      : b.name;
 
   return (
     <AnimatePresence>
       <motion.div
         key="achievement"
-        initial={{ opacity: 0, scale: 0.5, y: 50 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.8, y: -30 }}
-        className="fixed inset-0 z-[10000] flex items-center justify-center pointer-events-none"
+        initial={{ opacity: 0, y: -80 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -80 }}
+        className="fixed top-3 left-0 right-0 z-[10000] flex justify-center px-3 pointer-events-none"
       >
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: [0, 1.2, 1] }}
-          transition={{ duration: 0.5, times: [0, 0.7, 1] }}
-          className="bg-base-100 border-2 border-primary/30 rounded-3xl shadow-2xl px-8 py-6 flex flex-col items-center gap-3 max-w-xs pointer-events-auto"
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          className="glow-gold pointer-events-auto bg-base-100 border-2 border-amber-400/70 rounded-2xl shadow-2xl px-5 py-4 flex items-center gap-4 max-w-md w-full"
         >
           <motion.span
-            animate={{ rotate: [0, -10, 10, -10, 0] }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-6xl"
+            animate={{ rotate: [0, -12, 12, -12, 0] }}
+            transition={{ duration: 0.6, delay: 0.2, repeat: Infinity, repeatDelay: 2 }}
+            className="text-4xl"
           >
-            {badge.icon}
+            {badges[0].icon}
           </motion.span>
-          <p className="text-xs font-bold text-primary uppercase tracking-wider">
-            {t("gamification.badgeEarned")}
-          </p>
-          <p className="text-lg font-bold text-base-content text-center">{name}</p>
-          <p className="text-xs text-base-content/40">+20 XP</p>
+
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-primary uppercase tracking-wider">
+              {t("gamification.badgeEarned")}
+            </p>
+            <p className="text-base font-bold text-base-content leading-tight">
+              {badges.length === 1
+                ? badgeName(badges[0])
+                : t("gamification.badges", { count: badges.length })}
+            </p>
+            {badges.length > 1 && (
+              <p className="text-xs text-base-content/60 truncate">
+                {badges.map((b) => badgeName(b)).join(", ")}
+              </p>
+            )}
+            <p className="text-xs text-base-content/40 mt-0.5">
+              {t("gamification.xpGained", { count: badges.length * 20 })}
+            </p>
+          </div>
+
+          <button
+            onClick={() => onDone?.()}
+            className="btn btn-primary btn-sm shrink-0"
+          >
+            {t("gamification.ok")}
+          </button>
         </motion.div>
       </motion.div>
     </AnimatePresence>

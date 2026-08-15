@@ -27,12 +27,20 @@ const PlanProgressWidget = ({
   const progressPercent = goal > 0 ? Math.min(Math.round((confirmed / goal) * 100), 100) : 0;
 
   // Цвет прогресса теперь от процента, а не от блок-флага.
+  // 100% bajarilganda — tilla (gold) rang.
   const progressColor =
-    progressPercent >= 80
+    progressPercent >= 100
+      ? "progress-gold"
+      : progressPercent >= 80
       ? "progress-success"
       : progressPercent >= 50
       ? "progress-warning"
       : "progress-error";
+
+  const percentColor =
+    progressPercent >= 100
+      ? "text-gold"
+      : "text-base-content";
 
   return (
     <div className="card bg-base-100/60 shadow-xl backdrop-blur border border-base-200 p-5">
@@ -69,7 +77,7 @@ const PlanProgressWidget = ({
           {t('common.from')}{" "}
           <span className="font-semibold text-base-content">{goal}</span>{" "}
           {t('dashboard.lessonsConfirmed')}
-          <span className="ml-2 text-xs text-base-content/40">
+          <span className={`ml-2 text-xs ${percentColor} font-bold`}>
             ({progressPercent}%)
           </span>
         </div>

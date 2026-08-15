@@ -15,15 +15,18 @@ import { selfActivateWeeklyPlan } from "../../store/slices/weeklyPlanSlice";
  *   - status === 'restricted' + activationsLeft === 0 → yellow banner, кнопки нет (нужен админ).
  *   - status === 'ok' + isAtRisk → blue warning.
  *   - else → nothing.
+ *   - Senior internlar uchun banner ko'rsatilmaydi (darsga kirmaydi).
  */
 const WeeklyPlanBanner = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const wp = useSelector((s) => s.weeklyPlan.data);
   const isActivating = useSelector((s) => s.weeklyPlan.isActivating);
+  const { user } = useSelector((s) => s.auth);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  if (!wp) return null;
+  // Senior internlar darsga kirmaydi — weekly plan banneri ko'rsatilmaydi
+  if (!wp || user?.grade === "senior") return null;
 
   const {
     status,

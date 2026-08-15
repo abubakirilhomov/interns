@@ -6,7 +6,11 @@ import { toast } from 'react-toastify';
 import { updateProfile } from '../store/slices/authSlice';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import BadgeShowcase from '../components/Gamification/BadgeShowcase';
-import { GRADE_ORDER as GRADES, GRADE_LABELS, GRADE_COLORS, GRADE_BG } from '../constants/gradeColors';
+import { GRADE_ORDER as GRADES, GRADE_LABELS, GRADE_COLORS, GRADE_BG, PREMIUM_COLORS, PREMIUM_BADGES } from '../constants/gradeColors';
+import { getWorstLevel, getPenaltyBadgeClass, getPenaltyLabel, getTotalViolations } from '../utils/penaltyUtils';
+import { getRatingColorClass, getRatingBadgeClass, getRatingLabel, getRatingProgressColor } from '../utils/penaltyUtils';
+import { getHobbyByCategory, getAllHobbies, getHobbyColorClass, getHobbyIcon, DEFAULT_HOBBY } from '../utils/penaltyUtils';
+import { FaCode, FaPalette, FaEdit, FaUsers, FaDumbbell, FaMusic, FaCamera, FaGamepad, FaServer } from "react-icons/fa";
 
 const Profile = () => {
   const { t } = useTranslation();
@@ -34,6 +38,10 @@ const Profile = () => {
     telegram: user?.telegram || '',
     sphere: user?.sphere || 'backend-nodejs',
     profilePhoto: user?.profilePhoto || '',
+    // New hobby/collection fields
+    primaryHobby: user?.primaryHobby || '',
+    secondaryHobby: user?.secondaryHobby || '',
+    collections: user?.collections || [],
   });
 
   useEffect(() => {
@@ -53,6 +61,14 @@ const Profile = () => {
     try {
       await dispatch(updateProfile(formData)).unwrap();
       setIsEditing(false);
+      // Show notification for hobby change
+      if (formData.primaryHobby || formData.secondaryHobby) {
+        toast(t('dashboard.concessionAvailable'), {
+          description: t('dashboard.concessionDesc', { percentage: 85 }),
+          type: "success",
+          duration: 3000,
+        });
+      }
     } catch {}
   };
 
@@ -88,6 +104,9 @@ const Profile = () => {
       telegram: user?.telegram || '',
       sphere: user?.sphere || 'backend-nodejs',
       profilePhoto: user?.profilePhoto || '',
+      primaryHobby: '',
+      secondaryHobby: '',
+      collections: [],
     });
     setIsEditing(false);
   };
@@ -156,8 +175,22 @@ const Profile = () => {
   const photo = user?.profilePhoto;
   const initials = `${user?.name?.[0] || ''}${user?.lastName?.[0] || ''}`.toUpperCase();
 
+  // Determine VIP/premium status based on grade and other factors
+  const isHeadIntern = user?.isHeadIntern || false;
+  const isSenior = user?.grade === 'senior' || grade === 'senior';
+  const vipColor = isHeadIntern ? PREMIUM_COLORS.vip : (isSenior ? PREMIUM_COLORS.premium : null);
+  const premiumBadge = isHeadIntern ? PREMIUM_BADGES.vip : (isSenior ? PREMIUM_BADGES.premium : null);
+
   const tgLink = (link) =>
     link?.startsWith('@') ? `https://t.me/${link.slice(1)}` : link;
+
+  // Hobby display
+  const primaryHobbyCategory = formData.primaryHobby || user?.primaryHobby || '';
+  const secondaryHobbyCategory = formData.secondaryHobby || user?.secondaryHobby || '';
+  const collections = formData.collections || user?.collections || [];
+
+  const primaryHobby = primaryHobbyCategory ? getHobbyByCategory(primaryHobbyCategory) : DEFAULT_HOBBY;
+  const secondaryHobby = secondaryHobbyCategory ? getHobbyByCategory(secondaryHobbyCategory) : DEFAULT_HOBBY;
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
@@ -195,7 +228,7 @@ const Profile = () => {
                 {user?.sphere && <span> · {user.sphere}</span>}
               </p>
 
-              {/* Grade badge + plan status */}
+              {/* Grade badge + plan status + penalty markers + VIP/premium indicators */}
               <div className="flex flex-wrap items-center gap-2 mt-3 justify-center sm:justify-start">
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${GRADE_BG[grade]}`}>
                   {GRADE_LABELS[grade]}
@@ -210,14 +243,69 @@ const Profile = () => {
                     Заморожен
                   </span>
                 )}
-                {user?.isHeadIntern && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
-                    Head Intern
+                {isHeadIntern && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold ${vipColor}`}
+                    title={t('nav.headIntern')}
+                  >
+                    👑
+                  </span>
+                )}
+                {isSenior && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold ${vipColor}`}
+                    title={t('dashboard.seniorMode')}
+                  >
+                    🏅
+                  </span>
+                )}
+                {/* 🔴 Shtraf belgilari: eng yomon darajaga qarab rang */}
+                {user?.penaltyInfo?.worstLevel && (
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    user.penaltyInfo.worstLevel === 'black'
+                      ? 'bg-neutral-800 text-white'
+                      : user.penaltyInfo.worstLevel === 'red'
+                      ? 'bg-red-100 text-red-700'
+                      : user.penaltyInfo.worstLevel === 'yellow'
+                      ? 'bg-yellow-100 text-yellow-700'
+                      : 'bg-green-100 text-green-700'
+                  }`}>
+                    {user.penaltyInfo.worstLevel === 'black' ? '⚫ Qora' :
+                     user.penaltyInfo.worstLevel === 'red' ? '🔴 Qizil' :
+                     user.penaltyInfo.worstLevel === 'yellow' ? '🟡 Sariq' :
+                     '🟢 Yashil'}
                   </span>
                 )}
               </div>
 
-              {/* Lesson progress bar */}
+              {/* Hobby section */}
+              {primaryHobbyCategory || secondaryHobbyCategory && (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {primaryHobbyCategory && (
+                    <span className={`px-3 py-1 rounded text-xs font-bold ${primaryHobby.color}`}>
+                      {primaryHobby.name}
+                    </span>
+                  )}
+                  {secondaryHobbyCategory && (
+                    <span className={`px-3 py-1 rounded text-xs font-bold ${secondaryHobby.color}`}>
+                      {secondaryHobby.name}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Collections */}
+              {collections.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {collections.map((col, idx) => (
+                    <span key={idx} className="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-600">
+                      {col}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Progress bar */}
               <div className="mt-4 w-full max-w-sm mx-auto sm:mx-0">
                 <div className="flex justify-between items-center text-xs mb-1">
                   <span className="font-semibold text-base-content">
@@ -274,6 +362,53 @@ const Profile = () => {
           </div>
         ))}
       </div>
+
+      {/* ═══ SHTARF (VIOLATIONS) ═══ */}
+      {user?.violations?.length > 0 && (
+        <div className="card bg-base-100 shadow">
+          <div className="card-body">
+            <h3 className="font-bold text-sm text-base-content/60 uppercase tracking-wide mb-3">
+              Shtraflar
+            </h3>
+            <div className="space-y-3">
+              {user.violations.map((v, idx) => {
+                const category = v.rule?.category || 'yellow';
+                const catLabel =
+                  category === 'black' ? '⚫ Qora' :
+                  category === 'red' ? '🔴 Qizil' :
+                  category === 'yellow' ? '🟡 Sariq' :
+                  '🟢 Yashil';
+                const badgeClass =
+                  category === 'black' ? 'badge-neutral' :
+                  category === 'red' ? 'badge-error' :
+                  category === 'yellow' ? 'badge-warning' :
+                  'badge-success';
+                return (
+                  <div key={idx} className="border border-base-200 rounded-xl p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className={`badge badge-sm ${badgeClass}`}>{catLabel}</span>
+                        <span className="font-medium text-sm">{v.rule?.title || 'Noma\'lum qoida'}</span>
+                      </div>
+                      <span className="text-xs text-base-content/40">
+                        {new Date(v.date).toLocaleDateString('uz-UZ')}
+                      </span>
+                    </div>
+                    {v.notes && (
+                      <p className="text-sm text-base-content/70 mt-1">{v.notes}</p>
+                    )}
+                    {v.consequenceApplied && (
+                      <p className="text-xs text-error mt-1">
+                        {v.consequenceApplied}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ═══ BADGES ═══ */}
       <BadgeShowcase />
@@ -400,6 +535,12 @@ const Profile = () => {
                   <span className={`px-2 py-0.5 rounded text-xs font-bold ${GRADE_BG[grade]}`}>
                     {GRADE_LABELS[grade]}
                   </span>
+                  {/* VIP/Premium indicator */}
+                  {vipColor && (
+                    <span className="ml-2 px-1 py-0.5 rounded text-xs font-bold">
+                      {premiumBadge ? <span className={`badge ${premiumBadge}`} /> : ''}
+                    </span>
+                  )}
                 </div>
               </div>
               <div>
@@ -414,6 +555,37 @@ const Profile = () => {
                     : <p className="font-medium text-base-content">—</p>}
                 </div>
               </div>
+              {/* Hobby section in read mode */}
+              {primaryHobbyCategory || secondaryHobbyCategory && (
+                <div>
+                  <span className="text-base-content/40 text-xs uppercase tracking-wide">Yutuqlar</span>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {primaryHobbyCategory && (
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-primary/10 text-primary/80">
+                        {primaryHobby.name}
+                      </span>
+                    )}
+                    {secondaryHobbyCategory && (
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-primary/10 text-primary/80">
+                        {secondaryHobby.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+              {/* Collections in read mode */}
+              {collections.length > 0 && (
+                <div>
+                  <span className="text-base-content/40 text-xs uppercase tracking-wide">Koleksiyalar</span>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {collections.map((col, idx) => (
+                      <span key={idx} className="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-600">
+                        {col}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
