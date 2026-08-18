@@ -12,32 +12,44 @@ const tgLink = (handle) => {
   return `https://t.me/${handle.startsWith("@") ? handle.slice(1) : handle}`;
 };
 
+// Rangli nuqta — emoji o'rniga. Ba'zi qurilma/webview'larda rang emoji
+// (🟡/🔴/🟢) o'z shrift o'lchamiga bo'ysunmay, badge ichida haddan tashqari
+// katta chiqib ketadi va matnni bosib qoladi. CSS nuqta har joyda bir xil.
+const Dot = () => <span className="inline-block w-1.5 h-1.5 rounded-full bg-current shrink-0" />;
+
 const activityBadge = (level) => {
   switch (level) {
     case "high":
-      return <span className="badge badge-success gap-1">🟢 Yuqori</span>;
+      return (
+        <span className="badge badge-success gap-1.5 whitespace-nowrap">
+          <Dot /> Yuqori
+        </span>
+      );
     case "medium":
-      return <span className="badge badge-warning gap-1">🟡 O'rtacha</span>;
+      return (
+        <span className="badge badge-warning gap-1.5 whitespace-nowrap">
+          <Dot /> O'rtacha
+        </span>
+      );
     case "low":
-      return <span className="badge badge-error gap-1">🔴 Past</span>;
+      return (
+        <span className="badge badge-error gap-1.5 whitespace-nowrap">
+          <Dot /> Past
+        </span>
+      );
     default:
-      return <span className="badge badge-ghost gap-1">—</span>;
+      return <span className="badge badge-ghost gap-1 whitespace-nowrap">—</span>;
   }
 };
 
-// 🔴 Shtraf belgisi: eng yomon darajaga qarab rang
+// Shtraf belgisi: eng yomon darajaga qarab rang
 const penaltyBadge = (level) => {
   if (!level) return <span className="text-base-content/40 text-xs">—</span>;
   const badgeClass = getPenaltyBadgeClass(level);
   const label = getPenaltyLabel(level);
-  const icon =
-    level === "black" ? "⚫" :
-    level === "red" ? "🔴" :
-    level === "yellow" ? "🟡" :
-    "🟢";
   return (
-    <span className={`badge badge-sm ${badgeClass} gap-1`}>
-      {icon} {label}
+    <span className={`badge badge-sm ${badgeClass} gap-1.5 whitespace-nowrap`}>
+      <Dot /> {label}
     </span>
   );
 };
