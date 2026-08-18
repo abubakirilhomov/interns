@@ -6,6 +6,12 @@ import { getWorstLevel, getPenaltyBadgeClass, getPenaltyLabel } from "../utils/p
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
+const tgLink = (handle) => {
+  if (!handle) return null;
+  if (handle.startsWith("http")) return handle;
+  return `https://t.me/${handle.startsWith("@") ? handle.slice(1) : handle}`;
+};
+
 const activityBadge = (level) => {
   switch (level) {
     case "high":
@@ -196,6 +202,7 @@ const HeadInternDashboard = () => {
                     <th>Oxirgi dars</th>
                     <th>Streak</th>
                     <th>Shtraf</th>
+                    <th>Eslatma</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -226,13 +233,8 @@ const HeadInternDashboard = () => {
                         <span className="text-base-content/50 text-xs"> /kun</span>
                       </td>
                       <td>
-                        <div className="flex flex-col gap-1">
+                        <div className="flex items-center">
                           {activityBadge(intern.activityLevel)}
-                          {intern.activityReason && (
-                            <span className="text-xs text-base-content/50 max-w-[180px]">
-                              {intern.activityReason}
-                            </span>
-                          )}
                         </div>
                       </td>
                       <td>
@@ -256,7 +258,7 @@ const HeadInternDashboard = () => {
                       </td>
                       {/* 🔴 Shtraf ustun: eng yomon daraja + jami son */}
                       <td>
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col items-start gap-1">
                           {penaltyBadge(intern.penaltyInfo?.worstLevel)}
                           {intern.penaltyInfo?.total > 0 && (
                             <span className="text-xs text-base-content/50">
@@ -265,11 +267,33 @@ const HeadInternDashboard = () => {
                           )}
                         </div>
                       </td>
+                      {/* ⚠️ Darsi 1tadan kam bo'lgan internlar bilan suhbat kerakligini eslatish */}
+                      <td>
+                        {intern.lessonsThisMonth < 1 ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-error font-semibold text-xs whitespace-nowrap">
+                              ⚠️ Suhbat kerak
+                            </span>
+                            {tgLink(intern.telegram) && (
+                              <a
+                                href={tgLink(intern.telegram)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-xs btn-error btn-outline"
+                              >
+                                📩 Telegram
+                              </a>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-base-content/40">—</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                   {filteredInterns.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="text-center py-8 text-base-content/50">
+                      <td colSpan={10} className="text-center py-8 text-base-content/50">
                         Hech narsa topilmadi
                       </td>
                     </tr>
