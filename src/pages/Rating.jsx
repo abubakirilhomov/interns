@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { fetchRatings } from "../store/slices/ratingSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import RatingExplainer from "../components/RatingExplainer";
-import { getPenaltyBadgeClass, getPenaltyLabel } from "../utils/penaltyUtils";
 import {
   FaTrophy,
   FaMedal,
@@ -18,23 +17,6 @@ import {
   FaSearch,
   FaCrown
 } from "react-icons/fa";
-
-// 🔴 Shtraf belgisi: eng yomon darajaga qarab rang
-const penaltyBadge = (level) => {
-  if (!level) return null;
-  const badgeClass = getPenaltyBadgeClass(level);
-  const label = getPenaltyLabel(level);
-  const icon =
-    level === "black" ? "⚫" :
-    level === "red" ? "🔴" :
-    level === "yellow" ? "🟡" :
-    "🟢";
-  return (
-    <span className={`badge badge-xs ${badgeClass} gap-1`} title={label}>
-      {icon}
-    </span>
-  );
-};
 
 // Head-intern/senior avatarga sekin miltillovchi tilla nur — ajralib turishi uchun.
 const isPremium = (intern) => Boolean(intern.isHeadIntern || intern.isSenior || intern.grade === "senior");
@@ -270,10 +252,6 @@ const Rating = () => {
                           <FaCheckCircle className="inline mr-1" />
                           {intern.planCompletion}%
                         </div>
-                        {/* 🔴 Shtraf belgisi */}
-                        {penaltyBadge(intern.penaltyInfo?.worstLevel)}
-                        {/* Рейтинговый цвет */}
-                        
                       </div>
                     </div>
                   </motion.div>
@@ -335,7 +313,6 @@ const Rating = () => {
                                 <div className={`font-bold ${getRatingColor(intern.ratingScore)}`}>
                                   {intern.ratingScore}
                                 </div>
-                                {penaltyBadge(intern.penaltyInfo?.worstLevel)}
                               </div>
                             </div>
                             <div>{t('rating.branch')} {intern.branch}</div>
@@ -377,7 +354,6 @@ const Rating = () => {
                           <th className="hidden md:table-cell text-center">{t('rating.reviewsLabel')}</th>
                           <th className="hidden lg:table-cell text-center">{t('rating.activity')}</th>
                           <th className="text-center">{t('rating.plan')}</th>
-                          <th className="text-center">{t('rating.penaltyCol')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -449,17 +425,6 @@ const Rating = () => {
                                 <span className="text-[10px] ml-1">
                                   {intern.planCompletion}%
                                 </span>
-                              </td>
-                              {/* 🔴 Shtraf ustun: eng yomon daraja + jami son */}
-                              <td className="text-center">
-                                <div className="flex flex-col items-center gap-1">
-                                  {penaltyBadge(intern.penaltyInfo?.worstLevel)}
-                                  {intern.penaltyInfo?.total > 0 && (
-                                    <span className="text-xs text-base-content/50">
-                                      {intern.penaltyInfo.total}
-                                    </span>
-                                  )}
-                                </div>
                               </td>
                             </motion.tr>
                           );
