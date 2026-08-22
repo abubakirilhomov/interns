@@ -8,13 +8,26 @@ axios.defaults.baseURL = API_URL;
 // must be opt-in on every request (login, refresh, logout, normal API calls).
 axios.defaults.withCredentials = true;
 
-// Access token now lives only in axios.defaults.headers + Redux state.
-// Refresh token rides the httpOnly cookie set by the backend.
+// Refresh token rides the httpOnly cookie set by the backend — never
+// persisted client-side, that's the whole point of the cookie cutover.
+//
+// The short-lived (15m) *access* token is also cached in localStorage so a
+// page reload can restore it instantly instead of always waiting on
+// silentRefresh(), which depends on the refresh cookie actually reaching the
+// backend — cross-site deployments (frontend and API on different domains)
+// hit browser third-party-cookie blocking (Safari ITP, Chrome's rollout),
+// so silentRefresh silently fails there and the user was force-logged-out on
+// every reload. Caching the access token doesn't reintroduce that risk: if
+// it leaks via XSS it's only usable for ≤15 minutes, unlike the 30-day
+// refresh token this app deliberately stopped persisting.
+const ACCESS_TOKEN_KEY = "accessToken";
 const setAuthToken = (token) => {
   if (token) {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
   } else {
     delete axios.defaults.headers.common["Authorization"];
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
   }
 };
 
@@ -195,6 +208,20 @@ const authSlice = createSlice({
     markAuthInitialized: (state) => {
       state.authInitialized = true;
     },
+    // Cold-boot fast path: a cached (≤15m) access token plus the persisted
+    // `user` blob let the app render as logged-in immediately, without
+    // waiting on silentRefresh (which needs the refresh cookie to actually
+    // reach the backend — unreliable cross-site, see setAuthToken above). If
+    // the cached token turns out expired, the normal axios 401 interceptor
+    // (axiosRefresh.js) still falls back to a cookie-based refresh — this is
+    // strictly additive, not a replacement for that path.
+    hydrateFromStoredToken: (state, action) => {
+      if (!state.user) return;
+      setAuthToken(action.payload);
+      state.token = action.payload;
+      state.isAuthenticated = true;
+      state.authInitialized = true;
+    },
     clearError: (state) => {
       state.error = null;
     },
@@ -344,5 +371,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, selectBranch, switchActiveBranch, setSession, markAuthInitialized } = authSlice.actions;
+export const { logout, clearError, selectBranch, switchActiveBranch, setSession, markAuthInitialized, hydrateFromStoredToken } = authSlice.actions;
 export default authSlice.reducer;

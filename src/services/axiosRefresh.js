@@ -111,6 +111,10 @@ export default function setupAxios(store) {
           const newToken = res.data.token;
 
           axios.defaults.headers.common["Authorization"] = "Bearer " + newToken;
+          // Keep the cached access token in sync — see setAuthToken in
+          // authSlice.js for why it's cached at all (cross-site cold-boot
+          // fallback when the refresh cookie itself is blocked).
+          localStorage.setItem("accessToken", newToken);
 
           processQueue(null, newToken);
           broadcast({ type: "refresh-done", token: newToken });

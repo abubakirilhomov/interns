@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import { persistor, store } from "./store";
-import { silentRefresh } from "./store/slices/authSlice";
+import { silentRefresh, hydrateFromStoredToken } from "./store/slices/authSlice";
 import Layout from "./components/Layout/Layout";
 import PageTransition from "./components/UI/PageTransition";
 import Login from "./pages/Login";
@@ -52,14 +52,26 @@ const P = ({ children }) => (
 
 const AppRoutes = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, authInitialized, token } = useSelector((state) => state.auth);
+  const { isAuthenticated, authInitialized, token, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (authInitialized) return;
-    // Always try silent refresh on cold boot — the refresh cookie may be
-    // there even when nothing is in Redux/localStorage. If no cookie, the
-    // server will 401 and the thunk's rejected handler flips
-    // authInitialized=true with the user still logged out.
+    // Fast path: a cached access token (≤15m old) + the persisted `user`
+    // blob let the app render as logged-in immediately, without depending
+    // on the refresh cookie reaching the backend — which cross-site
+    // deployments can't rely on (browsers increasingly block third-party
+    // cookies). If that cached token is actually expired, the axios 401
+    // interceptor (axiosRefresh.js) still transparently falls back to a
+    // cookie-based refresh on the first real API call.
+    const cachedToken = localStorage.getItem("accessToken");
+    if (cachedToken && user) {
+      dispatch(hydrateFromStoredToken(cachedToken));
+      return;
+    }
+    // No cached token (fresh browser, or it was cleared) — only path left
+    // is the refresh cookie. If there's no cookie either, the server 401s
+    // and the thunk's rejected handler flips authInitialized=true with the
+    // user still logged out.
     dispatch(silentRefresh());
   }, [authInitialized, dispatch]);
 
