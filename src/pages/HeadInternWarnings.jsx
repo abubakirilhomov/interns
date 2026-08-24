@@ -104,7 +104,7 @@ const HeadInternWarnings = () => {
 
       const internName = interns.find((i) => i._id === selectedIntern);
       toast.success(
-        t('headIntern.success', { name: internName?.name || "", lastName: internName?.lastName || "" })
+        t(isPraiseRule ? 'headIntern.successPraise' : 'headIntern.success', { name: internName?.name || "", lastName: internName?.lastName || "" })
       );
       setSelectedIntern("");
       setSelectedRule("");
@@ -163,6 +163,9 @@ const HeadInternWarnings = () => {
     );
   };
 
+  const selectedRuleObj = rules.find((r) => r._id === selectedRule);
+  const isPraiseRule = selectedRuleObj?.category === "green";
+
   if (!user?.isHeadIntern) {
     return (
       <div className="max-w-lg mx-auto mt-10 p-6">
@@ -200,7 +203,7 @@ const HeadInternWarnings = () => {
           className={`tab tab-lg flex-1 ${tab === "warning" ? "tab-active" : ""}`}
           onClick={() => setTab("warning")}
         >
-          ⚠️ Shtraf
+          ⚖️ Baholash
         </button>
       </div>
 
@@ -426,21 +429,21 @@ const HeadInternWarnings = () => {
             />
           </div>
 
-          <div className="alert alert-warning py-2">
+          <div className={`alert py-2 ${isPraiseRule ? "alert-success" : "alert-warning"}`}>
             <span className="text-sm">
-              {t('headIntern.notice')}
+              {t(isPraiseRule ? 'headIntern.noticePraise' : 'headIntern.notice')}
             </span>
           </div>
 
           <button
             type="submit"
-            className="btn btn-warning w-full"
+            className={`btn w-full ${isPraiseRule ? "btn-success" : "btn-warning"}`}
             disabled={loading}
           >
             {loading ? (
               <span className="loading loading-spinner loading-sm" />
             ) : (
-              t('headIntern.submitWarning')
+              t(isPraiseRule ? 'headIntern.submitPraise' : 'headIntern.submitWarning')
             )}
           </button>
         </form>
