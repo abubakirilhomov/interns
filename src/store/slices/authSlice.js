@@ -156,6 +156,22 @@ export const submitInternshipSurvey = createAsyncThunk(
   }
 );
 
+export const submitContactInfo = createAsyncThunk(
+  "auth/submitContactInfo",
+  async ({ phoneNumber, telegram }, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch("/interns/me/profile", { phoneNumber, telegram });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Не удалось сохранить контакт"
+      );
+    }
+  }
+);
+
 export const fetchProfile = createAsyncThunk(
   "auth/fetchProfile",
   async (_, { rejectWithValue, getState }) => {
@@ -366,6 +382,14 @@ const authSlice = createSlice({
           ...state.user,
           surveyCompleted: true,
           internshipSurvey: payload.internshipSurvey || { submittedAt: new Date().toISOString() },
+        };
+      })
+      .addCase(submitContactInfo.fulfilled, (state, action) => {
+        const payload = action.payload || {};
+        state.user = {
+          ...state.user,
+          phoneNumber: payload.phoneNumber ?? state.user?.phoneNumber ?? "",
+          telegram: payload.telegram ?? state.user?.telegram ?? "",
         };
       });
   },

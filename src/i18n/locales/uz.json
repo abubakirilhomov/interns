@@ -512,5 +512,16 @@
       "proCourseRequired": "Pro-kurs haqida javob ber",
       "generic": "Javoblarni saqlash imkoni bo'lmadi. Yana urinib ko'r."
     }
+  },
+  "contactInfoModal": {
+    "title": "Aloqa uchun kontakt kiriting",
+    "subtitle": "Siz bilan bog'lanish uchun kamida bitta usul kerak — telefon raqami yoki Telegram.",
+    "phoneLabel": "Telefon raqami",
+    "telegramLabel": "Telegram (username)",
+    "submit": "Saqlash",
+    "submitting": "Saqlanmoqda…",
+    "errorRequired": "Kamida bitta maydonni to'ldiring",
+    "errorGeneric": "Saqlab bo'lmadi. Yana urinib ko'ring.",
+    "saved": "Rahmat! Kontakt saqlandi."
   }
 }

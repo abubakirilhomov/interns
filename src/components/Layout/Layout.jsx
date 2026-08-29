@@ -6,9 +6,11 @@ import Sidebar from './Sidebar';
 import WeeklyPlanBanner from './WeeklyPlanBanner';
 import LessonFeedbackModal, { PENDING_FEEDBACK_KEY } from '../LessonFeedbackModal';
 import InternshipSurveyModal from '../InternshipSurveyModal';
+import ContactInfoModal from '../ContactInfoModal';
 import AchievementToast from '../Gamification/AchievementToast';
 import InstallPrompt from '../InstallPrompt';
 import { fetchWeeklyPlan } from '../../store/slices/weeklyPlanSlice';
+import { fetchProfile } from '../../store/slices/authSlice';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -26,7 +28,25 @@ const Layout = ({ children }) => {
   const [pendingFeedbackId, setPendingFeedbackId] = useState(() => readPendingId());
   const [celebrateBadges, setCelebrateBadges] = useState([]);
   const [surveyDismissed, setSurveyDismissed] = useState(false);
+  const [contactChecked, setContactChecked] = useState(false);
   const isFrozen = Boolean(user?.status === 'frozen' || user?.isFrozen || user?.planStatus?.isFrozen);
+
+  // The login response only carries phoneNumber/telegram going forward — a session
+  // persisted from before that change (redux-persist) has neither field cached, so
+  // a one-time authoritative fetch is what the "needs contact info" check below
+  // relies on, not the persisted `user` blob alone.
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'intern') return;
+    dispatch(fetchProfile()).finally(() => setContactChecked(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user?._id]);
+
+  const needsContactInfo =
+    isAuthenticated &&
+    user?.role === 'intern' &&
+    contactChecked &&
+    !user?.phoneNumber?.trim() &&
+    !user?.telegram?.trim();
 
   // Fetch weeklyPlan once on auth, refetch on window focus (no setInterval —
   // status only changes Monday cron / self-activate; focus refresh is enough).
@@ -136,7 +156,9 @@ const Layout = ({ children }) => {
         />
       )}
 
-      {showSurvey && (
+      {needsContactInfo && <ContactInfoModal />}
+
+      {!needsContactInfo && showSurvey && (
         <InternshipSurveyModal onClose={() => setSurveyDismissed(true)} />
       )}
 
