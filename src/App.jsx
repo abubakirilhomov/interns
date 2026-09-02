@@ -24,6 +24,7 @@ import InternProfile from "./pages/InternProfile";
 import RecentActivity from "./pages/RecentActivity";
 import HeadInternPanel from "./pages/HeadInternPanel";
 import MarsIdReturn from "./pages/MarsIdReturn";
+import SessionJoin from "./pages/SessionJoin";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, authInitialized } = useSelector((state) => state.auth);
@@ -89,6 +90,7 @@ const AppRoutes = () => {
         <Route path="/intern/:id" element={<P><InternProfile /></P>} />
         <Route path="/activity" element={<P><RecentActivity /></P>} />
         <Route path="/head-intern" element={<P><HeadInternGuard><HeadInternPanel /></HeadInternGuard></P>} />
+        <Route path="/suhbat/:token" element={<P><SessionJoin /></P>} />
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>

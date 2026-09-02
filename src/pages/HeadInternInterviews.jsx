@@ -45,9 +45,67 @@ const HeadInternInterviews = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submittedResult, setSubmittedResult] = useState(null); // { percentage, status, wrongQuestions }
 
+  // Online suhbat sessiyasi (link + vaqt) — alohida, monthly-interview-sessions API
+  const [session, setSession] = useState(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [meetingUrl, setMeetingUrl] = useState("");
+  const [creatingSession, setCreatingSession] = useState(false);
+  const [finalizing, setFinalizing] = useState(false);
+
   useEffect(() => {
     fetchStatus();
+    fetchSession();
   }, [month]);
+
+  const fetchSession = async () => {
+    setSessionLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/monthly-interview-sessions/current?month=${month}`);
+      setSession(res.data.session);
+    } catch (err) {
+      console.error("Sessiya ma'lumotini yuklashda xato:", err);
+    } finally {
+      setSessionLoading(false);
+    }
+  };
+
+  const handleCreateSession = async () => {
+    if (!scheduledAt || !meetingUrl.trim()) {
+      toast.error("Sana/vaqt va link kiritilishi shart");
+      return;
+    }
+    setCreatingSession(true);
+    try {
+      const res = await axios.post(`${API_URL}/monthly-interview-sessions`, {
+        month,
+        scheduledAt,
+        meetingUrl: meetingUrl.trim(),
+      });
+      toast.success(`Sessiya yaratildi — ${res.data.notified} ta internga xabar yuborildi`);
+      setScheduledAt("");
+      setMeetingUrl("");
+      fetchSession();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Xatolik yuz berdi");
+    } finally {
+      setCreatingSession(false);
+    }
+  };
+
+  const handleFinalizeNow = async () => {
+    if (!session?._id) return;
+    setFinalizing(true);
+    try {
+      const res = await axios.post(`${API_URL}/monthly-interview-sessions/${session._id}/finalize`);
+      toast.success(`Yakunlandi — ${res.data.presentCount} kirdi, ${res.data.missedCount} kirmadi`);
+      fetchSession();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Xatolik yuz berdi");
+    } finally {
+      setFinalizing(false);
+    }
+  };
 
   const fetchStatus = async () => {
     setLoading(true);
@@ -171,6 +229,126 @@ const HeadInternInterviews = () => {
         <button className="btn btn-sm btn-ghost" onClick={fetchStatus}>
           🔄 Yangilash
         </button>
+      </div>
+
+      {/* Online suhbat sessiyasi: link + vaqt */}
+      <div className="bg-base-100 shadow rounded-2xl p-4 sm:p-5 mb-6">
+        <h3 className="font-bold text-lg mb-3">📹 Online suhbat sessiyasi</h3>
+        {sessionLoading ? (
+          <span className="loading loading-spinner loading-sm" />
+        ) : session ? (
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`badge ${
+                  session.status === "finalized" ? "badge-neutral" : "badge-info"
+                }`}
+              >
+                {session.status === "finalized" ? "Yakunlangan" : "Rejalashtirilgan"}
+              </span>
+              <span className="text-sm text-base-content/70">
+                {new Intl.DateTimeFormat("uz-UZ", {
+                  timeZone: "Asia/Tashkent",
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }).format(new Date(session.scheduledAt))}
+              </span>
+              <a
+                href={session.meetingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link link-primary text-sm break-all"
+              >
+                {session.meetingUrl}
+              </a>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="table table-sm w-full">
+                <thead>
+                  <tr>
+                    <th>Intern</th>
+                    <th>Holat</th>
+                    <th>Sabab</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {session.attendance.map((a) => (
+                    <tr key={a.intern?._id || a.intern}>
+                      <td>
+                        {a.intern?.name
+                          ? `${a.intern.name} ${a.intern.lastName || ""}`
+                          : "—"}
+                      </td>
+                      <td>
+                        {a.result === "present" ? (
+                          <span className="badge badge-success badge-sm">Kirdi</span>
+                        ) : a.result === "missed" ? (
+                          <span className="badge badge-error badge-sm">Kirmadi</span>
+                        ) : (
+                          <span className="badge badge-warning badge-sm">Kutilmoqda</span>
+                        )}
+                      </td>
+                      <td className="text-sm text-base-content/70">
+                        {a.excuseReason || "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {session.status === "scheduled" && (
+              <button
+                className="btn btn-sm btn-outline"
+                onClick={handleFinalizeNow}
+                disabled={finalizing}
+              >
+                {finalizing ? (
+                  <span className="loading loading-spinner loading-xs" />
+                ) : (
+                  "Hoziroq yakunlash"
+                )}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="block text-sm font-medium mb-1">Sana va vaqt</label>
+              <input
+                type="datetime-local"
+                className="input input-bordered input-sm"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+              />
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-medium mb-1">Meeting link</label>
+              <input
+                type="text"
+                className="input input-bordered input-sm w-full"
+                placeholder="https://meet.google.com/..."
+                value={meetingUrl}
+                onChange={(e) => setMeetingUrl(e.target.value)}
+              />
+            </div>
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={handleCreateSession}
+              disabled={creatingSession}
+            >
+              {creatingSession ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                "Sessiya yaratish"
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Indikator banner */}
