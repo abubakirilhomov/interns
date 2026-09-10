@@ -33,6 +33,13 @@ const reporterEsbuild = { keepNames: true };
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    // 'hidden': карты собираются, но ссылка на них в бандл НЕ пишется.
+    // Значит браузер их не тянет и исходники наружу не утекают, а у нас
+    // они есть — этого достаточно, чтобы разобрать прод-стек в file:line.
+    sourcemap: 'hidden',
+  },
+
   define: reporterDefine,
   esbuild: {
     // drop оставлен как был: в проде console.* вырезаются. Репортер на console
