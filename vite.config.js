@@ -5,6 +5,18 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  test: {
+    // jsdom, а не node: тестируем компоненты и код, который лезет в
+    // localStorage, fetch и window.
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+    include: ['src/**/*.test.{js,jsx,ts,tsx}'],
+    restoreMocks: true,
+    clearMocks: true,
+    env: { VITE_API_URL: 'http://api.test/api' },
+  },
+
   esbuild: {
     drop: ["console", "debugger"],
   },
