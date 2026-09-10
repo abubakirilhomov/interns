@@ -52,6 +52,22 @@ const broadcast = (msg) => {
   if (channel) channel.postMessage(msg);
 };
 
+// Reads exp off the access token without verifying it — the server already
+// verified it when it 401'd; this is only used to tell "the refresh cookie
+// is unreachable but our token is still fine" (don't log out) apart from
+// "our token is actually dead" (do log out). A token that fails to parse
+// counts as expired — there's nothing else to fall back on.
+const accessTokenExpired = () => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) return true;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return !payload.exp || Date.now() >= payload.exp * 1000;
+  } catch {
+    return true;
+  }
+};
+
 // Endpoints that must NEVER be retried via refresh. Trying to refresh a
 // failing /refresh-token call recurses into this interceptor, queues the
 // retry against itself, and deadlocks — silentRefresh never resolves and
@@ -123,7 +139,17 @@ export default function setupAxios(store) {
         } catch (err) {
           processQueue(err, null);
           broadcast({ type: "refresh-failed" });
-          store.dispatch({ type: "auth/logout" });
+          // The refresh cookie failing to reach the server (Safari ITP /
+          // Chrome third-party-cookie blocking, see authSlice.js) doesn't
+          // mean the session is actually dead — it means this one refresh
+          // attempt couldn't happen. Only tear down the whole session if
+          // the access token we're still holding has genuinely expired;
+          // otherwise let this single request fail and keep the user
+          // logged in for everything else, instead of hard-logging-out
+          // seconds after a fresh login over one incidental 401.
+          if (accessTokenExpired()) {
+            store.dispatch({ type: "auth/logout" });
+          }
           return Promise.reject(err);
         } finally {
           isRefreshing = false;
