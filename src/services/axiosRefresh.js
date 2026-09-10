@@ -1,4 +1,5 @@
 import axios from "axios";
+import { reportApiFailure, apiBreadcrumb } from "../utils/errorReporter";
 
 // Cross-tab refresh coordination. Without this, two tabs that hit 401 at the
 // same moment each fire their own /refresh-token request and race. With
@@ -126,6 +127,33 @@ export default function setupAxios(store) {
         }
       }
 
+      return Promise.reject(error);
+    }
+  );
+
+  // Репортинг вешается ПОСЛЕ интерцептора обновления токена — порядок важен.
+  // Тот на 401 повторяет запрос, и если повтор удался, сюда ошибка уже не
+  // дойдёт. Иначе каждое штатное протухание токена превращалось бы в отчёт.
+  axios.interceptors.response.use(
+    (response) => {
+      apiBreadcrumb({
+        method: response.config?.method,
+        url: response.config?.url,
+        status: response.status,
+      });
+      return response;
+    },
+    (error) => {
+      const cfg = error.config || {};
+      const status = error.response?.status ?? null;
+      apiBreadcrumb({ method: cfg.method, url: cfg.url, status });
+      // Без ответа вообще — это обрыв сети, а не сбой API.
+      reportApiFailure({
+        method: cfg.method,
+        url: cfg.url,
+        status,
+        error: status ? null : error,
+      });
       return Promise.reject(error);
     }
   );
