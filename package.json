@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "verify:reporter": "node scripts/verify-error-reporter.mjs && node scripts/verify-error-reporter-browser.mjs",
+    "preview": "vite preview",
+    "symbolize": "node scripts/symbolize.mjs dist/assets"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
