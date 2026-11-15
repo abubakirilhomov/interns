@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Lessons from "./pages/Lessons";
 import LessonHistory from "./pages/LessonHistory";
+import EditLesson from "./pages/EditLesson";
 import Feedback from "./pages/Feedback";
 import Profile from "./pages/Profile";
 import Rules from "./pages/Rules";
@@ -85,6 +86,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<P><Dashboard /></P>} />
         <Route path="/lessons" element={<P><Lessons /></P>} />
         <Route path="/lessons/history" element={<P><LessonHistory /></P>} />
+        <Route path="/lessons/:id/edit" element={<P><EditLesson /></P>} />
         <Route path="/feedback" element={<P><Feedback /></P>} />
         <Route path="/rules" element={<P><Rules /></P>} />
         <Route path="/profile" element={<P><Profile /></P>} />
