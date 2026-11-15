@@ -13,6 +13,7 @@ import PageTransition from "./components/UI/PageTransition";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Lessons from "./pages/Lessons";
+import LessonHistory from "./pages/LessonHistory";
 import Feedback from "./pages/Feedback";
 import Profile from "./pages/Profile";
 import Rules from "./pages/Rules";
@@ -83,6 +84,7 @@ const AppRoutes = () => {
         <Route path="/auth/marsid/return" element={<PageTransition><MarsIdReturn /></PageTransition>} />
         <Route path="/dashboard" element={<P><Dashboard /></P>} />
         <Route path="/lessons" element={<P><Lessons /></P>} />
+        <Route path="/lessons/history" element={<P><LessonHistory /></P>} />
         <Route path="/feedback" element={<P><Feedback /></P>} />
         <Route path="/rules" element={<P><Rules /></P>} />
         <Route path="/profile" element={<P><Profile /></P>} />

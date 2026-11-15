@@ -40,7 +40,8 @@
     "rating": "Reyting",
     "headIntern": "Head Intern",
     "selectTheme": "Mavzuni tanlang",
-    "appName": "InternHub"
+    "appName": "InternHub",
+    "history": "Darslar tarixi"
   },
   "login": {
     "title": "Tizimga kirish",
@@ -523,5 +524,45 @@
     "errorRequired": "Kamida bitta maydonni to'ldiring",
     "errorGeneric": "Saqlab bo'lmadi. Yana urinib ko'ring.",
     "saved": "Rahmat! Kontakt saqlandi."
+  },
+  "history": {
+    "title": "Darslar tarixi",
+    "subtitle": "Siz qo'shgan darslar",
+    "total": "Jami",
+    "confirmed": "Tasdiqlangan",
+    "pending": "Kutilmoqda",
+    "statusConfirmed": "Tasdiqlandi",
+    "statusPending": "Mentor tasdiqlashi kutilmoqda",
+    "group": "Guruh",
+    "mentor": "Mentor",
+    "yourRating": "Sizning bahoyingiz",
+    "empty": "Bu oyda dars qo'shilmagan",
+    "error": "Tarixni yuklab bo‘lmadi",
+    "retry": "Qayta urinish",
+    "addLesson": "Dars qo'shish",
+    "viewHistory": "Darslar tarixini ko'rish",
+    "months": [
+      "yanvar",
+      "fevral",
+      "mart",
+      "aprel",
+      "may",
+      "iyun",
+      "iyul",
+      "avgust",
+      "sentabr",
+      "oktabr",
+      "noyabr",
+      "dekabr"
+    ],
+    "weekdays": [
+      "yakshanba",
+      "dushanba",
+      "seshanba",
+      "chorshanba",
+      "payshanba",
+      "juma",
+      "shanba"
+    ]
   }
 }

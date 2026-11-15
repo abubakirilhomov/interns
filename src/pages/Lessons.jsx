@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import { createLesson, resetLessonState } from "../store/slices/lessonSlice";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { PENDING_FEEDBACK_KEY } from "../components/LessonFeedbackModal";
 
@@ -150,7 +151,12 @@ const AddLessonPage = () => {
 
   return (
     <div className="w-full max-w-lg mx-auto mt-6 sm:mt-10 p-4 sm:p-6 bg-base-100 shadow rounded-2xl">
-      <h2 className="text-xl font-bold mb-4">{t('lessons.title')}</h2>
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <h2 className="text-xl font-bold">{t('lessons.title')}</h2>
+        <Link to="/lessons/history" className="btn btn-ghost btn-sm text-primary">
+          {t('history.title')} →
+        </Link>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

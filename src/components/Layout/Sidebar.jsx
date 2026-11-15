@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { closeSidebar } from "../../store/slices/uiSlice";
 import { NavLink } from "react-router-dom";
-import { Scale } from "lucide-react";
+import { History, Scale } from "lucide-react";
 import { IoStatsChartOutline } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
 
@@ -49,6 +49,11 @@ const Sidebar = () => {
           />
         </svg>
       ),
+    },
+    {
+      name: t("nav.history"),
+      href: "/lessons/history",
+      icon: <History className="w-5 h-5" />,
     },
     {
       name: t("nav.profile"),
@@ -151,6 +156,7 @@ const Sidebar = () => {
               <NavLink
                 key={item.name}
                 to={item.href}
+                end
                 className={({ isActive }) =>
                   `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                     item.href === "/head-intern"
