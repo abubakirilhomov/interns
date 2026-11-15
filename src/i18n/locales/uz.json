@@ -526,6 +526,7 @@
     "saved": "Rahmat! Kontakt saqlandi."
   },
   "history": {
+    "edit": "Tahrirlash",
     "title": "Darslar tarixi",
     "subtitle": "Siz qo'shgan darslar",
     "total": "Jami",
@@ -564,5 +565,15 @@
       "juma",
       "shanba"
     ]
+  },
+  "lessonEdit": {
+    "title": "Darsni tahrirlash",
+    "hint": "Mentor tasdiqlaguncha darsni tuzatishingiz mumkin.",
+    "save": "Saqlash",
+    "saved": "Dars yangilandi",
+    "saveError": "Saqlab bo'lmadi",
+    "back": "Orqaga",
+    "notFound": "Dars topilmadi",
+    "notEditable": "Bu darsni endi tahrirlab bo'lmaydi: mentor uni tasdiqlagan."
   }
 }

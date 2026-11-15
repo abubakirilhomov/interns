@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CalendarDays, CheckCircle2, Clock, Plus, User, Users } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock, Pencil, Plus, User, Users } from "lucide-react";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
@@ -26,7 +26,12 @@ const LessonHistory = () => {
   const monthNames = t("history.months", { returnObjects: true });
   const weekdayNames = t("history.weekdays", { returnObjects: true });
 
-  const [month, setMonth] = useState(currentMonthKey);
+  // ?month=YYYY-MM — сюда возвращает страница правки урока.
+  const [searchParams] = useSearchParams();
+  const [month, setMonth] = useState(() => {
+    const q = searchParams.get("month");
+    return /^\d{4}-(0[1-9]|1[0-2])$/.test(q || "") ? q : currentMonthKey();
+  });
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -197,7 +202,7 @@ const LessonHistory = () => {
                       </span>
                     </div>
 
-                    <div className="mt-3">
+                    <div className="mt-3 flex items-center justify-between gap-2">
                       {confirmed ? (
                         <span className="badge badge-success badge-sm gap-1 text-white">
                           <CheckCircle2 className="w-3 h-3" />
@@ -208,6 +213,16 @@ const LessonHistory = () => {
                           <Clock className="w-3 h-3" />
                           {t("history.statusPending")}
                         </span>
+                      )}
+                      {/* Править можно только пока ментор не подтвердил (бэкенд проверяет то же). */}
+                      {!confirmed && (
+                        <Link
+                          to={`/lessons/${lesson._id}/edit`}
+                          className="btn btn-outline btn-primary btn-xs gap-1 shrink-0"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          {t("history.edit")}
+                        </Link>
                       )}
                     </div>
                   </article>
