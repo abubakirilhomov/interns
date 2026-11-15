@@ -149,7 +149,7 @@ const LessonHistory = () => {
         <div className="space-y-5">
           {days.map((day) => (
             <section key={day.key} className="space-y-2">
-              <h2 className="text-sm font-semibold text-base-content/70 capitalize px-1">
+              <h2 className="text-sm font-semibold text-base-content/70 px-1">
                 {day.label}
               </h2>
               {day.lessons.map((lesson) => {
