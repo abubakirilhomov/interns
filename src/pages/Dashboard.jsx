@@ -100,6 +100,7 @@ const Dashboard = () => {
     ranking,
     weeklyChampion,
     violations,
+    praises,
     violationsCount,
     lastViolationAt,
     penaltyInfo,
@@ -354,6 +355,38 @@ const Dashboard = () => {
                 Barchasini ko'rish →
               </Link>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 🟢 Rag'batlar: green qoidalar — shtraf emas, reytingni kamaytirmaydi */}
+      {praises && praises.length > 0 && (
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title text-lg md:text-xl mb-3">
+              <span>🌟</span>
+              Rag'batlar ({praises.length})
+            </h2>
+            <div className="space-y-3">
+              {praises.slice(0, 5).map((p, idx) => (
+                <div key={p._id || idx} className="border border-success/30 bg-success/5 rounded-xl p-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="badge badge-sm badge-success">🟢 Yashil</span>
+                      <span className="font-medium text-sm">
+                        {p.rule?.title || "Rag'bat"}
+                      </span>
+                    </div>
+                    <span className="text-xs text-base-content/40">
+                      {new Date(p.date).toLocaleDateString("uz-UZ")}
+                    </span>
+                  </div>
+                  {p.notes && (
+                    <p className="text-sm text-base-content/70 mt-1">{p.notes}</p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
